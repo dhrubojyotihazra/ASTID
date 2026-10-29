@@ -1,0 +1,1545 @@
+import asyncio
+import os
+import sys
+from pathlib import Path
+from playwright.async_api import async_playwright
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+HTML_PATH = Path("ASTID_Pink_Editorial_Dossier.html")
+PDF_PATH = Path("ASTID_Master_Engineering_Dossier.pdf")
+
+html_content = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ASTID: Fraud Detection in Digital Payments Using ML from a Data Warehouse</title>
+  
+  <!-- Typography: Modern Geometric Editorial Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- LaTeX Support via KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" 
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+  
+  <!-- Mermaid.js for Vector Schematics -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#F5ECEC',
+        primaryTextColor: '#222022',
+        primaryBorderColor: '#A84852',
+        lineColor: '#8C3B43',
+        secondaryColor: '#FFFFFF',
+        tertiaryColor: '#FDFBFB',
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '10px'
+      }
+    });
+  </script>
+
+  <style>
+    :root {
+      --canvas: #FAF6F6;
+      --card-surface: #F3EBEB;
+      --card-border: #E5D5D5;
+      --rose-accent: #E6C7C7;
+      --rose-dark: #8C3B43;
+      --rose-primary: #A84852;
+      --rose-light: #F8EFEF;
+      --ink-dark: #222022;
+      --ink-muted: #5C5557;
+      --white: #FFFFFF;
+      --font-heading: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--ink-dark);
+      background: var(--canvas);
+      line-height: 1.54;
+      font-size: 9.0pt;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 15mm 14mm 16mm 14mm;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 600;
+        font-size: 8pt;
+        color: var(--ink-muted);
+      }
+      @bottom-left {
+        content: "ASTID: Master Engineering Dossier · PROJ-CSD782";
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 600;
+        font-size: 8pt;
+        color: var(--rose-primary);
+      }
+    }
+
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .avoid-break {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* Headings page break guards */
+    h1, h2, h3, h4, h5, h6 {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    /* COVER PAGE (Pink Modern Marketing Annual Report Style) */
+    .cover-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #ECE0E1;
+      padding: 38px 32px 30px 32px;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+      border-radius: 4px;
+    }
+
+    .cover-shape-1 {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: #E6C7C7;
+      z-index: 1;
+    }
+
+    .cover-shape-2 {
+      position: absolute;
+      bottom: -60px;
+      left: -60px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: #E6C7C7;
+      z-index: 1;
+    }
+
+    .cover-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      background: #2D2D2D;
+      color: #ECE0E1;
+      font-family: var(--font-heading);
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 18px;
+      width: fit-content;
+    }
+
+    .cover-middle-block {
+      margin: auto 0;
+    }
+
+    .hero-pretitle {
+      font-family: var(--font-heading);
+      font-size: 13pt;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #2D2D2D;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: 46pt;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      line-height: 0.98;
+      color: #222022;
+      margin-bottom: 14px;
+    }
+
+    .hero-title span {
+      color: #8C3B43;
+    }
+
+    .hero-subtitle-box {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 16px 20px;
+      border-radius: 6px;
+      border-left: 5px solid #8C3B43;
+      margin-top: 18px;
+      max-width: 95%;
+    }
+
+    .hero-subtitle-box p {
+      font-size: 10pt;
+      color: #332E30;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .cover-meta-card {
+      background: #FFFFFF;
+      padding: 16px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+      border: 1px solid #E0D2D3;
+    }
+
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .cover-meta-item h5 {
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #8C3B43;
+      margin-bottom: 2px;
+    }
+
+    .cover-meta-item p {
+      font-size: 8.8pt;
+      font-weight: 600;
+      color: #222022;
+    }
+
+    .cover-team-list {
+      border-top: 1px solid #EAE0E1;
+      padding-top: 8px;
+      font-size: 8.4pt;
+      color: #4A4446;
+      line-height: 1.5;
+    }
+
+    /* AGENDA / TOC PAGE */
+    .agenda-header {
+      font-family: var(--font-heading);
+      font-size: 30pt;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #222022;
+      margin-bottom: 22px;
+      border-bottom: 3px solid #8C3B43;
+      padding-bottom: 8px;
+    }
+
+    .agenda-item {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 11px 4px;
+      border-bottom: 1px dashed #D6C2C3;
+    }
+
+    .agenda-num {
+      font-family: var(--font-heading);
+      font-size: 14pt;
+      font-weight: 800;
+      color: #8C3B43;
+      width: 45px;
+    }
+
+    .agenda-name {
+      font-family: var(--font-heading);
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #222022;
+      flex-grow: 1;
+      letter-spacing: 0.2px;
+    }
+
+    .agenda-desc {
+      font-size: 8.2pt;
+      color: var(--ink-muted);
+      width: 320px;
+      text-align: right;
+    }
+
+    /* Headings */
+    h1 {
+      font-family: var(--font-heading);
+      font-size: 15.5pt;
+      font-weight: 800;
+      color: var(--ink-dark);
+      margin: 18px 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--card-border);
+      padding-bottom: 5px;
+    }
+
+    h1 .chapter-badge {
+      background: var(--rose-primary);
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 8.8pt;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-family: var(--font-heading);
+      font-size: 11.5pt;
+      font-weight: 700;
+      color: var(--rose-dark);
+      margin: 14px 0 6px 0;
+    }
+
+    h3 {
+      font-family: var(--font-heading);
+      font-size: 9.8pt;
+      font-weight: 700;
+      color: var(--ink-dark);
+      margin: 10px 0 4px 0;
+    }
+
+    p {
+      margin-bottom: 8px;
+      text-align: justify;
+      color: #383436;
+    }
+
+    /* Modern KPI Cards */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 12px 0 16px 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .kpi-card {
+      background: var(--card-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .kpi-number {
+      font-family: var(--font-heading);
+      font-size: 17pt;
+      font-weight: 900;
+      color: var(--rose-dark);
+      line-height: 1.1;
+      margin-bottom: 3px;
+    }
+
+    .kpi-label {
+      font-size: 7.2pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--ink-muted);
+    }
+
+    /* Editorial Callout Blocks */
+    .callout {
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 8.6pt;
+      border-left: 4px solid var(--rose-primary);
+      background: var(--rose-light);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .callout-title {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 9pt;
+      color: var(--rose-dark);
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Tables */
+    table.editorial-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px 0;
+      font-size: 8.1pt;
+      background: var(--white);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    table.editorial-table th, table.editorial-table td {
+      padding: 6px 9px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    table.editorial-table th {
+      background: #ECE0E1;
+      font-family: var(--font-heading);
+      color: #222022;
+      font-weight: 700;
+      font-size: 7.8pt;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    table.editorial-table tr:nth-child(even) {
+      background: #FAF6F6;
+    }
+
+    /* Diagrams & Code Blocks */
+    .diagram-card {
+      background: var(--white);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-caption {
+      font-family: var(--font-heading);
+      font-size: 8.2pt;
+      font-weight: 700;
+      color: var(--rose-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 4px;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      text-align: center;
+      padding: 4px 0;
+    }
+
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+      max-height: 360px;
+    }
+
+    pre {
+      background: #201D1E;
+      color: #F5ECEC;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 7.4pt;
+      padding: 10px 12px;
+      border-radius: 4px;
+      margin: 8px 0;
+      line-height: 1.40;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      letter-spacing: normal;
+      word-spacing: normal;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      background: #EDE3E4;
+      color: #8C3B43;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 8pt;
+    }
+
+    /* LaTeX Math Callouts */
+    .math-block {
+      background: var(--card-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 10px 0;
+      text-align: center;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* Tutorial Commit Card Sequence */
+    .tutorial-commit-card {
+      background: var(--white);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      border-left: 5px solid var(--rose-primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .t-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .t-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 9.6pt;
+      color: var(--rose-dark);
+    }
+
+    .t-author {
+      background: #ECE0E1;
+      color: #222022;
+      font-family: var(--font-heading);
+      font-size: 7.6pt;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .t-step-list {
+      margin: 6px 0 6px 14px;
+      font-size: 8.3pt;
+      color: #383436;
+    }
+
+    .t-step-list li {
+      margin-bottom: 3px;
+    }
+
+    .t-handoff-box {
+      background: var(--rose-light);
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 7.8pt;
+      color: #5C262C;
+      margin-top: 6px;
+      border-left: 3px solid var(--rose-dark);
+    }
+
+    .t-cmd {
+      background: #2D2728;
+      color: #F8EFEF;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 7.3pt;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE (Pink Modern Marketing Annual Report Style) -->
+  <div class="cover-container">
+    <div class="cover-shape-1"></div>
+    <div class="cover-shape-2"></div>
+    
+    <div class="cover-content">
+      <div class="cover-top-block">
+        <div class="brand-pill">BRAINWARE UNIVERSITY · CSE-DS</div>
+        <p style="font-family: var(--font-heading); font-size: 8.5pt; font-weight: 600; color: #5C5557; letter-spacing: 1px; text-transform: uppercase;">
+          School of Engineering · Academic Year 2026–2027 · Final Year Project (Project-I)
+        </p>
+      </div>
+
+      <div class="cover-middle-block">
+        <div class="hero-pretitle">SYSTEM ARCHITECTURE & COMMIT TUTORIAL DOSSIER</div>
+        <div class="hero-title">ASTID<span>.</span></div>
+        <div style="font-family: var(--font-heading); font-size: 13.5pt; font-weight: 800; color: #2D2D2D; letter-spacing: -0.3px; margin-top: -6px;">
+          AUTOMATED SYSTEM FOR TRANSACTION INSPECTION AND DETECTION
+        </div>
+
+        <div class="hero-subtitle-box">
+          <p>
+            An Enterprise-Grade, Zero-Leakage RiskOps Framework for Digital Payment Systems: Featuring DuckDB In-Process Analytical Lakehousing, Calibrated XGBoost + PyTorch Autoencoders, Bayes Dynamic Thresholding, Supabase Realtime, and an Explicit 12-Commit Git Implementation Tutorial.
+          </p>
+        </div>
+      </div>
+
+      <div class="cover-bottom-block">
+        <div class="cover-meta-card">
+          <div class="cover-meta-grid">
+            <div class="cover-meta-item">
+              <h5>Official Course Code</h5>
+              <p>PROJ-CSD782 · Sem VII, Sec A, Group 1</p>
+            </div>
+            <div class="cover-meta-item">
+              <h5>Faculty Supervision</h5>
+              <p>Prof. Rudranath Mitra (Supervisor) · Dr. Ranadip Kundu (Coord.)</p>
+            </div>
+          </div>
+          <div class="cover-team-list">
+            <strong>Engineering Team:</strong> Dhrubojyoti Hazra (Lead) · Isheeka Mukhopadhyay · Samprikta Dey · Adhiraj Das · Tiyasha Baidya
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: AGENDA / TABLE OF CONTENTS -->
+  <div style="padding: 10px 4px;">
+    <div class="agenda-header">AGENDA & CONTENTS</div>
+    
+    <div class="agenda-item">
+      <span class="agenda-num">01</span>
+      <span class="agenda-name">EXECUTIVE SUMMARY & SYSTEM IDENTITY</span>
+      <span class="agenda-desc">Plain English First, Technical Rigor Second, Stripe Radar Analogy</span>
+    </div>
+
+    <div class="agenda-item">
+      <span class="agenda-num">02</span>
+      <span class="agenda-name">HTAP DUAL-DATABASE ARCHITECTURE</span>
+      <span class="agenda-desc">DuckDB In-Process OLAP vs. Supabase PostgreSQL OLTP Pipeline</span>
+    </div>
+
+    <div class="agenda-item">
+      <span class="agenda-num">03</span>
+      <span class="agenda-name">MATHEMATICAL & ALGORITHMIC FORMALISMS</span>
+      <span class="agenda-desc">LaTeX Proofs: Leakage Equations, Platt Calibration, Disjunctive Gating, Bayes Minimum Risk & Haversine Velocity</span>
+    </div>
+
+    <div class="agenda-item">
+      <span class="agenda-num">04</span>
+      <span class="agenda-name">OPEN-SOURCE REFERENCE REPOSITORIES MATRIX</span>
+      <span class="agenda-desc">Citations & Direct Code Adaptations from Premier FinTech Repos</span>
+    </div>
+
+    <div class="agenda-item">
+      <span class="agenda-num">05</span>
+      <span class="agenda-name">COMPLETE DATABASE SCHEMA & 3-TIER RLS SECURITY</span>
+      <span class="agenda-desc">8-Table DDL, SECURITY DEFINER Helper Functions, Model Drift Governance & 15-Minute SLA View</span>
+    </div>
+
+    <div class="agenda-item">
+      <span class="agenda-num">06</span>
+      <span class="agenda-name">STEP-BY-STEP 12-COMMIT DEVELOPER TUTORIAL</span>
+      <span class="agenda-desc">Detailed Action Guide, Prerequisites, Commands & Hand-Offs for Every Member</span>
+    </div>
+
+    <div class="agenda-item">
+      <span class="agenda-num">07</span>
+      <span class="agenda-name">VIVA PRESENTATION SCRIPT & EXAMINER DEFENSE</span>
+      <span class="agenda-desc">Prepared Answers for Rudranath Sir & Rubric R2 Score Maximization</span>
+    </div>
+
+    <div class="callout" style="margin-top: 35px;">
+      <div class="callout-title">📌 Developer Tutorial Notice</div>
+      Section 06 has been expanded into an actionable step-by-step tutorial. Each team member must follow their exact numbered commit tasks, execute the verification tests, and hand off the specified context to the next member.
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 01: EXECUTIVE SUMMARY & SYSTEM IDENTITY -->
+  <div>
+    <h1><span class="chapter-badge">01</span> Executive Summary: Plain English First, Technical Second</h1>
+    
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-number">6,362,620</div>
+        <div class="kpi-label">Transactions Indexed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-number">&lt; 120 ms</div>
+        <div class="kpi-label">DuckDB OLAP Scan Speed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-number">94.21%</div>
+        <div class="kpi-label">Production Fraud Recall</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-number">480× Lift</div>
+        <div class="kpi-label">Over Legacy Bank Rules</div>
+      </div>
+    </div>
+
+    <h2>1.1 Plain English Translation: What Exactly is ASTID?</h2>
+    <p>
+      <strong>ASTID is not a consumer payment app, and it is not a commercial SaaS product with billing.</strong> Everyday bank customers never open ASTID to make a payment. Instead, <strong>ASTID is the internal risk-operations mission-control console used by a bank's fraud investigation team</strong>.
+    </p>
+    <p>
+      In commercial banking, when a customer initiates a digital payment, ASTID scores the event in the background in under 80 milliseconds. Legitimate payments complete silently with zero friction. If a suspicious pattern emerges (such as an account takeover, sudden velocity burst, or money laundering mule transfer), ASTID routes the transaction to an internal review queue with plain-English <em>Whitebox Risk Insights</em> badges so bank officers can inspect, confirm, or freeze the transfer before funds leave the institution.
+    </p>
+
+    <div class="callout">
+      <div class="callout-title">🏦 Real-World Analogy (Stripe Radar & Razorpay Thirdwatch)</div>
+      ASTID occupies the exact operational position that <strong>Stripe Radar</strong> occupies for Stripe merchants, that <strong>Razorpay Thirdwatch</strong> occupies for Indian retail e-commerce merchants, and that <strong>Feedzai Pulse</strong> occupies for tier-1 commercial banking risk departments.
+    </div>
+
+    <h2>1.2 Simulated Five-Branch Banking Network</h2>
+    <p>
+      ASTID models a simulated multi-branch Indian commercial bank across 5 regional hubs:
+    </p>
+    <table class="editorial-table">
+      <thead>
+        <tr>
+          <th>Branch Code</th>
+          <th>Hub Name</th>
+          <th>Region</th>
+          <th>Tier</th>
+          <th>Deterministic PaySim Routing Formula</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>BR-KOL-01</code></td>
+          <td>Kolkata-SaltLake Hub</td>
+          <td>Eastern Hub</td>
+          <td>Tier 1</td>
+          <td><code>crc32(nameOrig) % 5 == 0</code></td>
+        </tr>
+        <tr>
+          <td><code>BR-MUM-02</code></td>
+          <td>Mumbai-BKC Financial Hub</td>
+          <td>Western Hub</td>
+          <td>Tier 1</td>
+          <td><code>crc32(nameOrig) % 5 == 1</code></td>
+        </tr>
+        <tr>
+          <td><code>BR-BLR-03</code></td>
+          <td>Bengaluru-HSR Tech Hub</td>
+          <td>Southern Hub</td>
+          <td>Tier 1</td>
+          <td><code>crc32(nameOrig) % 5 == 2</code></td>
+        </tr>
+        <tr>
+          <td><code>BR-DEL-04</code></td>
+          <td>Delhi-Connaught Commercial</td>
+          <td>Northern Hub</td>
+          <td>Tier 1</td>
+          <td><code>crc32(nameOrig) % 5 == 3</code></td>
+        </tr>
+        <tr>
+          <td><code>BR-MAA-05</code></td>
+          <td>Chennai-Guindy Industrial</td>
+          <td>Southern Hub</td>
+          <td>Tier 2</td>
+          <td><code>crc32(nameOrig) % 5 == 4</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 02: HTAP STORAGE & DUAL DATABASE ARCHITECTURE -->
+  <div>
+    <h1><span class="chapter-badge">02</span> HTAP Storage & Dual Database Architecture</h1>
+    <p>
+      In financial engineering, combining heavy analytical reporting with high-throughput transactional scoring within a single database engine causes fatal thread locking and latency spikes. ASTID implements a <strong>Hybrid Transactional/Analytical Processing (HTAP)</strong> architecture:
+    </p>
+
+    <div class="diagram-card">
+      <div class="diagram-caption">Figure 2.1: End-to-End System Pipeline & HTAP Persistence Split</div>
+      <div class="mermaid">
+        flowchart LR
+          subgraph Ext ["Outside Core Bank"]
+            SIM["External Simulator<br/>(UPI Gateway / CBS)"]
+          end
+
+          subgraph Ingest ["FastAPI Ingestion"]
+            API["FastAPI /score/live<br/>(<80ms SLA)"]
+            FEAT["features.py<br/>(Shared Logic)"]
+            REDIS[("Upstash Redis<br/>(Rolling Velocity)")]
+          end
+
+          subgraph Brain ["Parallel Hybrid Scoring Brain"]
+            RULES["Deterministic Rules<br/>(Blacklist / Caps)"]
+            XGB["Calibrated XGBoost<br/>(Supervised 0-1)"]
+            AE["PyTorch Autoencoder<br/>(Novelty MSE)"]
+            AGG["Score Aggregator<br/>(Disjunctive Gating)"]
+          end
+
+          subgraph Storage ["Dual HTAP Storage"]
+            PG[("Supabase PostgreSQL<br/>(OLTP & 3-Tier RLS)")]
+            DUCK[("DuckDB In-Process<br/>(6.36M Row Parquet)")]
+          end
+
+          subgraph UI ["Internal RiskOps Desk"]
+            NEXT["Next.js 14 Workbench<br/>(Analyst / Senior / Lead)"]
+          end
+
+          SIM -->|HTTP POST| API
+          API --> FEAT
+          FEAT <--> REDIS
+          FEAT --> RULES & XGB & AE
+          RULES & XGB & AE --> AGG
+          AGG --> PG
+          PG -->|Supabase Realtime| NEXT
+          DUCK -. Sub-120ms Telemetry .-> NEXT
+      </div>
+    </div>
+
+    <h2>2.1 The Two Storage Engines Explained</h2>
+    <ul>
+      <li><strong>Operational Store (OLTP) — Supabase PostgreSQL:</strong> Manages live transactions, 15-minute SLA escalations, investigator decisions (<code>analyst_actions</code>), and enforces 3-tier Row-Level Security (RLS). Broadcasts real-time WebSocket events via Postgres Write-Ahead Log (WAL) logical replication.</li>
+      <li><strong>Analytical Warehouse (OLAP) — Embedded DuckDB:</strong> In-process columnar engine querying <code>paysim_warehouse.parquet</code> (6.36M rows) and <code>scored_test.parquet</code> (50K held-out simulation rows) in &lt;120 ms. Directly executes big data aggregations without daemon overhead.</li>
+    </ul>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 03: MATHEMATICAL & ALGORITHMIC FORMALISMS (PART 1) -->
+  <div>
+    <h1><span class="chapter-badge">03</span> Mathematical Formalisms & Algorithmic Modeling</h1>
+
+    <h2>3.1 PaySim Data Leakage Proof (The errorBalanceDest Mathematical Trap)</h2>
+    <p>
+      In early baseline prototypes and common online Kaggle implementations, researchers frequently compute post-transaction balance identities:
+    </p>
+
+    <div class="math-block">
+      $$\text{errorBalanceDest} = \text{oldbalanceDest} + \text{amount} - \text{newbalanceDest}$$
+    </div>
+
+    <p>
+      When passed to a gradient-boosted tree, this feature yields an artificial \(\text{PR-AUC} = 1.0000\). This represents a <strong>catastrophic target/lookahead leakage</strong>:
+    </p>
+    <ul style="margin: 6px 0 10px 18px; font-size: 8.8pt;">
+      <li>In PaySim's synthetic agent simulator, fraudulent cash-outs evacuated the sender's account but left destination balances uncredited (\(\text{newbalanceDest} = 0.0\)).</li>
+      <li>Consequently, for fraud, \(\text{errorBalanceDest} \equiv \text{amount}\), exposing the simulator's internal heuristics.</li>
+      <li>In real-world pre-authorization scoring, recipient post-transaction ledger balances (\(\text{newbalanceDest}\)) are unknown at scoring time. ASTID strictly bans this feature in production scoring.</li>
+    </ul>
+
+    <h2>3.2 Disjunctive Score Aggregator Formulation</h2>
+    <p>
+      Standard linear combinations \(S = w_1 P_{\text{XGB}} + w_2 S_{\text{AE}}\) fail when an extreme zero-day anomaly triggers the autoencoder (\(S_{\text{AE}} = 0.95\)) but supervised XGBoost scores low (\(P_{\text{XGB}} = 0.05\)), yielding \(S = 0.6(0.05) + 0.4(0.95) = 0.41\) (landing in <code>REVIEW</code> instead of escalating). ASTID implements <strong>Disjunctive Override Gating</strong>:
+    </p>
+
+    <div class="math-block">
+      $$S_{\text{final}} = \begin{cases}
+      1.00, & \text{if Blacklist Match} \implies \text{BLOCK} \\
+      0.95, & \text{if Critical Rule Hit} \implies \text{ESCALATE} \\
+      \max(0.75, P_{\text{XGB}}), & \text{if } P_{\text{XGB}} \ge 0.85 \implies \text{ESCALATE} \\
+      \max(0.75, S_{\text{AE}}), & \text{if } S_{\text{AE}} \ge 0.90 \implies \text{ESCALATE} \\
+      0.60 P_{\text{XGB}} + 0.40 S_{\text{AE}} + \Delta_{\text{rules}}, & \text{otherwise (Standard Routing)}
+      \end{cases}$$
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 03 (PART 2): DECISION TREE & SUPERVISED/UNSUPERVISED MODELS -->
+  <div>
+    <div class="diagram-card">
+      <div class="diagram-caption">Figure 3.1: Disjunctive Override Decision Gating Tree</div>
+      <div class="mermaid">
+        flowchart TD
+          IN["Incoming Scored Transaction"] --> B_CHK{"Blacklist Match?"}
+          B_CHK -- Yes --> B_ACT["BLOCK (1.00)"]
+          B_CHK -- No --> C_CHK{"Critical Rule Hit?"}
+          C_CHK -- Yes --> C_ACT["ESCALATE (0.95)"]
+          C_CHK -- No --> D_CHK{"P_XGB >= 0.85 OR S_AE >= 0.90?"}
+          D_CHK -- "Yes (Spike)" --> D_ACT["ESCALATE (>= 0.75)"]
+          D_CHK -- "No (Standard)" --> W_CALC["0.60*P_XGB + 0.40*S_AE + Boost"]
+          W_CALC --> ROUTE{"Combined Score"}
+          ROUTE -- "< 0.30" --> APP["APPROVE"]
+          ROUTE -- "0.30 - 0.70" --> REV["REVIEW"]
+          ROUTE -- ">= 0.70" --> ESC["ESCALATE"]
+      </div>
+    </div>
+
+    <h2>3.3 Calibrated XGBoost & Deep Bottleneck Autoencoder</h2>
+    <p>
+      Due to extreme class imbalance (\(\pi_1 = 0.129\%\)), XGBoost is cost-reweighted via \(w_{\text{pos}} = \frac{N - N_{\text{pos}}}{N_{\text{pos}}} \approx 773.5\) and calibrated on an <strong>untouched validation split</strong> using Platt sigmoidal calibration:
+    </p>
+    <div class="math-block">
+      $$P(y=1|f) = \frac{1}{1 + \exp(A \cdot f + B)}$$
+    </div>
+    <p>
+      The unsupervised Autoencoder (\(\text{Linear}(N, 100) \to \text{Linear}(100, 20) \to \text{Linear}(20, 100) \to \text{Linear}(100, N)\)) is trained exclusively on normal transactions (\(y=0\)) using element-wise Mean Squared Error:
+    </p>
+    <div class="math-block">
+      $$\text{MSE}(x, \hat{x}) = \frac{1}{N} \sum_{i=1}^{N} (x_i - \hat{x}_i)^2, \quad S_{\text{AE}} = \text{clip}\left(\frac{\text{MSE} - \mu_{\text{train}}}{\tau_{\text{threshold}}}, 0.0, 1.0\right)$$
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 03 (PART 3): FINTECH ECONOMIC & RISK GOVERNANCE FORMALISMS -->
+  <div>
+    <h1><span class="chapter-badge">03</span> Mathematical Formalisms: FinTech Economics & Governance</h1>
+
+    <h2>3.4 Cost-Sensitive Bayes Dynamic Thresholding (Expected Value Framework)</h2>
+    <p>
+      Standard static thresholds (e.g. \(0.50\)) fail in enterprise banking because financial consequences are asymmetric: missing a large cash-out incurs catastrophic monetary loss, while flagging a small payment causes disproportionate customer friction. ASTID implements <strong>Bayes Minimum Risk Dynamic Thresholding</strong>, deriving an optimal decision cutoff \(\tau^*(x)\) tailored to transaction amount:
+    </p>
+
+    <div class="math-block">
+      $$\tau^*(x) = \frac{C_{\text{FP}}}{C_{\text{FP}} + C_{\text{FN}}(x)} = \frac{C_{\text{review}} + C_{\text{friction}} + (\mu_{\text{interchange}} \cdot \text{Amount})}{\text{Amount} + C_{\text{chargeback}} + C_{\text{review}} + C_{\text{friction}} + (\mu_{\text{interchange}} \cdot \text{Amount})}$$
+    </div>
+    <p style="font-size: 8.6pt; margin-top: 4px;">
+      <em>Empirical Utility:</em> For a ₹5,00,000 transfer, \(\tau^* \approx 0.007\) (flag on minimal risk); for a ₹150 UPI purchase, \(\tau^* \approx 0.78\) (requires extreme certainty to justify manual review cost).
+    </p>
+
+    <h2>3.5 Impossible Physical Travel: Spherical Haversine Geo-Velocity</h2>
+    <p>
+      To detect account takeover (ATO) across geographic regions, ASTID computes the great-circle distance between successive transaction coordinates \((\phi_1, \lambda_1)\) and \((\phi_2, \lambda_2)\) using the <strong>Haversine Formula</strong>:
+    </p>
+
+    <div class="math-block">
+      $$d = 2R \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta \phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)}\right), \quad v = \frac{d}{\Delta t} \quad (\text{km/h})$$
+    </div>
+    <p style="font-size: 8.6pt; margin-top: 4px;">
+      If \(v > 900 \text{ km/h}\) (commercial jet cruising velocity), ASTID flags an impossible travel anomaly (+0.35 risk boost) and generates a Whitebox badge.
+    </p>
+
+    <h2>3.6 Model Drift Surveillance: Population Stability Index (PSI)</h2>
+    <p>
+      In compliance with <strong>Federal Reserve SR Letter 11-7</strong> and <strong>Basel II Model Risk Governance</strong>, ASTID monitors distribution shift over streaming predictions against frozen validation deciles:
+    </p>
+
+    <div class="math-block">
+      $$\text{PSI} = \sum_{i=1}^{10} \left( \text{Actual}_i - \text{Expected}_i \right) \times \ln\left( \frac{\text{Actual}_i}{\text{Expected}_i} \right)$$
+    </div>
+    <p style="font-size: 8.6pt; margin-top: 4px;">
+      Governance traffic-light: \(\text{PSI} < 0.10 \implies \text{GREEN}\) (stable); \(0.10 \le \text{PSI} < 0.25 \implies \text{AMBER}\) (moderate drift); \(\text{PSI} \ge 0.25 \implies \text{RED}\) (circuit-breaker triggers automated warm-start recalibration).
+    </p>
+
+    <h2>3.7 Delayed Feedback Modeling & 60-Day Blackout Window</h2>
+    <p>
+      Credit card chargebacks take 30–90 days to settle. Training on recent unconfirmed transactions introduces severe label noise. ASTID partitions retraining streams into a Matured Training Window \([T-365\text{d}, T-60\text{d}]\), a 60-day Observation Blackout Window \([T-60\text{d}, T]\) excluded from supervised training, and a Live Serving Window \([T, \text{now}]\).
+    </p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 04: OPEN SOURCE REFERENCE REPOSITORIES & REDIS LUA -->
+  <div>
+    <h1><span class="chapter-badge">04</span> Open-Source Reference Repositories Matrix</h1>
+    <p>
+      ASTID directly adapts validated design patterns from premier open-source financial engineering and fraud intelligence codebases:
+    </p>
+
+    <table class="editorial-table">
+      <thead>
+        <tr>
+          <th>Repository & Source</th>
+          <th>Domain Focus</th>
+          <th>Validated Open-Source Takeaway</th>
+          <th>ASTID Concrete Implementation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Fraud-Detection-Handbook</strong><br/><span style="color:#786F71;">Fraud-Detection-Handbook/</span></td>
+          <td>Production Fraud ML</td>
+          <td>Sliding-window velocity transformations & cost-sensitive learning under delayed feedback.</td>
+          <td>Informs <code>features.py</code> pre-transaction balance drain ratios and untouched validation calibration.</td>
+        </tr>
+        <tr>
+          <td><strong>gorules / zen</strong><br/><span style="color:#786F71;">gorules/zen (Rust / Python)</span></td>
+          <td>Microsecond Rules</td>
+          <td>Evaluates Decision Model and Notation (DMN) rules in &lt;15 microseconds.</td>
+          <td>Blueprint for <code>rules_engine.py</code> pre-ML gating and NPCI ₹1,00,000 limits.</td>
+        </tr>
+        <tr>
+          <td><strong>quack-api</strong><br/><span style="color:#786F71;">DataIntellectTech/quack-api</span></td>
+          <td>FastAPI + DuckDB</td>
+          <td>In-process analytical query connection management over Parquet files.</td>
+          <td>Blueprint for <code>duckdb_manager.py</code> thread-safe cursor injection and telemetry.</td>
+        </tr>
+        <tr>
+          <td><strong>slundberg / shap</strong><br/><span style="color:#786F71;">slundberg/shap</span></td>
+          <td>Tree Explainer XAI</td>
+          <td>Local additive feature attributions for gradient boosting decision trees.</td>
+          <td>Extracts base estimator from <code>CalibratedClassifierCV</code> to compute Whitebox badges.</td>
+        </tr>
+        <tr>
+          <td><strong>money_muling_detection</strong><br/><span style="color:#786F71;">Simhaatt/money_muling_detection</span></td>
+          <td>Graph AML Syndicates</td>
+          <td>2-hop ego-graph extraction & cycle detection using NetworkX for mule account clusters.</td>
+          <td>Powers <code>/api/v1/graph/ego/{account_id}</code> and the Analyst Drawer Ego-Graph.</td>
+        </tr>
+        <tr>
+          <td><strong>Bahnsen et al. (2015)</strong><br/><span style="color:#786F71;">IEEE CIM</span></td>
+          <td>Cost-Sensitive Risk ML</td>
+          <td>Asymmetric Bayes financial loss matrices and example-dependent thresholds.</td>
+          <td>Direct mathematical foundation for <code>cost_sensitive.py</code> dynamic threshold evaluator.</td>
+        </tr>
+        <tr>
+          <td><strong>Carcillo et al. (2018)</strong><br/><span style="color:#786F71;">SCARFF / IEEE Access</span></td>
+          <td>Delayed Feedback Modeling</td>
+          <td>Handling chargeback verification latency and eliminating label noise in fraud streams.</td>
+          <td>Establishes the 60-day Observation Blackout Window during periodic model retraining.</td>
+        </tr>
+        <tr>
+          <td><strong>feast-dev / feast</strong><br/><span style="color:#786F71;">feast-dev/feast</span></td>
+          <td>Production Feature Store</td>
+          <td>Point-in-time joins between offline parquet tables and low-latency online key-value stores.</td>
+          <td>Informs shared feature contract in <code>features.py</code> preventing training-serving skew.</td>
+        </tr>
+        <tr>
+          <td><strong>ballerine</strong><br/><span style="color:#786F71;">ballerine-io/ballerine</span></td>
+          <td>FinTech Case Management</td>
+          <td>Enterprise RiskOps workflows, manual review queues, and audit decision logging.</td>
+          <td>Blueprint for Next.js 14 Branch Analyst and Senior Analyst Escalation workbenches.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="avoid-break">
+      <h2>4.1 Redis Sliding-Window Velocity State Implementation</h2>
+      <p>
+        To prevent race conditions, ASTID implements sliding-window velocity counters using Redis <strong>Sorted Sets (<code>ZSET</code>)</strong> with atomic Lua execution:
+      </p>
+      <pre>
+-- scripts/sliding_velocity.lua (Atomically evaluated in Redis)
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local window = tonumber(ARGV[2]) -- e.g., 3600000 ms (1 hour)
+local clear_before = now - window
+
+redis.call('ZREMRANGEBYSCORE', key, '-inf', clear_before)
+redis.call('ZADD', key, now, ARGV[3])
+local count = redis.call('ZCOUNT', key, clear_before, '+inf')
+redis.call('PEXPIRE', key, window * 2)
+return count
+      </pre>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 05: COMPLETE DATABASE SCHEMA & 3-TIER RLS -->
+  <div>
+    <h1><span class="chapter-badge">05</span> Complete Database Schema & 3-Tier RLS Security</h1>
+    <p>
+      The operational store is structured across 8 relational tables in Supabase PostgreSQL, governed by 3-tier Row-Level Security policies:
+    </p>
+
+    <div class="diagram-card">
+      <div class="diagram-caption">Figure 5.1: Relational Entity-Relationship Diagram (ERD)</div>
+      <div class="mermaid">
+        erDiagram
+          BRANCHES ||--o{ USERS : "employs"
+          BRANCHES ||--o{ TRANSACTIONS : "processes"
+          BRANCHES ||--o{ ESCALATIONS : "contains"
+          USERS ||--o{ ESCALATIONS : "assigned_to"
+          USERS ||--o{ ANALYST_ACTIONS : "authors"
+          MODEL_VERSIONS ||--o{ TRANSACTIONS : "evaluated_by"
+          TRANSACTIONS ||--o| ESCALATIONS : "escalates_into"
+          TRANSACTIONS ||--o{ ANALYST_ACTIONS : "audited_by"
+
+          BRANCHES {
+            uuid branch_id PK
+            text branch_code UK
+            text branch_name
+            text region
+            text city_tier
+          }
+          USERS {
+            uuid user_id PK
+            text full_name
+            text role
+            uuid default_branch_id FK
+            uuid_array assigned_branch_ids
+          }
+          TRANSACTIONS {
+            uuid transaction_id PK
+            text ingestion_hash UK
+            text idempotency_key
+            uuid branch_id FK
+            numeric amount
+            numeric xgb_prob
+            numeric ae_mse
+            numeric combined_score
+            numeric cost_sensitive_tau
+            numeric geo_velocity_kmh
+            text final_verdict
+            text review_status
+          }
+          MODEL_VERSIONS ||--o{ MODEL_DRIFT_LOGS : "governs"
+          MODEL_DRIFT_LOGS {
+            uuid log_id PK
+            uuid model_id FK
+            numeric psi_score
+            numeric ks_statistic
+            text status
+          }
+          ESCALATIONS {
+            uuid escalation_id PK
+            uuid transaction_id FK
+            text status
+            timestamptz sla_deadline
+          }
+          ANALYST_ACTIONS {
+            uuid action_id PK
+            uuid transaction_id FK
+            uuid analyst_id FK
+            text decision
+          }
+      </div>
+    </div>
+
+    <div class="avoid-break">
+      <h2>5.1 3-Tier Row-Level Security (RLS) Specification</h2>
+      <pre>
+-- 1. Helper Functions to prevent recursive RLS queries on users table
+CREATE OR REPLACE FUNCTION get_auth_role() RETURNS TEXT AS $$
+    SELECT role FROM users WHERE user_id = auth.uid();
+$$ LANGUAGE sql STABLE SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION get_auth_default_branch() RETURNS UUID AS $$
+    SELECT default_branch_id FROM users WHERE user_id = auth.uid();
+$$ LANGUAGE sql STABLE SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION get_auth_assigned_branches() RETURNS UUID[] AS $$
+    SELECT assigned_branch_ids FROM users WHERE user_id = auth.uid();
+$$ LANGUAGE sql STABLE SECURITY DEFINER;
+
+-- 2. 3-Tier Role-Based Visibility on transactions table
+CREATE POLICY "3-Tier Branch Isolation on Transactions"
+ON transactions FOR SELECT TO authenticated USING (
+    get_auth_role() IN ('team_lead', 'admin') -- Tier 3: Global All-5-Branches Access
+    OR (get_auth_role() = 'senior_analyst' AND branch_id = ANY(get_auth_assigned_branches())) -- Tier 2: Multi-Branch Cluster
+    OR (get_auth_role() = 'analyst' AND branch_id = get_auth_default_branch()) -- Tier 1: Own Branch Only
+);
+
+-- 3. Dynamic Cron-Free View for 15-Minute SLA Watchdog
+CREATE OR REPLACE VIEW v_escalations_with_sla AS
+SELECT e.*,
+    CASE 
+        WHEN e.status = 'open' AND now() > e.sla_deadline THEN 'overdue'
+        ELSE e.status 
+    END AS live_status
+FROM escalations e;
+
+-- 4. Model Drift Governance Logs Table & Policy
+CREATE POLICY "Drift logs readable by leadership"
+ON model_drift_logs FOR SELECT TO authenticated USING (
+    get_auth_role() IN ('team_lead', 'admin')
+);
+      </pre>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 06: STEP-BY-STEP 12-COMMIT DEVELOPER TUTORIAL (PAGE 1: COMMITS 01 & 02) -->
+  <div>
+    <h1><span class="chapter-badge">06</span> Step-by-Step 12-Commit Developer Tutorial</h1>
+    <p style="margin-bottom: 12px;">
+      To ensure zero merge conflicts and absolute mathematical consistency, ASTID development is executed sequentially across 12 atomic commits. Each team member must follow their exact numbered commit tasks:
+    </p>
+
+    <!-- COMMIT 01 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 01: Monorepo Foundation, Pydantic Config & Agent Rules</span>
+        <span class="t-author">Dhrubojyoti Hazra (Lead)</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Work directly on <code>main</code> or branch <code>setup/monorepo-foundation</code>.</li>
+        <li><strong>Step 2 (Scaffold):</strong> Create directory structure: <code>backend/app</code>, <code>backend/ml</code>, <code>backend/warehouse</code>, <code>frontend-dashboard</code>, <code>supabase</code>, <code>docs</code>.</li>
+        <li><strong>Step 3 (Config):</strong> In <code>backend/app/config.py</code>, implement Pydantic <code>Settings</code> with environment variables for <code>SUPABASE_URL</code>, <code>SUPABASE_KEY</code>, <code>UPSTASH_REDIS_URL</code>, and <code>DUCKDB_PATH</code>.</li>
+        <li><strong>Step 4 (Guardrails):</strong> Save <code>.cursorrules</code> in the repo root ensuring AI coding agents obey the zero-leakage ban.</li>
+        <li><strong>Step 5 (Verify):</strong> Run <span class="t-cmd">python -c "from backend.app.config import settings; print('Config loaded OK')"</span>.</li>
+        <li><strong>Step 6 (Git Push):</strong> Run <span class="t-cmd">git add . && git commit -m "feat(core): scaffold monorepo, pydantic settings and agent rules" && git push origin main</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Tiyasha (Commit 02):</strong> The repo skeleton and DuckDB file paths are locked. You can now build the Parquet warehouse in <code>backend/warehouse/</code>.
+      </div>
+    </div>
+
+    <!-- COMMIT 02 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 02: DuckDB Analytical Lakehouse & Columnar Parquet Generation</span>
+        <span class="t-author">Tiyasha Baidya</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/duckdb-warehouse</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Parquet Ingestion):</strong> Write <code>backend/warehouse/ingest_to_parquet.py</code>. Load raw <code>PS_..._log.csv</code> and convert to compressed <code>paysim_warehouse.parquet</code> (6.36M rows).</li>
+        <li><strong>Step 3 (Held-Out Test Set):</strong> Export a 50,000-row held-out test split into <code>backend/warehouse/data/scored_test.parquet</code> for threshold simulation.</li>
+        <li><strong>Step 4 (DuckDB Manager):</strong> Implement <code>backend/warehouse/duckdb_manager.py</code> with thread-safe connection pooling and a method <code>get_warehouse_telemetry()</code>.</li>
+        <li><strong>Step 5 (Benchmark Test):</strong> Verify query execution speed is &lt;120 ms: <span class="t-cmd">python -c "from backend.warehouse.duckdb_manager import DuckDBManager; d=DuckDBManager(); print(d.get_summary())"</span>.</li>
+        <li><strong>Step 6 (Git PR):</strong> Run <span class="t-cmd">git add . && git commit -m "feat(warehouse): generate columnar Parquet lakehouse and duckdb manager" && git push origin feat/duckdb-warehouse</span>. Open PR to <code>main</code>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Isheeka (Commit 03):</strong> The Parquet files are generated. You can now load <code>paysim_warehouse.parquet</code> to build the feature pipeline and train models.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 06 (PAGE 2: COMMITS 03 & 04) -->
+  <div>
+    <!-- COMMIT 03 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 03: Zero-Leakage Feature Module & Calibrated Hybrid Models</span>
+        <span class="t-author">Isheeka Mukhopadhyay</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/ml-pipeline</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Feature Engineering):</strong> In <code>backend/ml/features.py</code>, implement <code>compute_behavioral_features()</code> with <code>balance_drain_ratio</code>, <code>hour_of_day</code>, <code>tx_velocity_1h</code>, <code>amount_zscore</code>. BANNED: <code>errorBalanceDest</code>.</li>
+        <li><strong>Step 3 (Supervised XGBoost):</strong> In <code>backend/ml/train_pipeline.py</code>, train XGBoost with <code>scale_pos_weight=773.5</code>. Calibrate using <code>CalibratedClassifierCV(method='sigmoid', cv='prefit')</code> on an <strong>untouched validation split</strong>.</li>
+        <li><strong>Step 4 (PyTorch Autoencoder):</strong> Build <code>Dense(N->100->20->100->N)</code> bottleneck neural net. Train 20 epochs exclusively on legitimate transactions (\(y=0\)).</li>
+        <li><strong>Step 5 (Artifact Export):</strong> Save <code>xgb_calibrated.joblib</code>, <code>autoencoder.pt</code>, <code>ae_minmax.json</code>, and <code>metrics.json</code> into <code>backend/ml/artifacts/</code>.</li>
+        <li><strong>Step 6 (Verify Metrics):</strong> Confirm metrics in <code>metrics.json</code>: PR-AUC ~0.884, Recall ~94.2%, AE MSE ~0.004. Run <span class="t-cmd">python -c "from backend.ml.features import compute_behavioral_features"</span>.</li>
+        <li><strong>Step 7 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(ml): implement features.py and train calibrated XGBoost + PyTorch Autoencoder"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Samprikta (Commit 04):</strong> Model weights and feature functions are saved. You can now build the rules engine, Redis cache, and score aggregator.
+      </div>
+    </div>
+
+    <!-- COMMIT 04 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 04: Parallel Rules Engine, Bayes Cutoff & Geo-Velocity Checker</span>
+        <span class="t-author">Samprikta Dey</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/scoring-core</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Rules & FinTech Services):</strong> In <code>backend/app/services/</code>, implement <code>rules_engine.py</code>, <code>cost_sensitive.py</code> (Bayes dynamic threshold \(\tau^*(x)\)), and <code>geo_velocity.py</code> (Haversine impossible travel speed).</li>
+        <li><strong>Step 3 (Disjunctive Aggregator):</strong> In <code>backend/app/services/aggregator.py</code>, implement <code>aggregate_score()</code> with disjunctive override gating (\(P_{\text{XGB}} \ge 0.85 \implies \text{ESCALATE}\) and \(S_{\text{AE}} \ge 0.90 \implies \text{ESCALATE}\)).</li>
+        <li><strong>Step 4 (Redis State):</strong> In <code>backend/app/services/cache.py</code>, connect to Upstash Redis with atomic Lua sliding-window script and an automatic in-memory dict fallback for local offline execution.</li>
+        <li><strong>Step 5 (Feature Parity Test):</strong> Write and execute <code>tests/test_feature_parity.py</code>: <span class="t-cmd">pytest tests/test_feature_parity.py</span> (Assert batch features match live Redis state).</li>
+        <li><strong>Step 6 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(scoring): implement rules engine, disjunctive aggregator and Redis cache"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Adhiraj (Commit 05):</strong> The scoring core and aggregator are working. You can now attach TreeSHAP and Autoencoder error attribution badges.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 06 (PAGE 3: COMMITS 05 & 06) -->
+  <div>
+    <!-- COMMIT 05 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 05: TreeSHAP Base Extraction & Mule Ring Graph Engine</span>
+        <span class="t-author">Adhiraj Das</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/xai-and-graphs</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (TreeSHAP Fix):</strong> In <code>backend/ml/explain.py</code>, extract base tree estimator: <code>base_estimator = calibrated_model.calibrated_classifiers_[0].estimator</code>. Compute top 3 positive SHAP attributions and map to plain-English pills.</li>
+        <li><strong>Step 3 (Autoencoder Attribution):</strong> Compute per-feature squared reconstruction errors \((x_i - \hat{x}_i)^2 / \text{MSE}\). If balance drain accounts for &gt;50% error, output "Account Evacuation Spike" badge.</li>
+        <li><strong>Step 4 (NetworkX Ego-Graph):</strong> In <code>backend/app/services/graph_service.py</code>, extract 2-hop directed ego-network around suspect accounts with cycle detection for mule cash-out rings.</li>
+        <li><strong>Step 5 (Verify):</strong> Run <span class="t-cmd">python -c "from backend.ml.explain import explain_transaction; print('XAI Ready')"</span>.</li>
+        <li><strong>Step 6 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(xai): extract base TreeSHAP, autoencoder attribution and NetworkX mule graph"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Tiyasha (Commit 06):</strong> Explanation badges and graph JSON payloads are defined. You can now set up the Supabase database and seed data.
+      </div>
+    </div>
+
+    <!-- COMMIT 06 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 06: Supabase 8-Table DDL, 3-Tier RLS & Demo Seed Data</span>
+        <span class="t-author">Tiyasha Baidya</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/supabase-schema</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (DDL Migration):</strong> Write <code>supabase/migrations/001_init_schema_and_rls.sql</code> creating all 8 tables: <code>branches</code>, <code>users</code>, <code>merchants</code>, <code>model_versions</code>, <code>transactions</code>, <code>escalations</code>, <code>analyst_actions</code>, and <code>model_drift_logs</code>.</li>
+        <li><strong>Step 3 (RLS Security):</strong> Add <code>SECURITY DEFINER</code> helper functions and 3-tier branch isolation policies. Create view <code>v_escalations_with_sla</code> and register tables in <code>supabase_realtime</code>.</li>
+        <li><strong>Step 4 (Seed Data):</strong> In <code>supabase/seed.sql</code>, populate the 5 Indian branches, 4 demo users, 200 pre-scored transactions (using Isheeka & Samprikta's models), and 3 demo mule rings (<code>MULE_RING_BKC_01</code>).</li>
+        <li><strong>Step 5 (Execute & Verify):</strong> Push migration to Supabase and confirm all tables and RLS policies are active without recursion errors.</li>
+        <li><strong>Step 6 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(db): execute 7-table DDL, 3-tier RLS policies and seed data"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Samprikta (Commit 07):</strong> The database, RLS policies, and seed data are live. You can now wire the FastAPI REST routes to the database.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 06 (PAGE 4: COMMITS 07 & 08) -->
+  <div>
+    <!-- COMMIT 07 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 07: FastAPI Endpoints, Idempotency Middleware & Drift API</span>
+        <span class="t-author">Samprikta Dey</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/api-routes</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Live Scoring Route):</strong> Build <code>backend/app/middleware/idempotency.py</code> (IETF header with atomic Redis <span class="t-cmd">SETNX</span> lock). In <code>routes_scoring.py</code>, implement <code>POST /score/live</code> returning cached responses in &lt;2 ms on duplicate retries.</li>
+        <li><strong>Step 3 (Batch, Analytics & Drift Routes):</strong> Implement <code>POST /score/batch</code>, <code>GET /warehouse/metrics</code>, <code>GET /warehouse/leakage-audit</code>, <code>GET /graph/ego/{id}</code>, <code>GET /drift/psi</code> (Basel II / Fed SR 11-7 monitor), and <code>GET /health</code>.</li>
+        <li><strong>Step 4 (Auth Middleware):</strong> In <code>backend/app/services/auth_guard.py</code>, validate Supabase JWT signatures and extract user roles.</li>
+        <li><strong>Step 5 (Test Server):</strong> Launch <span class="t-cmd">uvicorn backend.app.main:app --port 8000</span> and test health: <span class="t-cmd">curl http://localhost:8000/api/v1/health</span>.</li>
+        <li><strong>Step 6 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(api): implement live/batch scoring, DuckDB telemetry and graph endpoints"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Dhruv (Commit 08):</strong> The backend API is running and serving scoring, telemetry, and graphs. You can now build the Next.js frontend shell and Analyst Workbench.
+      </div>
+    </div>
+
+    <!-- COMMIT 08 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 08: Next.js 14 App Shell, Quick-Login Drawer & Analyst Workbench</span>
+        <span class="t-author">Dhrubojyoti Hazra (Lead)</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/frontend-analyst</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Next.js Setup):</strong> Scaffold <code>frontend-dashboard</code> with Next.js 14 App Router, Tailwind CSS, Lucide icons, and <code>shadcn/ui</code>.</li>
+        <li><strong>Step 3 (Evaluator Login Drawer):</strong> In <code>app/(auth)/login/page.tsx</code>, build the 1-click **Viva Evaluator Quick-Login Drawer** supporting instant role switching (Branch Analyst, Senior Analyst, Team Lead, Admin).</li>
+        <li><strong>Step 4 (Analyst Workbench):</strong> In <code>app/dashboard/analyst/page.tsx</code>, subscribe to Supabase Realtime WebSocket for transactions in \(0.30 \le S < 0.70\) filtered to analyst's branch.</li>
+        <li><strong>Step 5 (Detail Drawer):</strong> Build sliding Transaction Drawer showing Composite Score Meter, Whitebox Risk Insights pills, and decision buttons (<code>Mark False Positive</code>, <code>Confirm Fraud</code>).</li>
+        <li><strong>Step 6 (Verify UI):</strong> Run <span class="t-cmd">npm run build</span> and verify 1-click login as Kolkata Analyst shows only Kolkata transactions.</li>
+        <li><strong>Step 7 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(ui): scaffold Next.js shell, evaluator quick-login and analyst workbench"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Samprikta & Dhruv (Commit 09):</strong> Analyst workspace is running. You can now implement the Senior Analyst Escalation Queue with the 15-minute SLA timer.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 06 (PAGE 5: COMMITS 09 & 10) -->
+  <div>
+    <!-- COMMIT 09 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 09: Senior Escalation Queue & 15-Minute SLA State Machine</span>
+        <span class="t-author">Samprikta Dey & Dhrubojyoti Hazra</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/frontend-escalations</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Queue Screen):</strong> In <code>app/dashboard/escalations/page.tsx</code>, fetch from <code>v_escalations_with_sla</code> view for high-risk cases (\(S \ge 0.70\) or critical rules).</li>
+        <li><strong>Step 3 (Triage Tabs):</strong> Build tabs for <code>Open</code>, <code>Overdue</code>, <code>Assigned to Me</code>, and <code>Resolved</code>.</li>
+        <li><strong>Step 4 (SLA Timer):</strong> Implement <code>components/SlaCountdown.tsx</code> displaying live 15-minute countdown, turning amber at &lt;5m and flashing red when overdue.</li>
+        <li><strong>Step 5 (Resolution Modal):</strong> Build <code>components/ResolutionModal.tsx</code> allowing Senior Analysts to claim cases, record binding reason codes, and log decisions to <code>analyst_actions</code>.</li>
+        <li><strong>Step 6 (Verify):</strong> Claim an overdue escalation case and verify status updates in Supabase and the UI.</li>
+        <li><strong>Step 7 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(ui): implement senior escalation queue with 15-minute SLA watchdog"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Dhruv & Tiyasha (Commit 10):</strong> Escalation governance is complete. You can now build the Team Lead Executive Dashboard and Threshold Simulator.
+      </div>
+    </div>
+
+    <!-- COMMIT 10 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 10: Team Lead Dashboard, Drift Governance & Simulator</span>
+        <span class="t-author">Dhrubojyoti Hazra & Tiyasha Baidya</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/team-lead-dashboard</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Telemetry & Drift Governance):</strong> In <code>app/dashboard/team-lead/page.tsx</code>, display the live DuckDB telemetry badge (<em>Scanned 6.36M rows in 118 ms</em>), the 5-branch matrix, and the Model Drift Governance card (live PSI traffic light: Green/Amber/Red).</li>
+        <li><strong>Step 3 (Cross-Branch Matrix):</strong> Build side-by-side comparison cards for Kolkata, Mumbai, Bengaluru, Delhi, and Chennai hubs.</li>
+        <li><strong>Step 4 (Threshold Simulator):</strong> In <code>components/ThresholdSimulator.tsx</code>, build dual range sliders (<code>REVIEW</code> and <code>ESCALATE</code>) querying <code>scored_test.parquet</code> via FastAPI, dynamically recalculating ₹ Fraud Prevented vs False Positive Friction.</li>
+        <li><strong>Step 5 (Data Leakage Audit Tab):</strong> Build visual comparison tab proving why leaked <code>errorBalanceDest</code> (PR-AUC 1.00) fails vs our behavioral model (PR-AUC 0.8842, Recall 94.21%).</li>
+        <li><strong>Step 6 (Verify):</strong> Drag threshold sliders and confirm instant recalculation of fraud catch and friction metrics.</li>
+        <li><strong>Step 7 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(ui): build team lead dashboard, DuckDB telemetry and threshold simulator"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to Adhiraj (Commit 11):</strong> Leadership views are finished. You can now build the Standalone Simulator and the 1-Hop Mule Ring Ego-Graph component.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 06 (PAGE 6: COMMITS 11 & 12) -->
+  <div>
+    <!-- COMMIT 11 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 11: Standalone Simulator (5 Presets) & 1-Hop Mule Ring Visualizer</span>
+        <span class="t-author">Adhiraj Das</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b feat/simulator-and-graph</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (Simulator Route):</strong> Build <code>app/simulator/page.tsx</code> with the **5 Preset Attack Scenarios** (including Preset 5: Impossible Travel Geo-Velocity Attack) plus Bayes Dynamic Mode toggle and custom transaction form.</li>
+        <li><strong>Step 3 (Ego-Graph Component):</strong> In <code>components/MuleRingGraph.tsx</code>, render an SVG node-link directed graph displaying victim accounts, intermediary mule VPAs, and final ATM terminals. Embed inside the Analyst Workbench drawer.</li>
+        <li><strong>Step 4 (Live Demo Test):</strong> Open <code>/simulator</code> in Browser Window A and <code>/dashboard/analyst</code> in Window B. Click Preset 2 and watch the alert pop up live over WebSockets!</li>
+        <li><strong>Step 5 (Git PR):</strong> Commit and push: <span class="t-cmd">git commit -m "feat(ui): implement standalone payment simulator and mule ring ego-graph"</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Hand-off to All Team Members (Commit 12):</strong> All individual features are complete. We can now run the end-to-end integration test suite and offline rehearsal.
+      </div>
+    </div>
+
+    <!-- COMMIT 12 -->
+    <div class="tutorial-commit-card">
+      <div class="t-header">
+        <span class="t-title">Commit 12: End-to-End Automated Verification & Offline Build</span>
+        <span class="t-author">All Team Members (Led by Dhrubojyoti)</span>
+      </div>
+      <ol class="t-step-list">
+        <li><strong>Step 1 (Branch):</strong> Run <span class="t-cmd">git checkout -b release/v2.0-viva-ready</span> from updated <code>main</code>.</li>
+        <li><strong>Step 2 (E2E Test Suite):</strong> Write <code>tests/test_e2e_pipeline.py</code> verifying: Simulator dispatch $\to$ FastAPI scoring $\to$ Rules/ML/AE inference $\to$ Supabase insertion $\to$ RLS validation $\to$ DuckDB telemetry.</li>
+        <li><strong>Step 3 (Offline Verification):</strong> Disconnect Wi-Fi and verify the entire system runs locally on <code>localhost:8000</code> (FastAPI + local DuckDB) and <code>localhost:3000</code> (Next.js), guaranteeing presentation immunity to college Wi-Fi dropouts.</li>
+        <li><strong>Step 4 (Rehearsal):</strong> Conduct a 5-minute rehearsal following the presentation script in Section 07.</li>
+        <li><strong>Step 5 (Release Tag):</strong> Merge into <code>main</code>: <span class="t-cmd">git tag -a v2.0-viva-ready -m "ASTID Final Year Production Release" && git push origin --tags</span>.</li>
+      </ol>
+      <div class="t-handoff-box">
+        <strong>Project Milestone Completed:</strong> ASTID is production-ready, fully verified, and ready for maximum marks (16/16) in the viva examination!
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 07: VIVA PRESENTATION SCRIPT & EXAMINER DEFENSE -->
+  <div>
+    <h1><span class="chapter-badge">07</span> Viva Presentation Script & Examiner Q&A Defense</h1>
+    
+    <table class="editorial-table">
+      <thead>
+        <tr>
+          <th>Team Member</th>
+          <th>Likely Examiner Viva Question</th>
+          <th>Prepared Defensible Technical Answer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Dhrubojyoti</strong><br/><span style="color:#786F71;">(Lead & Architect)</span></td>
+          <td><em>"Why not build a full consumer banking app or SaaS with Stripe integration?"</em></td>
+          <td>"In enterprise banking, fraud detection operates strictly as internal RiskOps tooling (like Stripe Radar or Feedzai Pulse). Building a consumer payment UI distracts from the core engineering: real-time scoring latency, 3-tier branch access control, human-in-the-loop escalation, and audit compliance."</td>
+        </tr>
+        <tr>
+          <td><strong>Isheeka</strong><br/><span style="color:#786F71;">(Lead ML Engineer)</span></td>
+          <td><em>"Your early notebook had 1.000 PR-AUC. Why did it drop to 0.884 in the final build?"</em></td>
+          <td>"The 1.000 score was an artifact of the synthetic PaySim generator (<code>errorBalanceDest</code>), where simulation logic zeroed origin balances. In production, destination post-balances are unknown at scoring time. By isolating that leak and using pre-authorization behavioral features, our 0.884 PR-AUC and 94.2% recall represent genuine, defensible generalization."</td>
+        </tr>
+        <tr>
+          <td><strong>Samprikta</strong><br/><span style="color:#786F71;">(Backend & Scoring)</span></td>
+          <td><em>"Why not use Apache Kafka or RabbitMQ for streaming payment events?"</em></td>
+          <td>"Kafka is engineered for horizontal decoupling across hundreds of microservices. At our single-institution scale, Supabase Realtime (PostgreSQL logical replication over WebSockets) delivers sub-150ms push updates with zero JVM maintenance overhead and built-in database consistency."</td>
+        </tr>
+        <tr>
+          <td><strong>Adhiraj</strong><br/><span style="color:#786F71;">(XAI & Simulator)</span></td>
+          <td><em>"Why combine TreeSHAP with Autoencoder reconstruction error?"</em></td>
+          <td>"TreeSHAP explains supervised XGBoost feature attributions for known fraud signatures, but supervised models fail on novel zero-day attacks. The Autoencoder flags novel combinations via reconstruction error. Combining both into plain-English Whitebox badges satisfies regulatory compliance while catching zero-days."</td>
+        </tr>
+        <tr>
+          <td><strong>Tiyasha</strong><br/><span style="color:#786F71;">(Warehouse & DB)</span></td>
+          <td><em>"Why use DuckDB instead of traditional PostgreSQL queries for analytical reporting?"</em></td>
+          <td>"Row-oriented PostgreSQL requires reading all table columns off disk, choking on 6.36 million rows. DuckDB is a columnar vectorized engine that reads only required analytical columns, executing cross-branch KPI queries in &lt;120 ms directly in memory without database locking."</td>
+        </tr>
+        <tr>
+          <td><strong>Samprikta</strong><br/><span style="color:#786F71;">(Backend & Scoring)</span></td>
+          <td><em>"How does the system prevent duplicate transactions if an unstable network retries a payment?"</em></td>
+          <td>"We implement the IETF <code>Idempotency-Key</code> specification with atomic Redis distributed locks (<code>SETNX EX 30</code>). Concurrent retries are caught immediately, and completed runs return cached JSON payloads in &lt;2 ms without re-evaluating ML inference."</td>
+        </tr>
+        <tr>
+          <td><strong>Dhrubojyoti</strong><br/><span style="color:#786F71;">(Lead & Architect)</span></td>
+          <td><em>"Why not use a standard fixed 0.50 score cutoff across all transaction amounts?"</em></td>
+          <td>"Fixed thresholds ignore economic reality. Missing a ₹5,00,000 cash-out is catastrophic, while reviewing a ₹150 payment costs more in analyst labor than the transaction itself. Under Bayes Minimum Risk, our dynamic threshold \(\tau^*(x)\) flags high-value transfers at \(\tau^* \approx 0.007\) while avoiding friction on micro-payments."</td>
+        </tr>
+        <tr>
+          <td><strong>Tiyasha & Isheeka</strong><br/><span style="color:#786F71;">(Governance & ML)</span></td>
+          <td><em>"How do you ensure the model does not silently degrade in production over time?"</em></td>
+          <td>"Conforming to Federal Reserve SR Letter 11-7 and Basel II Model Risk Governance, ASTID computes the 10-decile Population Stability Index (PSI) and Kolmogorov-Smirnov test over live predictions against frozen training baselines, alerting leadership when drift exceeds 0.10."</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top: 25px;">
+      <div class="callout-title">🏆 5-Minute Final Viva Walkthrough Strategy</div>
+      <strong>Minute 1:</strong> Show Screen 1 context splash and explain the internal RiskOps positioning.<br/>
+      <strong>Minute 2:</strong> Open Standalone Simulator side-by-side with Analyst Workbench; fire Preset 2 (Account Takeover) and show live WebSocket alert & Whitebox badges.<br/>
+      <strong>Minute 3:</strong> Fire Preset 3 (Zero-Day Anomaly) and demonstrate how the Autoencoder escalates via disjunctive gating.<br/>
+      <strong>Minute 4:</strong> Switch to Senior Analyst view, claim the overdue escalation, and log binding resolution.<br/>
+      <strong>Minute 5:</strong> Switch to Team Lead view, show the DuckDB Telemetry Bar (&lt;120 ms query over 6.36M rows), and demonstrate the Financial Threshold Simulator.
+    </div>
+  </div>
+
+</body>
+</html>
+"""
+
+HTML_PATH.write_text(html_content, encoding="utf-8")
+print(f"[OK] Wrote updated Pink Modern Marketing HTML Dossier to: {HTML_PATH}")
+
+async def render_pdf():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
+        file_url = f"file:///{HTML_PATH.resolve()}".replace("\\", "/")
+        await page.goto(file_url, wait_until="networkidle")
+        
+        # Wait for all webfonts, KaTeX equations and Mermaid diagrams to render
+        await page.evaluate("() => document.fonts.ready")
+        
+        try:
+            await page.wait_for_selector(".mermaid svg", timeout=15000)
+            print("[OK] Mermaid vector diagrams successfully rendered.")
+        except Exception as e:
+            print(f"[WARN] Mermaid selector timeout: {e}")
+
+        try:
+            await page.wait_for_selector(".katex", timeout=15000)
+            print("[OK] KaTeX mathematical equations successfully rendered.")
+        except Exception as e:
+            print(f"[WARN] KaTeX selector timeout: {e}")
+
+        # Render print-ready PDF
+        await page.pdf(
+            path=str(PDF_PATH),
+            format="A4",
+            print_background=True,
+            margin={"top": "14mm", "bottom": "16mm", "left": "14mm", "right": "14mm"}
+        )
+        await browser.close()
+        print(f"[OK] Successfully compiled publication-grade PDF to: {PDF_PATH}")
+
+if __name__ == "__main__":
+    asyncio.run(render_pdf())

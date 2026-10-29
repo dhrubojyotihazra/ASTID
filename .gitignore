@@ -1,0 +1,75 @@
+# ==============================================================================
+# ASTID (Automated System for Transaction Inspection and Detection) - .gitignore
+# ==============================================================================
+
+# CRITICAL: Ignore Large Datasets (GitHub 100MB limit)
+# The PaySim raw CSV is ~493.5 MB and must NOT be committed
+*.csv
+*.tsv
+*.parquet
+!backend/warehouse/data/scored_test_sample.parquet
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Model Weight Checkpoints (keep tracked models in artifacts/ if under 50MB)
+backend/ml/artifacts/*.pt.tmp
+*.tmp
+*.log
+
+# Node.js & Next.js
+node_modules/
+.next/
+out/
+.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE & OS Junk
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini

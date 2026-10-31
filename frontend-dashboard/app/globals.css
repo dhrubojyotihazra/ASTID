@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
-@tailwind base;@tailwind components;@tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --page: #e9ebe9;
@@ -15,6 +17,9 @@
   --g-600: #27865a;
   --g-400: #5dbd8b;
   --g-100: #e3f2e9;
+  --hatch: #8d9a92;
+  --deep: color-mix(in srgb, var(--g-950) 55%, #000);
+  --swirl: color-mix(in srgb, var(--g-400) 22%, transparent);
   --amber: #b06d0a;
   --amber-bg: #fdf3e2;
   --rose: #c23b3b;
@@ -76,7 +81,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Fernly Signature Animations */
+/* Animations */
 @keyframes dlg-in {
   0% { opacity: 0; transform: translateY(14px) scale(.98); }
   100% { opacity: 1; transform: none; }
@@ -102,11 +107,23 @@ body {
   100% { transform: scaleY(1); }
 }
 
+@keyframes page-in {
+  0% { opacity: 0; transform: translateY(8px) scale(0.995); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
 .anim-dlg { animation: dlg-in .35s var(--ease) both; }
 .anim-up { animation: up .4s var(--ease) both; }
 .anim-sl { animation: sl .35s var(--ease) both; }
 .anim-sl-up { animation: sl-up .4s var(--ease) both; }
 .anim-gr { transform-origin: bottom; animation: gr .8s var(--ease) both; }
+.page-transition { animation: page-in .32s var(--ease) both; }
 
 /* Micro-interaction utility classes */
 .interactive-hover {
@@ -117,6 +134,159 @@ body {
 }
 .interactive-hover:active {
   transform: scale(0.97);
+}
+
+/* Fernly Card Texture Gradients */
+.stat--hero {
+  color: #f1f8f3;
+  background: linear-gradient(135deg, var(--g-800) 0%, var(--g-950) 100%);
+  box-shadow: 0 14px 30px -16px #0d3a23b3;
+  position: relative;
+  overflow: hidden;
+}
+.stat--hero:after {
+  content: "";
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(90% 80% at 100% 100%, #5dbd8b47, transparent 60%);
+  position: absolute;
+  inset: 0;
+}
+
+.time-tracker-card {
+  isolation: isolate;
+  color: #f1f8f3;
+  background: var(--deep);
+  position: relative;
+  overflow: hidden;
+}
+.time-tracker-card:before {
+  content: "";
+  z-index: 0;
+  background: repeating-radial-gradient(ellipse at 95% 105%, transparent 0 11px, var(--swirl) 12px 13px),
+              radial-gradient(60% 70% at 100% 100%, var(--g-700), transparent 70%),
+              radial-gradient(55% 55% at 0% 0%, var(--g-950), transparent 70%);
+  position: absolute;
+  inset: -30%;
+  pointer-events: none;
+}
+
+.promo-card {
+  isolation: isolate;
+  border-radius: var(--r-md);
+  color: #eef6f1;
+  background: var(--deep);
+  position: relative;
+  overflow: hidden;
+}
+.promo-card:before {
+  content: "";
+  z-index: 0;
+  background: repeating-radial-gradient(circle at 78% 70%, transparent 0 14px, var(--swirl) 15px 16px),
+              radial-gradient(70% 60% at 85% 85%, var(--g-700), transparent 70%),
+              radial-gradient(60% 50% at 10% 0%, var(--g-950), transparent 70%);
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+}
+
+.help-hero-banner {
+  isolation: isolate;
+  color: #f1f8f3;
+  background: var(--g-950);
+  position: relative;
+  overflow: hidden;
+}
+.help-hero-banner:before {
+  content: "";
+  z-index: 0;
+  background: repeating-radial-gradient(circle at 88% 30%, transparent 0 16px, #ffffff0f 17px 18px),
+              radial-gradient(60% 80% at 90% 20%, color-mix(in srgb, var(--g-600) 80%, transparent), transparent 70%);
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+}
+
+/* Decile Bars */
+.bar-pill {
+  position: relative;
+  width: 100%;
+  max-width: 38px;
+  border-radius: 999px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform .2s var(--ease);
+}
+.bar-pill:hover {
+  transform: translateY(-3px);
+}
+.bar--plan {
+  background: repeating-linear-gradient(-45deg, var(--hatch) 0 2.4px, transparent 2.4px 8px);
+  box-shadow: inset 0 0 0 1.5px #8d9a9259;
+}
+.bar--dark {
+  background: var(--g-950);
+}
+.bar--mid {
+  background: var(--g-700);
+}
+.bar--light {
+  background: var(--g-400);
+}
+
+/* Project Logos / Icons */
+.pico {
+  border-radius: 8px;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+.pico--api {
+  background: repeating-linear-gradient(-60deg, #0000 0 4px, #3b5bdb 4px 7px, #0000 7px 9px);
+  border-radius: 6px;
+}
+.pico--flow {
+  background: conic-gradient(#1f9e8f 0 33%, #0b5f6b 0 66%, #6bd1c2 0);
+  border-radius: 50%;
+}
+.pico--dash {
+  background: linear-gradient(#f08c3c, #f08c3c) 50% 0/6px 11px no-repeat,
+              linear-gradient(#4ab6e8, #4ab6e8) 50% 100%/6px 11px no-repeat,
+              linear-gradient(#e64980, #e64980) 0/11px 6px no-repeat,
+              linear-gradient(#40c057, #40c057) 100%/11px 6px no-repeat;
+  border-radius: 6px;
+}
+.pico--speed {
+  background: conic-gradient(from 200deg, #f59f00 0 50%, #f76707 0 75%, #fa5252 0);
+  border-radius: 50%;
+}
+.pico--brand {
+  background: #5c7cfa;
+  border-radius: 50%;
+}
+.pico--secure {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  border-radius: 6px;
+}
+
+/* Activity Heatmap Levels */
+.heat-box[data-l="0"] { background: var(--hair); }
+.heat-box[data-l="1"] { background: color-mix(in srgb, var(--g-400) 35%, var(--panel)); }
+.heat-box[data-l="2"] { background: var(--g-400); }
+.heat-box[data-l="3"] { background: var(--g-700); }
+.heat-box[data-l="4"] { background: var(--g-950); }
+
+/* Draggable Kanban Card States */
+.task-drag-over {
+  border-color: var(--g-600) !important;
+  background-color: var(--so) !important;
+}
+.task-dragging {
+  opacity: 0.45;
+  transform: scale(0.98) rotate(1deg);
 }
 
 @media (prefers-reduced-motion: reduce) {

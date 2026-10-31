@@ -140,21 +140,21 @@ export default function Shell({ children }: { children: ReactNode }) {
     <div className="flex h-full flex-col">
       {/* Brand Header with ASTID Logo & Vector Wordmark */}
       <div className="flex items-center justify-between px-2 pt-3.5 pb-4 border-b border-bd/60 mb-3">
-        <Link href="/dashboard/home" className="flex items-center gap-1.5 group">
-          <div className="relative flex h-9 w-9 items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+        <Link href="/dashboard/home" className="flex items-center gap-2 group">
+          <div className="relative flex h-10 w-10 items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
             <Image
               src="/astid-logo-square.png"
               alt="ASTID Logo"
-              width={36}
-              height={36}
+              width={40}
+              height={40}
               className="object-contain drop-shadow-xs dark:hidden"
               priority
             />
             <Image
               src="/astid-logo-square-dark.png"
               alt="ASTID Logo"
-              width={36}
-              height={36}
+              width={40}
+              height={40}
               className="object-contain drop-shadow-xs hidden dark:block"
               priority
             />

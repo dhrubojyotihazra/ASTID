@@ -38,6 +38,7 @@ export default function PrimaryDashboard() {
 
   // Decile bar hover
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
+  const [hoveredDayIdx, setHoveredDayIdx] = useState<number | null>(null);
 
   // New Case Modal State
   const [flagModalOpen, setFlagModalOpen] = useState(false);
@@ -341,87 +342,52 @@ export default function PrimaryDashboard() {
             )}
           </div>
 
-          {/* 7 Bars (Sunday to Saturday) matching Screen 1 styling with staggered rise animation */}
-          <div className="relative flex items-end justify-between gap-2.5 h-48 pt-8 pb-2">
-            {/* Sunday */}
-            <div className="flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div
-                onMouseEnter={() => setHoveredBar('Sunday: 48 cases cleared · 98% clean')}
-                onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{ height: '60%', animationDelay: '0ms' }}
-              />
-              <span className="text-[12px] font-semibold text-mu">S</span>
-            </div>
+          {/* 7 Bars (Sunday to Saturday) matching Screen 1 styling */}
+          <div className="relative flex items-end justify-between gap-2.5 h-48 pt-10 pb-2">
+            {[
+              { day: 'S', pct: 60, height: 60, barClass: 'bar--plan', desc: 'Sunday: 48 cases cleared · 98% clean', delay: 0 },
+              { day: 'M', pct: 86, height: 86, barClass: 'bar--mid', desc: 'Monday: 124 cases · 14 escalations', delay: 60 },
+              { day: 'T', pct: 74, height: 74, barClass: 'bar--light', desc: 'Tuesday: 98 cases · 8 escalations', delay: 120 },
+              { day: 'W', pct: 96, height: 96, barClass: 'bar--dark', desc: 'Wednesday: 142 cases · 100% SLA met', delay: 180 },
+              { day: 'T', pct: 68, height: 68, barClass: 'bar--plan', desc: 'Thursday: 84 cases · 6 escalations', delay: 240 },
+              { day: 'F', pct: 55, height: 55, barClass: 'bar--plan', desc: 'Friday: 76 cases · 12 escalations', delay: 300 },
+              { day: 'S', pct: 45, height: 45, barClass: 'bar--plan', desc: 'Saturday: 52 cases · Low weekend volume', delay: 360 },
+            ].map((d, idx) => {
+              const isHovered = hoveredDayIdx === idx;
 
-            {/* Monday */}
-            <div className="flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div
-                onMouseEnter={() => setHoveredBar('Monday: 124 cases · 14 escalations')}
-                onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--mid anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{ height: '86%', animationDelay: '60ms' }}
-              />
-              <span className="text-[12px] font-semibold text-mu">M</span>
-            </div>
+              return (
+                <div key={idx} className="relative flex flex-col items-center flex-1 h-full justify-end gap-2">
+                  {/* Pin Tooltip directly over active bar (matching reference) */}
+                  {isHovered && (
+                    <div
+                      className="absolute z-20 flex flex-col items-center pointer-events-none anim-up"
+                      style={{ bottom: `calc(${d.height}% + 12px)` }}
+                    >
+                      <div className="rounded-lg border border-bd/90 bg-card px-2 py-0.5 text-[11.5px] font-bold text-tx shadow-sm">
+                        {d.pct}%
+                      </div>
+                      <div className="w-[1.5px] h-2.5 bg-mu/60" />
+                    </div>
+                  )}
 
-            {/* Tuesday */}
-            <div className="flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div
-                onMouseEnter={() => setHoveredBar('Tuesday: 98 cases · 8 escalations')}
-                onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--light anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{ height: '74%', animationDelay: '120ms' }}
-              />
-              <span className="text-[12px] font-semibold text-mu">T</span>
-            </div>
-
-            {/* Wednesday with Plan 95% badge */}
-            <div className="relative flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div className="anim-float absolute -top-3 whitespace-nowrap rounded-full bg-[#fdf3e2] border border-[#f59f00]/30 px-2 py-0.5 text-[10px] font-bold text-[#b06d0a] shadow-xs pointer-events-none">
-                SLA 95%
-              </div>
-              <div
-                onMouseEnter={() => setHoveredBar('Wednesday: 142 cases · 100% SLA met')}
-                onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--dark anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{ height: '96%', animationDelay: '180ms' }}
-              />
-              <span className="text-[12px] font-semibold text-mu">W</span>
-            </div>
-
-            {/* Thursday */}
-            <div className="flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div
-                onMouseEnter={() => setHoveredBar('Thursday: 84 cases · 6 escalations')}
-                onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{ height: '68%', animationDelay: '240ms' }}
-              />
-              <span className="text-[12px] font-semibold text-mu">T</span>
-            </div>
-
-            {/* Friday */}
-            <div className="flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div
-                onMouseEnter={() => setHoveredBar('Friday: 76 cases · 12 escalations')}
-                onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{ height: '55%', animationDelay: '300ms' }}
-              />
-              <span className="text-[12px] font-semibold text-mu">F</span>
-            </div>
-
-            {/* Saturday */}
-            <div className="flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div
-                onMouseEnter={() => setHoveredBar('Saturday: 52 cases · Low weekend volume')}
-                onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{ height: '45%', animationDelay: '360ms' }}
-              />
-              <span className="text-[12px] font-semibold text-mu">S</span>
-            </div>
+                  <div
+                    onMouseEnter={() => {
+                      setHoveredDayIdx(idx);
+                      setHoveredBar(d.desc);
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredDayIdx(null);
+                      setHoveredBar(null);
+                    }}
+                    className={`bar-pill ${d.barClass} anim-decile-bar w-full cursor-pointer transition-opacity duration-150 ${
+                      hoveredDayIdx !== null && !isHovered ? 'opacity-60' : 'opacity-100'
+                    }`}
+                    style={{ height: `${d.height}%`, animationDelay: `${d.delay}ms` }}
+                  />
+                  <span className="text-[12px] font-semibold text-mu">{d.day}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

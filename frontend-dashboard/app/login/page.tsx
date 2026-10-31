@@ -21,9 +21,9 @@ export default function Login() {
   return (
     <main className="relative flex min-h-screen items-center justify-center p-6 bg-bg">
       <button
-        onClick={() => a.setDark(!a.dark)}
+        onClick={e => a.toggleTheme(e)}
         aria-label={a.dark ? 'Switch to light mode' : 'Switch to dark mode'}
-        className="absolute right-5 top-5 flex h-11 items-center gap-2 rounded-full border border-bd bg-card px-4 text-[13px] font-semibold text-mu hover:text-tx hover:border-ac/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac cursor-pointer"
+        className="absolute right-5 top-5 flex h-11 items-center gap-2 rounded-full border border-bd bg-card px-4 text-[13px] font-semibold text-mu hover:text-tx hover:border-ac/40 transition-all duration-200 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac cursor-pointer"
       >
         {a.dark ? <Sun size={16} /> : <Moon size={16} />}
         <span>{a.dark ? 'Light mode' : 'Dark mode'}</span>

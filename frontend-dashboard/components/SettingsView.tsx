@@ -271,8 +271,8 @@ export default function SettingsView() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <button
                     type="button"
-                    onClick={() => setDark(false)}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border text-[13px] font-semibold transition cursor-pointer ${
+                    onClick={e => setDark(false, e)}
+                    className={`flex items-center justify-between p-3.5 rounded-2xl border text-[13px] font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
                       !dark ? 'border-ac bg-so text-ac shadow-xs' : 'border-bd bg-card text-tx'
                     }`}
                   >
@@ -281,8 +281,8 @@ export default function SettingsView() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setDark(true)}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border text-[13px] font-semibold transition cursor-pointer ${
+                    onClick={e => setDark(true, e)}
+                    className={`flex items-center justify-between p-3.5 rounded-2xl border text-[13px] font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
                       dark ? 'border-ac bg-so text-ac shadow-xs' : 'border-bd bg-card text-tx'
                     }`}
                   >

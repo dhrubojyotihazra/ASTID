@@ -301,11 +301,11 @@ export default function Shell({ children }: { children: ReactNode }) {
               )}
             </button>
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle with Wave Transition */}
             <button
-              onClick={() => a.setDark(!a.dark)}
+              onClick={e => a.toggleTheme(e)}
               aria-label={a.dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="flex h-10 items-center gap-1.5 rounded-full border border-bd bg-card px-3 text-[12px] font-semibold text-tx hover:bg-so/40 transition cursor-pointer"
+              className="flex h-10 items-center gap-1.5 rounded-full border border-bd bg-card px-3 text-[12px] font-semibold text-tx hover:bg-so/40 transition-all duration-200 active:scale-90 cursor-pointer"
             >
               {a.dark ? <Sun size={15} /> : <Moon size={15} />}
               <span className="hidden sm:inline">{a.dark ? 'Light' : 'Dark'}</span>

@@ -832,7 +832,7 @@ export function Settings() {
         </label>
 
         <div className="pt-3 border-t border-bd/60 flex flex-wrap gap-2">
-          <Btn v="s" onClick={() => a.setDark(!a.dark)}>
+          <Btn v="s" onClick={e => a.toggleTheme(e)}>
             {a.dark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           </Btn>
           <Btn v="s" onClick={() => r.push('/dashboard/audit')}>

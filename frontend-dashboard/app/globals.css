@@ -301,3 +301,79 @@ body {
 @media print {
   aside, header { display: none !important; }
 }
+
+/* Circular Wave View Transition for Theme Switching */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* Ethereal Wave Ripple Glow emanating from toggle button */
+.theme-wave-ripple {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  border-radius: 50%;
+  border-style: solid;
+  transform: translate(-50%, -50%) scale(0);
+  animation: theme-wave-spread 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes theme-wave-spread {
+  0% {
+    width: 0px;
+    height: 0px;
+    border-width: 4px;
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  25% {
+    opacity: 0.8;
+    border-width: 3px;
+  }
+  60% {
+    opacity: 0.45;
+    border-width: 2px;
+  }
+  100% {
+    width: 320vmax;
+    height: 320vmax;
+    border-width: 1px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Fallback wave for browsers without View Transitions */
+.theme-fallback-wave {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: theme-fallback-expand 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes theme-fallback-expand {
+  0% {
+    width: 0px;
+    height: 0px;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    width: 320vmax;
+    height: 320vmax;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+

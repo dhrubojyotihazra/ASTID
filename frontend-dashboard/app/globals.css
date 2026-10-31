@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;@tailwind components;@tailwind utilities;
+:root{--bg:#F4F5F1;--cd:#fff;--bd:#E3E6DF;--tx:#0E1A14;--mu:#4B5B52;--ac:#0F5132;--on:#fff;--so:#E8F3EC;--rd:#B42318;--rb:#FDECEA;--am:#8A5A00;--ab:#FFF3D6}
+.dark{--bg:#0E1411;--cd:#161E1A;--bd:#26322C;--tx:#EAF1EC;--mu:#A3B3A9;--ac:#6FBF8F;--on:#06140C;--so:#1E2B24;--rd:#FF8A80;--rb:#3A1B19;--am:#F5C469;--ab:#33280F}
+body{background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif}
+.num{font-family:ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes sl{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+@keyframes gr{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.anim-up{animation:up .5s cubic-bezier(.2,.7,.2,1) both}.anim-sl{animation:sl .35s ease both}.anim-gr{transform-origin:bottom;animation:gr .9s both}
+@media print{aside,header{display:none!important}}

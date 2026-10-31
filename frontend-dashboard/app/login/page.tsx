@@ -7,6 +7,7 @@ import { useApp } from '@/lib/store';
 import { ROLES, emailToRole } from '@/lib/roles';
 import { Role } from '@/lib/data';
 import { Btn, Card } from '@/components/ui';
+import Preloader from '@/components/Preloader';
 
 export default function Login() {
   const a = useApp();
@@ -25,6 +26,8 @@ export default function Login() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center p-6 bg-transparent">
+      {/* Branded Preloader on Initial Load before Login */}
+      <Preloader />
       <button
         onClick={e => a.toggleTheme(e)}
         aria-label={a.dark ? 'Switch to light mode' : 'Switch to dark mode'}

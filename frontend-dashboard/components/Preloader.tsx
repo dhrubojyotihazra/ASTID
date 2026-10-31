@@ -5,8 +5,8 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 const NUM_BARS = 5;
 const BARS = Array.from({ length: NUM_BARS }, (_, i) => i);
 
-export default function Preloader() {
-  const [loading, setLoading] = useState(true);
+export default function Preloader({ initialActive = true }: { initialActive?: boolean }) {
+  const [loading, setLoading] = useState(initialActive);
 
   // Transition states
   const [isExiting, setIsExiting] = useState(false);

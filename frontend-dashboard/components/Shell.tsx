@@ -290,8 +290,8 @@ export default function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row gap-3.5 p-3 md:p-5 max-w-[1720px] mx-auto">
-      {/* Branded Preloader on Initial Mount */}
-      <Preloader />
+      {/* Preloader for manual Replay Reveal */}
+      <Preloader initialActive={false} />
 
       {/* Mobile Backdrop Scrim */}
       {mobileNavOpen && (

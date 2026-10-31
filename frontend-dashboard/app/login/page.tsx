@@ -1,35 +1,133 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sprout, Moon, Sun } from 'lucide-react';
+import { ShieldCheck, Moon, Sun, ArrowRight, UserCheck } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ROLES, emailToRole } from '@/lib/roles';
 import { Role } from '@/lib/data';
 import { Btn, Card } from '@/components/ui';
 
 export default function Login() {
-  const a = useApp(); const router = useRouter();
-  const [email, setEmail] = useState(''); const [pw, setPw] = useState('');
-  const go = (r: Role) => { a.signIn(r); router.push('/dashboard/' + ROLES[r].tabs[0].key); }; // land on own home
-  // TODO: replace emailToRole with supabase.auth.signInWithPassword({email,password}) and read role from users table
+  const a = useApp();
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+
+  const go = (r: Role) => {
+    a.signIn(r);
+    router.push('/dashboard/' + ROLES[r].tabs[0].key);
+  };
+
   return (
-    <main className="relative flex min-h-screen items-center justify-center p-6">
-      <button onClick={() => a.setDark(!a.dark)} className="absolute right-5 top-5 flex h-11 items-center gap-2 rounded-full border border-bd bg-card px-4 text-[13px] font-semibold text-mu">
-        {a.dark ? <Sun size={16} /> : <Moon size={16} />}{a.dark ? 'Light mode' : 'Dark mode'}</button>
-      <Card className="anim-up flex w-[400px] max-w-full flex-col gap-3.5 !p-8">
-        <div className="flex items-center gap-2.5 text-ac"><Sprout size={30} /><b className="text-[17px] text-tx">RiskOps Workbench</b></div>
-        <div><div className="text-[26px] font-bold tracking-tight">Sign in</div><p className="mt-1 text-[13.5px] text-mu">Bank staff only. You will land on your own workspace.</p></div>
-        <form className="flex flex-col gap-3.5" onSubmit={e => { e.preventDefault(); go(emailToRole(email)); }}>
-          <label className="text-[12.5px] text-mu">Work email
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@bank.example" className="mt-1 min-h-[44px] w-full rounded-2xl border border-bd bg-card px-3.5 text-[14px] text-tx focus:outline-2 focus:outline-ac" /></label>
-          <label className="text-[12.5px] text-mu">Password
-            <input type="password" value={pw} onChange={e => setPw(e.target.value)} className="mt-1 min-h-[44px] w-full rounded-2xl border border-bd bg-card px-3.5 text-[14px] text-tx focus:outline-2 focus:outline-ac" /></label>
-          <Btn type="submit">Sign in</Btn>
+    <main className="relative flex min-h-screen items-center justify-center p-6 bg-bg">
+      <button
+        onClick={() => a.setDark(!a.dark)}
+        aria-label={a.dark ? 'Switch to light mode' : 'Switch to dark mode'}
+        className="absolute right-5 top-5 flex h-11 items-center gap-2 rounded-full border border-bd bg-card px-4 text-[13px] font-semibold text-mu hover:text-tx hover:border-ac/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac cursor-pointer"
+      >
+        {a.dark ? <Sun size={16} /> : <Moon size={16} />}
+        <span>{a.dark ? 'Light mode' : 'Dark mode'}</span>
+      </button>
+
+      <Card className="anim-up flex w-[440px] max-w-full flex-col gap-4 !p-8 shadow-md border-bd/80">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-so text-ac border border-ac/20">
+            <ShieldCheck size={26} />
+          </div>
+          <div>
+            <div className="text-[17px] font-bold text-tx leading-tight">RiskOps Workbench</div>
+            <div className="text-[12px] text-mu">Bank Financial Risk Operations</div>
+          </div>
+        </div>
+
+        <div className="pt-1">
+          <h1 className="text-[24px] font-bold tracking-tight text-tx">Sign In</h1>
+          <p className="mt-1 text-[13px] text-mu">
+            Authorized bank staff only. You will automatically route to your assigned branch scope.
+          </p>
+        </div>
+
+        <form
+          className="flex flex-col gap-3.5"
+          onSubmit={e => {
+            e.preventDefault();
+            go(emailToRole(email));
+          }}
+        >
+          <div>
+            <label htmlFor="work-email" className="block text-[12.5px] font-medium text-mu mb-1">
+              Work email address
+            </label>
+            <input
+              id="work-email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="investigator@bank.co.in"
+              className="min-h-[44px] w-full rounded-2xl border border-bd bg-card px-3.5 text-[14px] text-tx transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="work-password" className="block text-[12.5px] font-medium text-mu mb-1">
+              Password
+            </label>
+            <input
+              id="work-password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={pw}
+              onChange={e => setPw(e.target.value)}
+              placeholder="••••••••••••"
+              className="min-h-[44px] w-full rounded-2xl border border-bd bg-card px-3.5 text-[14px] text-tx transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac"
+            />
+          </div>
+
+          <Btn type="submit" className="w-full mt-1">
+            <span>Sign In to Workbench</span>
+            <ArrowRight size={16} />
+          </Btn>
         </form>
-        <p className="text-[12.5px] text-mu">Need access? Ask your Admin. Accounts are not self-service.</p>
-        <div className="border-t border-bd pt-3">
-          <label className="flex items-center gap-2.5 text-[12.5px] text-mu"><input type="checkbox" checked={a.demo} onChange={e => a.setDemo(e.target.checked)} />Viva demo mode (off for real use)</label>
-          {a.demo && <div className="mt-3 grid grid-cols-2 gap-2">{(Object.keys(ROLES) as Role[]).map(r => <Btn key={r} v="s" onClick={() => go(r)}>{ROLES[r].label}</Btn>)}</div>}
+
+        <p className="text-[12px] text-mu">
+          Need access credentials? Contact your System Administrator. User accounts are provisioned via enterprise Active Directory.
+        </p>
+
+        {/* Viva presentation role switcher */}
+        <div className="border-t border-bd/70 pt-4 mt-1">
+          <label className="flex items-center gap-2.5 text-[12.5px] font-medium text-mu cursor-pointer">
+            <input
+              type="checkbox"
+              checked={a.demo}
+              onChange={e => a.setDemo(e.target.checked)}
+              className="h-4 w-4 rounded accent-[#0F5132]"
+            />
+            <span>Viva Examiner Demo Mode (Quick Role Switcher)</span>
+          </label>
+
+          {a.demo && (
+            <div className="mt-3 flex flex-col gap-1.5 anim-up">
+              <div className="text-[11.5px] font-bold uppercase tracking-wider text-mu mb-1">
+                One-Click Security Boundary Demonstration:
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {(Object.keys(ROLES) as Role[]).map(r => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => go(r)}
+                    className="flex flex-col items-start p-2.5 rounded-2xl border border-bd bg-so/30 hover:bg-so hover:border-ac/50 transition text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac"
+                  >
+                    <span className="text-[13px] font-bold text-tx">{ROLES[r].label}</span>
+                    <span className="text-[11px] text-mu truncate w-full">{ROLES[r].branch}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </Card>
     </main>

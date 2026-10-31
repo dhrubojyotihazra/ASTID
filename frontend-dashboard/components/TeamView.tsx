@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Plus, MessageSquare, User, Check, Send, ChevronRight, Shield, Award, Users } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ROLES } from '@/lib/roles';
+import AnimatedTabs from './AnimatedTabs';
 
 export type TeamMember = {
   id: string;
@@ -319,28 +320,15 @@ export default function TeamView() {
         </div>
         <div className="flex items-center gap-2.5">
           {/* Toggle between Hierarchy view and Directory grid */}
-          <div className="inline-flex rounded-full bg-card border border-bd/80 p-1 shadow-xs">
-            <button
-              onClick={() => setViewMode('hierarchy')}
-              className={`rounded-full px-4 py-1.5 text-[12px] font-semibold transition cursor-pointer ${
-                viewMode === 'hierarchy'
-                  ? 'bg-[#0d3a23] text-white shadow-xs'
-                  : 'text-mu hover:text-tx'
-              }`}
-            >
-              Hierarchy View
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`rounded-full px-4 py-1.5 text-[12px] font-semibold transition cursor-pointer ${
-                viewMode === 'grid'
-                  ? 'bg-[#0d3a23] text-white shadow-xs'
-                  : 'text-mu hover:text-tx'
-              }`}
-            >
-              All Members
-            </button>
-          </div>
+          <AnimatedTabs<'hierarchy' | 'grid'>
+            size="sm"
+            tabs={[
+              { id: 'hierarchy', label: 'Hierarchy View' },
+              { id: 'grid', label: 'All Members' },
+            ]}
+            activeId={viewMode}
+            onChange={setViewMode}
+          />
 
           <button
             onClick={() => setInviteModalOpen(true)}
@@ -422,32 +410,18 @@ export default function TeamView() {
         <>
           {/* Department Filter Toolbar */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex rounded-full bg-card border border-bd/80 p-1 shadow-xs">
-              {(
-                [
-                  ['all', 'All Staff'],
-                  ['Investigation', 'Investigation'],
-                  ['Escalation', 'Escalation'],
-                  ['Compliance', 'Compliance'],
-                  ['Operations', 'Operations'],
-                ] as const
-              ).map(([k, label]) => {
-                const on = deptFilter === k;
-                return (
-                  <button
-                    key={k}
-                    onClick={() => setDeptFilter(k)}
-                    className={`rounded-full px-4 py-1.5 text-[12.5px] font-semibold transition-all duration-200 cursor-pointer ${
-                      on
-                        ? 'bg-[#0d3a23] text-white shadow-xs'
-                        : 'text-mu hover:text-tx hover:bg-so/40'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+            <AnimatedTabs<'all' | 'Investigation' | 'Escalation' | 'Compliance' | 'Operations'>
+              size="sm"
+              tabs={[
+                { id: 'all', label: 'All Staff' },
+                { id: 'Investigation', label: 'Investigation' },
+                { id: 'Escalation', label: 'Escalation' },
+                { id: 'Compliance', label: 'Compliance' },
+                { id: 'Operations', label: 'Operations' },
+              ]}
+              activeId={deptFilter}
+              onChange={setDeptFilter}
+            />
 
             <div className="flex items-center gap-2 text-[12.5px] font-semibold text-mu">
               <span className="h-2 w-2 rounded-full bg-ac animate-pulse" />

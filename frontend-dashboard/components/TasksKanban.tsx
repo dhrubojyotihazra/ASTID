@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useApp, Case } from '@/lib/store';
 import { inr } from '@/lib/export';
+import AnimatedTabs from './AnimatedTabs';
 
 type ColumnId = 'new' | 'investigating' | 'escalated' | 'resolved';
 
@@ -110,31 +111,16 @@ export default function TasksKanban() {
 
       {/* Filter Tabs & Counter */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex rounded-full bg-card border border-bd/80 p-1 shadow-xs">
-          {(
-            [
-              ['all', 'All Cases'],
-              ['priority', 'Priority Flags (≥0.70)'],
-              ['high', '₹1L+ High Value'],
-              ['mine', 'My Active Cases'],
-            ] as const
-          ).map(([k, label]) => {
-            const on = filter === k;
-            return (
-              <button
-                key={k}
-                onClick={() => setFilter(k)}
-                className={`rounded-full px-4 py-1.5 text-[12.5px] font-semibold transition-all duration-200 cursor-pointer ${
-                  on
-                    ? 'bg-[#0d3a23] text-white shadow-xs'
-                    : 'text-mu hover:text-tx hover:bg-so/40'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        <AnimatedTabs<'all' | 'priority' | 'high' | 'mine'>
+          tabs={[
+            { id: 'all', label: 'All Cases' },
+            { id: 'priority', label: 'Priority Flags (≥0.70)' },
+            { id: 'high', label: '₹1L+ High Value' },
+            { id: 'mine', label: 'My Active Cases' },
+          ]}
+          activeId={filter}
+          onChange={setFilter}
+        />
 
         <div className="text-[12.5px] font-semibold text-mu">
           <span>{totalFiltered} cases displayed</span>

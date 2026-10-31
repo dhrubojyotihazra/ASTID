@@ -19,6 +19,7 @@ import { ROLES } from '@/lib/roles';
 import { downloadCsv, inr, inrCr } from '@/lib/export';
 import { Btn, Card, H1, Pill, Stats } from './ui';
 import CaseList from './CaseList';
+import AnimatedTabs from './AnimatedTabs';
 
 const useScope = () => {
   const a = useApp();
@@ -65,25 +66,16 @@ export function HomeAnalyst() {
 
       <div className="flex flex-wrap items-center justify-between gap-2.5 mt-1">
         <h2 className="text-[15px] font-bold text-tx">Live Ingestion Feed</h2>
-        <div className="flex gap-1.5 bg-card border border-bd/80 p-1 rounded-full text-[12px]">
-          {(
-            [
-              ['all', `All (${baseQueue.length})`],
-              ['urgent', 'Priority Flags'],
-              ['high', '₹1L+ High Value'],
-            ] as const
-          ).map(([k, label]) => (
-            <button
-              key={k}
-              onClick={() => setFilter(k)}
-              className={`px-3 py-1 rounded-full font-semibold transition cursor-pointer ${
-                filter === k ? 'bg-ac text-on shadow-xs' : 'text-mu hover:text-tx'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <AnimatedTabs<'all' | 'high' | 'urgent'>
+          size="sm"
+          tabs={[
+            { id: 'all', label: `All (${baseQueue.length})` },
+            { id: 'urgent', label: 'Priority Flags' },
+            { id: 'high', label: '₹1L+ High Value' },
+          ]}
+          activeId={filter}
+          onChange={setFilter}
+        />
       </div>
 
       <CaseList cases={filteredQueue} />
@@ -360,27 +352,16 @@ export function Escalations({ sla = false }: { sla?: boolean }) {
         <span className="text-[12.5px] font-medium text-mu">Protocol: 15-Minute Response Window</span>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {T.map(([k, label]) => {
-          const count = esc.filter(F[k]).length;
-          return (
-            <button
-              key={k}
-              onClick={() => setT(k)}
-              className={`flex h-10 items-center gap-2 rounded-full border px-4 text-[13px] font-semibold transition cursor-pointer ${
-                t === k
-                  ? 'border-ac bg-ac text-on shadow-xs'
-                  : 'border-bd bg-card text-mu hover:bg-so/60 hover:text-tx'
-              }`}
-            >
-              <span>{label}</span>
-              <span className="num rounded-full bg-so/50 px-2 py-0.5 text-[11px] font-bold">
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      <AnimatedTabs<string>
+        tabs={T.map(([k, label]) => ({
+          id: k,
+          label,
+          count: esc.filter(F[k]).length,
+          tone: k === 'over' ? 'r' : 'default',
+        }))}
+        activeId={t}
+        onChange={setT}
+      />
 
       <CaseList cases={esc.filter(F[t]).sort(byDue)} timer />
     </>

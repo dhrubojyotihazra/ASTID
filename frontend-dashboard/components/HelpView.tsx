@@ -86,7 +86,7 @@ export default function HelpView() {
       <section className="help-hero-banner relative rounded-[28px] p-8 md:p-10 shadow-lg text-white">
         <div className="relative z-10 max-w-2xl">
           <h2 className="text-[24px] md:text-[28px] font-extrabold tracking-tight mb-2">
-            Sentinel FraudOps Knowledge Base
+            ASTID Fraud Defense Knowledge Base
           </h2>
           <p className="text-[14px] text-white/80 mb-6">
             Search operational procedures, verification protocols, or pick a guide below.

@@ -3,8 +3,16 @@ import { AppProvider } from '@/lib/store';
 import { GradientWave } from '@/components/ui/gradient-wave';
 
 export const metadata = {
-  title: 'Sentinel RiskOps | Bank Fraud Operations Workbench',
-  description: 'Internal Enterprise Financial Risk Operations and Transaction Inspection Workbench',
+  title: 'ASTID',
+  description: 'AI Shield for Transaction Integrity & Defense | Bank Fraud Operations Workbench',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/icon.png',
+  },
 };
 
 export default function Root({ children }: { children: React.ReactNode }) {

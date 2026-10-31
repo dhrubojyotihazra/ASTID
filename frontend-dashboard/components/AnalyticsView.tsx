@@ -92,7 +92,7 @@ export default function AnalyticsView() {
   const [hoveredBranch, setHoveredBranch] = useState<typeof BRANCH_DISTRIBUTION[0] | null>(null);
 
   const handleExport = () => {
-    downloadCsv('sentinel_riskops_analytics.csv', [
+    downloadCsv('astid_fraud_operations_analytics.csv', [
       ['Metric', 'Value', 'Delta / Status'],
       ['Total Warehouse Transactions', '6,362,620', 'Ground truth'],
       ['Cases Reviewed', '847', '+12.3%'],

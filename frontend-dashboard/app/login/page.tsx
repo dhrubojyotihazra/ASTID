@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Moon, Sun, ArrowRight, UserCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Moon, Sun, ArrowRight, UserCheck } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ROLES, emailToRole } from '@/lib/roles';
 import { Role } from '@/lib/data';
@@ -12,6 +13,10 @@ export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
+
+  useEffect(() => {
+    document.title = 'ASTID';
+  }, []);
 
   const go = (r: Role) => {
     a.signIn(r);
@@ -31,12 +36,19 @@ export default function Login() {
 
       <Card className="anim-up flex w-[440px] max-w-full flex-col gap-4 !p-8 shadow-md border-bd/80">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-so text-ac border border-ac/20">
-            <ShieldCheck size={26} />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0d3a23]/10 dark:bg-[#155a37]/30 border border-ac/25 p-1.5 shadow-xs">
+            <Image
+              src="/astid-logo-square.png"
+              alt="ASTID Logo"
+              width={40}
+              height={40}
+              className="object-contain"
+              priority
+            />
           </div>
           <div>
-            <div className="text-[17px] font-bold text-tx leading-tight">RiskOps Workbench</div>
-            <div className="text-[12px] text-mu">Bank Financial Risk Operations</div>
+            <div className="text-[19px] font-extrabold text-tx leading-tight tracking-tight">ASTID</div>
+            <div className="text-[11.5px] font-medium text-mu">AI Shield for Transaction Integrity &amp; Defense</div>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { ShieldCheck, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { Sparkles } from 'lucide-react';
 
 export default function Preloader() {
   const [loading, setLoading] = useState(true);
@@ -47,21 +48,28 @@ export default function Preloader() {
       }`}
     >
       <div className="relative flex flex-col items-center max-w-sm px-6 text-center">
-        {/* Concentric pulsing rings */}
+        {/* Concentric pulsing rings with ASTID Logo */}
         <div className="relative flex items-center justify-center mb-6">
           <div className="absolute h-28 w-28 rounded-full border border-[#0F5132]/20 dark:border-[#6FBF8F]/20 animate-ping opacity-30" />
           <div className="absolute h-22 w-22 rounded-full border border-[#0F5132]/35 dark:border-[#6FBF8F]/35 animate-pulse" />
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#0d3a23] text-white shadow-xl">
-            <ShieldCheck size={32} className="text-[#5dbd8b] animate-bounce" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#0d3a23]/10 dark:bg-[#155a37]/30 border border-ac/30 p-2 shadow-xl">
+            <Image
+              src="/astid-logo-square.png"
+              alt="ASTID Logo"
+              width={48}
+              height={48}
+              className="object-contain animate-bounce"
+              priority
+            />
           </div>
         </div>
 
         {/* Brand name */}
         <h2 className="text-[20px] font-bold tracking-tight text-[#0E1A14] dark:text-[#EAF1EC] mb-1">
-          Sentinel <span className="text-[14px] font-medium text-[#646d67] dark:text-[#A3B3A9]">· FraudOps</span>
+          ASTID <span className="text-[14px] font-medium text-[#646d67] dark:text-[#A3B3A9]">· Fraud Defense</span>
         </h2>
         <p className="text-[13px] text-[#646d67] dark:text-[#A3B3A9] mb-5">
-          Real-time transaction inspection and operational fraud intelligence.
+          AI Shield for Transaction Integrity &amp; Defense.
         </p>
 
         {/* Loading Progress Bar */}

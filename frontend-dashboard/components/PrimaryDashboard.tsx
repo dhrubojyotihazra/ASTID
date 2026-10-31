@@ -592,87 +592,107 @@ export default function PrimaryDashboard() {
         </div>
 
         {/* Decision Distribution Semicircle Gauge (3 cols) */}
-        <div className="card-micro lg:col-span-3 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between text-center">
+        <div className="card-micro lg:col-span-3 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
           <div className="text-left">
-            <h2 className="text-[16px] font-bold text-tx">Decision Coverage</h2>
-            <span className="text-[11px] text-mu">Shift clearance performance</span>
+            <h2 className="text-[17px] font-bold text-tx tracking-tight">Project Progress</h2>
           </div>
 
           {/* Semicircle SVG Arc Gauge with animated arc drawing */}
           <div className="relative flex flex-col items-center justify-center my-auto py-2">
-            <svg viewBox="0 0 240 130" className="w-48 h-auto overflow-visible">
+            <svg viewBox="0 0 240 145" className="w-56 sm:w-64 h-auto overflow-visible">
               <defs>
-                <pattern id="hatch-pattern-gauge" width="6" height="6" patternUnits="userSpaceOnUse">
-                  <path d="M-1,1 l2,-2 M0,6 l6,-6 M5,7 l2,-2" stroke="#8d9a92" strokeWidth="1.5" />
+                <pattern
+                  id="hatch-pattern-gauge"
+                  width="7"
+                  height="7"
+                  patternUnits="userSpaceOnUse"
+                  patternTransform="rotate(45)"
+                >
+                  <line x1="0" y1="0" x2="0" y2="7" stroke="#8d9a92" strokeWidth="2.8" />
                 </pattern>
               </defs>
 
               {/* Background Track */}
               <path
-                d="M30 115 A 85 85 0 0 1 210 115"
+                d="M 38 125 A 82 82 0 0 1 202 125"
                 fill="none"
                 stroke="#e3e7e4"
-                strokeWidth="20"
+                strokeWidth="32"
                 strokeLinecap="round"
+                className="dark:stroke-[#26322C]"
               />
 
-              {/* Cleared / Legit Segment (68%) */}
+              {/* Completed Segment (68%) */}
               <path
-                d="M30 115 A 85 85 0 0 1 210 115"
+                d="M 38 125 A 82 82 0 0 1 202 125"
                 fill="none"
                 stroke="#1d7347"
-                strokeWidth="20"
-                strokeDasharray="181 267"
+                strokeWidth="32"
+                strokeDasharray="175 257.6"
                 strokeDashoffset="0"
+                strokeLinecap="round"
                 className="anim-gauge-arc"
               />
 
-              {/* Confirmed Fraud Segment (22%) */}
+              {/* In Progress Segment (22%) */}
               <path
-                d="M30 115 A 85 85 0 0 1 210 115"
+                d="M 38 125 A 82 82 0 0 1 202 125"
                 fill="none"
                 stroke="#0d3a23"
-                strokeWidth="20"
-                strokeDasharray="59 267"
-                strokeDashoffset="-181"
+                strokeWidth="32"
+                strokeDasharray="57 257.6"
+                strokeDashoffset="-175"
                 className="anim-gauge-arc"
                 style={{ animationDelay: '150ms' }}
               />
 
               {/* Pending Segment (Hatched pattern 10%) */}
               <path
-                d="M30 115 A 85 85 0 0 1 210 115"
+                d="M 38 125 A 82 82 0 0 1 202 125"
                 fill="none"
                 stroke="url(#hatch-pattern-gauge)"
-                strokeWidth="20"
-                strokeDasharray="27 267"
-                strokeDashoffset="-240"
+                strokeWidth="32"
+                strokeDasharray="26 257.6"
+                strokeDashoffset="-232"
+                strokeLinecap="round"
                 className="anim-gauge-arc"
                 style={{ animationDelay: '300ms' }}
               />
             </svg>
 
-            {/* Gauge Label */}
-            <div className="mt-2 text-center">
-              <div className="num text-[26px] font-extrabold text-tx leading-tight">68%</div>
-              <div className="text-[11.5px] font-medium text-mu">Queue Cleared</div>
+            {/* Gauge Number & Label positioned directly inside the arch */}
+            <div className="absolute bottom-1 left-0 right-0 flex flex-col items-center justify-center text-center pointer-events-none">
+              <div className="num text-[36px] sm:text-[40px] font-extrabold text-tx leading-none tracking-tight">
+                68%
+              </div>
+              <div className="text-[12px] font-medium text-mu mt-1">
+                Queue Cleared
+              </div>
             </div>
           </div>
 
-          {/* Legend dots */}
-          <div className="flex items-center justify-center gap-3 text-[11px] font-semibold text-mu pt-2 border-t border-bd/40">
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-[#1d7347]" />
-              <span>Cleared</span>
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-[#0d3a23]" />
-              <span>Confirmed Fraud</span>
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-[#8d9a92]" />
+          {/* Legend dots matching reference */}
+          <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-bd/40 text-[12px] font-medium text-mu">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded-full bg-[#1d7347]" />
+                <span>Completed</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded-full bg-[#0d3a23]" />
+                <span>In Progress</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="h-3 w-3 rounded-full border border-bd/60"
+                style={{
+                  background:
+                    'repeating-linear-gradient(45deg, #8d9a92, #8d9a92 1.5px, transparent 1.5px, transparent 3.5px)',
+                }}
+              />
               <span>Pending</span>
-            </span>
+            </div>
           </div>
         </div>
 

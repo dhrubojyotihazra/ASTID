@@ -215,7 +215,7 @@ input:-webkit-autofill:focus {
 
 @keyframes gauge-draw {
   0% {
-    stroke-dashoffset: 267;
+    stroke-dashoffset: 258;
   }
 }
 

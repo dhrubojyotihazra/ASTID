@@ -28,6 +28,7 @@ import {
   BarChart3,
   X,
   Smartphone,
+  Play,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ROLES, canSeeHealth } from '@/lib/roles';
@@ -258,15 +259,31 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      {/* Bottom System Operational Status (clean replacement for removed promo card) */}
-      <div className="mt-auto pt-4 border-t border-bd/60 flex items-center justify-between text-[11px] text-mu px-1">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-ac animate-pulse" />
-          <span className="font-semibold text-tx">Engine v2.4</span>
+      {/* Bottom System Operational Status & Preloader Replay */}
+      <div className="mt-auto pt-4 border-t border-bd/60 flex flex-col gap-2.5 px-1">
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('astid:replay-preloader'))}
+          title="Replay Video & Omni Curve Reveal"
+          className="flex items-center justify-between w-full py-1.5 px-2 rounded-xl text-[11px] font-semibold text-mu hover:text-tx hover:bg-so/60 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-ac/15 text-ac group-hover:scale-110 transition-transform">
+              <Play size={10} className="fill-ac ml-0.5" />
+            </div>
+            <span>Replay Reveal</span>
+          </div>
+          <span className="text-[10px] text-mu/70 font-mono">Omni Curve</span>
+        </button>
+
+        <div className="flex items-center justify-between text-[11px] text-mu">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-ac animate-pulse" />
+            <span className="font-semibold text-tx">Engine v2.4</span>
+          </div>
+          <span className="font-mono text-[10.5px] rounded-full bg-so px-2 py-0.5 text-ac font-bold border border-ac/15">
+            99.8% SLA
+          </span>
         </div>
-        <span className="font-mono text-[10.5px] rounded-full bg-so px-2 py-0.5 text-ac font-bold border border-ac/15">
-          99.8% SLA
-        </span>
       </div>
     </div>
   );

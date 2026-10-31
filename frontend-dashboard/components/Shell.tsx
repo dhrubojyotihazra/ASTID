@@ -345,7 +345,7 @@ export default function Shell({ children }: { children: ReactNode }) {
       {/* Main Content Area */}
       <main className="flex min-w-0 flex-1 flex-col gap-4">
         {/* Top Header Bar */}
-        <header className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-bd/80 bg-card/80 px-4 py-3 backdrop-blur-md shadow-xs">
+        <header className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] glass-header px-4 py-3">
           {/* Left: Mobile hamburger & Search input with Ctrl+K */}
           <div className="flex items-center gap-3 flex-1 max-w-md">
             <button

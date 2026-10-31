@@ -153,8 +153,8 @@ export default function TasksKanban() {
               onDragOver={e => handleDragOver(e, col.id)}
               onDragLeave={handleDragLeave}
               onDrop={e => handleDrop(e, col.id)}
-              className={`flex flex-col gap-3 rounded-[24px] border border-bd/80 bg-card/60 p-3.5 min-h-[620px] transition-colors duration-200 ${
-                isOver ? 'task-drag-over bg-so/30 border-ac/50' : ''
+              className={`flex flex-col gap-3 rounded-[24px] glass-card p-3.5 min-h-[620px] transition-colors duration-200 ${
+                isOver ? 'task-drag-over !bg-so/30 !border-ac/50' : ''
               }`}
             >
               {/* Column Head */}
@@ -181,10 +181,10 @@ export default function TasksKanban() {
                       onDragStart={e => handleDragStart(e, c.id)}
                       onDragEnd={() => setDraggingCaseId(null)}
                       onClick={() => select(c.id)}
-                      className={`card-micro group relative flex flex-col gap-2.5 rounded-[20px] border bg-card p-4 shadow-xs transition-all duration-200 cursor-grab active:cursor-grabbing hover:border-ac/40 ${
+                      className={`card-micro group relative flex flex-col gap-2.5 rounded-[20px] glass-card-inner p-4 shadow-xs transition-all duration-200 cursor-grab active:cursor-grabbing hover:border-ac/40 ${
                         isSelected
-                          ? 'border-ac ring-2 ring-ac/30 bg-so/10'
-                          : 'border-bd/80'
+                          ? '!border-ac ring-2 ring-ac/30 !bg-so/10'
+                          : ''
                       } ${isDragging ? 'task-dragging opacity-40 scale-95 rotate-1' : ''}`}
                     >
                       {/* Top row: Tags & Score */}

@@ -106,7 +106,7 @@ export default function HelpView() {
               <button
                 key={i}
                 onClick={() => say(`Viewing topic guide: ${topic.title}`)}
-                className="flex items-center gap-3.5 rounded-2xl bg-white/10 hover:bg-white/18 p-4 text-left backdrop-blur-md border border-white/15 transition-all duration-200 active:scale-95 cursor-pointer"
+                className="flex items-center gap-3.5 rounded-2xl bg-white/10 hover:bg-white/18 p-4 text-left backdrop-blur-xl border border-white/20 transition-all duration-200 active:scale-95 cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
                   <Icon size={18} />
@@ -124,7 +124,7 @@ export default function HelpView() {
       {/* Main Grid: FAQ Accordion (Left) + Shortcuts & Stuck Card (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left: Frequently Asked Accordion (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col gap-2 rounded-[26px] border border-bd/80 bg-card p-6 md:p-8 shadow-xs">
+        <div className="lg:col-span-8 flex flex-col gap-2 rounded-[26px] glass-card p-6 md:p-8">
           <div className="flex items-center justify-between pb-3 border-b border-bd/60 mb-2">
             <h2 className="text-[17px] font-bold text-tx">Frequently Asked Questions</h2>
             {searchQuery && (
@@ -170,7 +170,7 @@ export default function HelpView() {
         {/* Right: Keyboard Shortcuts + Support Card (4 cols) */}
         <div className="lg:col-span-4 flex flex-col gap-4">
           {/* Keyboard Shortcuts Card */}
-          <div className="rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col gap-3">
+          <div className="rounded-[26px] glass-card p-6 flex flex-col gap-3">
             <h2 className="text-[16px] font-bold text-tx">Operational Shortcuts</h2>
             <div className="flex flex-col gap-2 pt-1">
               {SHORTCUTS.map((s, i) => (

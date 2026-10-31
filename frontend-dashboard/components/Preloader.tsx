@@ -52,12 +52,12 @@ export default function Preloader() {
         <div className="relative flex items-center justify-center mb-6">
           <div className="absolute h-28 w-28 rounded-full border border-[#0F5132]/20 dark:border-[#6FBF8F]/20 animate-ping opacity-30" />
           <div className="absolute h-22 w-22 rounded-full border border-[#0F5132]/35 dark:border-[#6FBF8F]/35 animate-pulse" />
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#0d3a23]/10 dark:bg-[#155a37]/30 border border-ac/30 p-2 shadow-xl">
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-[24px] bg-so/80 dark:bg-so/30 border border-ac/30 p-2 shadow-xl">
             <Image
               src="/astid-logo-square.png"
               alt="ASTID Logo"
-              width={48}
-              height={48}
+              width={64}
+              height={64}
               className="object-contain animate-bounce"
               priority
             />

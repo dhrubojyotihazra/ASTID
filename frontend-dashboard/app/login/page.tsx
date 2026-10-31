@@ -35,20 +35,20 @@ export default function Login() {
       </button>
 
       <Card className="anim-up flex w-[440px] max-w-full flex-col gap-4 !p-8 shadow-md border-bd/80">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0d3a23]/10 dark:bg-[#155a37]/30 border border-ac/25 p-1.5 shadow-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1.5 shadow-xs">
             <Image
               src="/astid-logo-square.png"
               alt="ASTID Logo"
-              width={40}
-              height={40}
+              width={48}
+              height={48}
               className="object-contain"
               priority
             />
           </div>
           <div>
-            <div className="text-[19px] font-extrabold text-tx leading-tight tracking-tight">ASTID</div>
-            <div className="text-[11.5px] font-medium text-mu">AI Shield for Transaction Integrity &amp; Defense</div>
+            <div className="text-[21px] font-extrabold text-tx leading-tight tracking-tight">ASTID</div>
+            <div className="text-[12px] font-medium text-mu">AI Shield for Transaction Integrity &amp; Defense</div>
           </div>
         </div>
 

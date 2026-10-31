@@ -85,19 +85,6 @@ input:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Dark-mode logo rim definition & white glow: ensures dark green letters and emblem pop against dark theme surfaces while remaining completely invisible in light mode */
-.astid-logo-glow {
-  transition: filter 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  filter: none;
-}
-
-:root.dark .astid-logo-glow,
-.dark .astid-logo-glow {
-  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.85))
-          drop-shadow(0 0 2px rgba(255, 255, 255, 0.45))
-          drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
-}
-
 .num {
   font-family: ui-monospace, Menlo, monospace;
   font-variant-numeric: tabular-nums;

@@ -43,7 +43,15 @@ export default function Login() {
               alt="ASTID Emblem"
               width={52}
               height={52}
-              className="object-contain drop-shadow-md astid-logo-glow"
+              className="object-contain drop-shadow-md dark:hidden"
+              priority
+            />
+            <Image
+              src="/astid-logo-square-dark.png"
+              alt="ASTID Emblem"
+              width={52}
+              height={52}
+              className="object-contain drop-shadow-md hidden dark:block"
               priority
             />
           </div>
@@ -52,7 +60,15 @@ export default function Login() {
             alt="astid"
             width={124}
             height={36}
-            className="object-contain h-[34px] w-auto drop-shadow-xs astid-logo-glow"
+            className="object-contain h-[34px] w-auto drop-shadow-xs dark:hidden"
+            priority
+          />
+          <Image
+            src="/astid-wordmark-dark.png"
+            alt="astid"
+            width={124}
+            height={36}
+            className="object-contain h-[34px] w-auto drop-shadow-xs hidden dark:block"
             priority
           />
           <p className="mt-1.5 text-[12px] font-medium text-mu max-w-[280px]">

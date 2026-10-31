@@ -146,7 +146,15 @@ export default function Shell({ children }: { children: ReactNode }) {
               alt="ASTID Logo"
               width={36}
               height={36}
-              className="object-contain drop-shadow-xs astid-logo-glow"
+              className="object-contain drop-shadow-xs dark:hidden"
+              priority
+            />
+            <Image
+              src="/astid-logo-square-dark.png"
+              alt="ASTID Logo"
+              width={36}
+              height={36}
+              className="object-contain drop-shadow-xs hidden dark:block"
               priority
             />
           </div>
@@ -155,7 +163,15 @@ export default function Shell({ children }: { children: ReactNode }) {
             alt="astid"
             width={88}
             height={26}
-            className="object-contain h-[26px] w-auto transition-transform duration-200 group-hover:scale-105 astid-logo-glow"
+            className="object-contain h-[26px] w-auto transition-transform duration-200 group-hover:scale-105 dark:hidden"
+            priority
+          />
+          <Image
+            src="/astid-wordmark-dark.png"
+            alt="astid"
+            width={88}
+            height={26}
+            className="object-contain h-[26px] w-auto transition-transform duration-200 group-hover:scale-105 hidden dark:block"
             priority
           />
         </Link>

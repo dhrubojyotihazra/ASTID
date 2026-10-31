@@ -58,7 +58,15 @@ export default function Preloader() {
               alt="ASTID Logo"
               width={64}
               height={64}
-              className="object-contain animate-bounce astid-logo-glow"
+              className="object-contain animate-bounce dark:hidden"
+              priority
+            />
+            <Image
+              src="/astid-logo-square-dark.png"
+              alt="ASTID Logo"
+              width={64}
+              height={64}
+              className="object-contain animate-bounce hidden dark:block"
               priority
             />
           </div>
@@ -71,7 +79,15 @@ export default function Preloader() {
             alt="astid"
             width={110}
             height={34}
-            className="object-contain h-[32px] w-auto drop-shadow-xs astid-logo-glow"
+            className="object-contain h-[32px] w-auto drop-shadow-xs dark:hidden"
+            priority
+          />
+          <Image
+            src="/astid-wordmark-dark.png"
+            alt="astid"
+            width={110}
+            height={34}
+            className="object-contain h-[32px] w-auto drop-shadow-xs hidden dark:block"
             priority
           />
         </div>

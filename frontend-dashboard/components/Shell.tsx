@@ -138,8 +138,8 @@ export default function Shell({ children }: { children: ReactNode }) {
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Brand Header with ASTID Logo & Vector Wordmark */}
-      <div className="flex items-center justify-between px-2 pt-2.5 pb-4.5 border-b border-bd/60 mb-3">
-        <Link href="/dashboard/home" className="flex items-center gap-1 group">
+      <div className="flex items-center justify-between px-2 pt-4.5 pb-3.5 border-b border-bd/60 mb-3">
+        <Link href="/dashboard/home" className="flex items-center gap-1 group translate-y-[2px]">
           <div className="relative flex h-9 w-9 items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
             <Image
               src="/astid-logo-square.png"
@@ -150,7 +150,7 @@ export default function Shell({ children }: { children: ReactNode }) {
               priority
             />
           </div>
-          <div className="flex flex-col min-w-0 -ml-1.5 translate-y-[2px]">
+          <div className="flex flex-col min-w-0 -ml-1.5 translate-y-[1.5px]">
             <Image
               src="/astid-wordmark.png"
               alt="astid"

@@ -129,7 +129,7 @@ export default function PrimaryDashboard() {
       {/* Top 4 Stat Cards Row - Role Adaptive */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Card 1: Primary Hero Metric */}
-        <article className="stat--hero rounded-[26px] p-5 shadow-lg flex flex-col justify-between min-h-[145px] transition-transform duration-200 hover:-translate-y-0.5">
+        <article className="stat--hero card-micro rounded-[26px] p-5 shadow-lg flex flex-col justify-between min-h-[145px] cursor-pointer">
           <div className="relative z-10 flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-white/90">
               {role === 'senior'
@@ -143,7 +143,7 @@ export default function PrimaryDashboard() {
             <Link
               href={role === 'senior' ? '/dashboard/esc' : '/dashboard/cases'}
               aria-label="Open cases"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0d3a23] shadow-xs transition-transform duration-200 hover:rotate-45"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0d3a23] shadow-xs transition-transform duration-200 hover:rotate-45 active:scale-90"
             >
               <ArrowUpRight size={16} />
             </Link>
@@ -159,7 +159,10 @@ export default function PrimaryDashboard() {
                 : unreviewedReviews.length}
             </div>
             <div className="flex items-center gap-1.5 mt-2 text-[11.5px] font-medium text-white/80">
-              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10.5px] font-bold">Live</span>
+              <span className="flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[10.5px] font-bold">
+                <span className="h-1.5 w-1.5 rounded-full bg-white anim-live-pulse mr-1.5" />
+                Live
+              </span>
               <span>
                 {role === 'senior'
                   ? 'High-severity 15m window'
@@ -174,7 +177,7 @@ export default function PrimaryDashboard() {
         </article>
 
         {/* Card 2: Prevention / Today Activity */}
-        <article className="rounded-[26px] border border-bd/80 bg-card p-5 shadow-xs flex flex-col justify-between min-h-[145px] interactive-hover">
+        <article className="card-micro rounded-[26px] border border-bd/80 bg-card p-5 shadow-xs flex flex-col justify-between min-h-[145px] cursor-pointer">
           <div className="flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-mu">
               {role === 'senior'
@@ -188,7 +191,7 @@ export default function PrimaryDashboard() {
             <Link
               href="/dashboard/analytics"
               aria-label="View analytics"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-bd bg-card text-mu shadow-2xs hover:text-tx hover:rotate-45 transition-all duration-200"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-bd bg-card text-mu shadow-2xs hover:text-tx hover:rotate-45 active:scale-90 transition-all duration-200"
             >
               <ArrowUpRight size={16} />
             </Link>
@@ -227,7 +230,7 @@ export default function PrimaryDashboard() {
         </article>
 
         {/* Card 3: Quality / Accuracy Metric */}
-        <article className="rounded-[26px] border border-bd/80 bg-card p-5 shadow-xs flex flex-col justify-between min-h-[145px] interactive-hover">
+        <article className="card-micro rounded-[26px] border border-bd/80 bg-card p-5 shadow-xs flex flex-col justify-between min-h-[145px] cursor-pointer">
           <div className="flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-mu">
               {role === 'senior'
@@ -241,7 +244,7 @@ export default function PrimaryDashboard() {
             <button
               aria-label="View rate details"
               onClick={() => say('False-positive rate calibrated under 5% SLA standard.')}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-bd bg-card text-mu shadow-2xs hover:text-tx hover:rotate-45 transition-all duration-200"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-bd bg-card text-mu shadow-2xs hover:text-tx hover:rotate-45 active:scale-90 transition-all duration-200 cursor-pointer"
             >
               <ArrowUpRight size={16} />
             </button>
@@ -274,7 +277,7 @@ export default function PrimaryDashboard() {
         </article>
 
         {/* Card 4: Action Status Metric */}
-        <article className="rounded-[26px] border border-bd/80 bg-card p-5 shadow-xs flex flex-col justify-between min-h-[145px] interactive-hover">
+        <article className="card-micro rounded-[26px] border border-bd/80 bg-card p-5 shadow-xs flex flex-col justify-between min-h-[145px] cursor-pointer">
           <div className="flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-mu">
               {role === 'senior'
@@ -288,7 +291,7 @@ export default function PrimaryDashboard() {
             <Link
               href={role === 'lead' ? '/dashboard/branches' : role === 'admin' ? '/dashboard/audit' : '/dashboard/cases'}
               aria-label="View status"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-bd bg-card text-mu shadow-2xs hover:text-tx hover:rotate-45 transition-all duration-200"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-bd bg-card text-mu shadow-2xs hover:text-tx hover:rotate-45 active:scale-90 transition-all duration-200"
             >
               <ArrowUpRight size={16} />
             </Link>
@@ -321,14 +324,14 @@ export default function PrimaryDashboard() {
       {/* Middle Grid: Weekly Review Activity, Priority Alert, and Recent Cases */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         {/* Weekly Review Activity (5 cols) */}
-        <div className="lg:col-span-5 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
+        <div className="card-micro lg:col-span-5 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-[16px] font-bold text-tx">Weekly Review Activity</h2>
               <p className="text-[12px] text-mu">Case resolutions across days</p>
             </div>
             {hoveredBar ? (
-              <span className="text-[11.5px] font-bold text-ac rounded-full bg-so px-2.5 py-0.5">
+              <span className="text-[11.5px] font-bold text-ac rounded-full bg-so px-2.5 py-0.5 animate-fadeIn">
                 {hoveredBar}
               </span>
             ) : (
@@ -338,15 +341,15 @@ export default function PrimaryDashboard() {
             )}
           </div>
 
-          {/* 7 Bars (Sunday to Saturday) matching Screen 1 styling */}
+          {/* 7 Bars (Sunday to Saturday) matching Screen 1 styling with staggered rise animation */}
           <div className="relative flex items-end justify-between gap-2.5 h-48 pt-8 pb-2">
             {/* Sunday */}
             <div className="flex flex-col items-center flex-1 h-full justify-end gap-2">
               <div
                 onMouseEnter={() => setHoveredBar('Sunday: 48 cases cleared · 98% clean')}
                 onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan w-full cursor-pointer"
-                style={{ height: '60%' }}
+                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
+                style={{ height: '60%', animationDelay: '0ms' }}
               />
               <span className="text-[12px] font-semibold text-mu">S</span>
             </div>
@@ -356,8 +359,8 @@ export default function PrimaryDashboard() {
               <div
                 onMouseEnter={() => setHoveredBar('Monday: 124 cases · 14 escalations')}
                 onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--mid w-full cursor-pointer"
-                style={{ height: '86%' }}
+                className="bar-pill bar--mid anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
+                style={{ height: '86%', animationDelay: '60ms' }}
               />
               <span className="text-[12px] font-semibold text-mu">M</span>
             </div>
@@ -367,22 +370,22 @@ export default function PrimaryDashboard() {
               <div
                 onMouseEnter={() => setHoveredBar('Tuesday: 98 cases · 8 escalations')}
                 onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--light w-full cursor-pointer"
-                style={{ height: '74%' }}
+                className="bar-pill bar--light anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
+                style={{ height: '74%', animationDelay: '120ms' }}
               />
               <span className="text-[12px] font-semibold text-mu">T</span>
             </div>
 
             {/* Wednesday with Plan 95% badge */}
             <div className="relative flex flex-col items-center flex-1 h-full justify-end gap-2">
-              <div className="absolute -top-3 whitespace-nowrap rounded-full bg-[#fdf3e2] border border-[#f59f00]/30 px-2 py-0.5 text-[10px] font-bold text-[#b06d0a] shadow-xs">
+              <div className="anim-float absolute -top-3 whitespace-nowrap rounded-full bg-[#fdf3e2] border border-[#f59f00]/30 px-2 py-0.5 text-[10px] font-bold text-[#b06d0a] shadow-xs pointer-events-none">
                 SLA 95%
               </div>
               <div
                 onMouseEnter={() => setHoveredBar('Wednesday: 142 cases · 100% SLA met')}
                 onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--dark w-full cursor-pointer"
-                style={{ height: '96%' }}
+                className="bar-pill bar--dark anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
+                style={{ height: '96%', animationDelay: '180ms' }}
               />
               <span className="text-[12px] font-semibold text-mu">W</span>
             </div>
@@ -392,8 +395,8 @@ export default function PrimaryDashboard() {
               <div
                 onMouseEnter={() => setHoveredBar('Thursday: 84 cases · 6 escalations')}
                 onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan w-full cursor-pointer"
-                style={{ height: '68%' }}
+                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
+                style={{ height: '68%', animationDelay: '240ms' }}
               />
               <span className="text-[12px] font-semibold text-mu">T</span>
             </div>
@@ -403,8 +406,8 @@ export default function PrimaryDashboard() {
               <div
                 onMouseEnter={() => setHoveredBar('Friday: 76 cases · 12 escalations')}
                 onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan w-full cursor-pointer"
-                style={{ height: '55%' }}
+                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
+                style={{ height: '55%', animationDelay: '300ms' }}
               />
               <span className="text-[12px] font-semibold text-mu">F</span>
             </div>
@@ -414,8 +417,8 @@ export default function PrimaryDashboard() {
               <div
                 onMouseEnter={() => setHoveredBar('Saturday: 52 cases · Low weekend volume')}
                 onMouseLeave={() => setHoveredBar(null)}
-                className="bar-pill bar--plan w-full cursor-pointer"
-                style={{ height: '45%' }}
+                className="bar-pill bar--plan anim-decile-bar w-full cursor-pointer transition-transform duration-200 hover:scale-105"
+                style={{ height: '45%', animationDelay: '360ms' }}
               />
               <span className="text-[12px] font-semibold text-mu">S</span>
             </div>
@@ -423,11 +426,11 @@ export default function PrimaryDashboard() {
         </div>
 
         {/* Priority Case / SLA Alert Card (3 cols) */}
-        <div className="lg:col-span-3 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
+        <div className="card-micro lg:col-span-3 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <h2 className="text-[16px] font-bold text-tx">Priority Case Alert</h2>
-              <span className="flex h-2 w-2 rounded-full bg-rd animate-ping" />
+              <span className="flex h-2.5 w-2.5 rounded-full bg-rd anim-live-pulse" />
             </div>
             <div className="mt-4">
               <span className="inline-block rounded-full bg-rb px-2.5 py-0.5 text-[10.5px] font-bold text-rd border border-rd/25 mb-1.5">
@@ -453,7 +456,7 @@ export default function PrimaryDashboard() {
                 router.push('/dashboard/cases');
                 say('Selected Case R-1041 for immediate inspection.');
               }}
-              className="w-full flex min-h-[42px] items-center justify-center gap-2 rounded-full px-4 text-[13px] font-bold shadow-xs bg-[#0d3a23] dark:bg-[#155a37] text-white hover:opacity-95 transition cursor-pointer"
+              className="w-full flex min-h-[42px] items-center justify-center gap-2 rounded-full px-4 text-[13px] font-bold shadow-xs bg-[#0d3a23] dark:bg-[#155a37] text-white hover:opacity-95 active:scale-95 transition-all duration-200 cursor-pointer"
             >
               <ShieldAlert size={15} />
               <span>Inspect Case R-1041</span>
@@ -462,7 +465,7 @@ export default function PrimaryDashboard() {
         </div>
 
         {/* Recent Cases List Card (4 cols) */}
-        <div className="lg:col-span-4 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
+        <div className="card-micro lg:col-span-4 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3 border-b border-bd/50">
             <div>
               <h2 className="text-[16px] font-bold text-tx">Recent Flagged Cases</h2>
@@ -470,14 +473,14 @@ export default function PrimaryDashboard() {
             </div>
             <Link
               href="/dashboard/cases"
-              className="flex items-center gap-1 rounded-full border border-bd bg-so/30 px-2.5 py-1 text-[11.5px] font-semibold text-tx hover:bg-so/60 transition cursor-pointer"
+              className="flex items-center gap-1 rounded-full border border-bd bg-so/30 px-2.5 py-1 text-[11.5px] font-semibold text-tx hover:bg-so/60 active:scale-90 transition-all duration-200 cursor-pointer"
             >
               <span>View All</span>
               <ArrowUpRight size={12} />
             </Link>
           </div>
 
-          {/* Cases List Items */}
+          {/* Cases List Items with hover interactions */}
           <div className="flex flex-col divide-y divide-bd/40 overflow-y-auto max-h-[220px]">
             {cases.slice(0, 5).map(c => (
               <div
@@ -486,7 +489,7 @@ export default function PrimaryDashboard() {
                   select(c.id);
                   say(`Opened Case ${c.id}`);
                 }}
-                className="flex items-center justify-between py-2.5 first:pt-2 last:pb-0 hover:bg-so/30 rounded-xl px-1.5 transition cursor-pointer"
+                className="flex items-center justify-between py-2.5 first:pt-2 last:pb-0 hover:bg-so/30 hover:translate-x-1 rounded-xl px-2 transition-all duration-200 cursor-pointer"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -496,7 +499,7 @@ export default function PrimaryDashboard() {
                   <div className="text-[11px] text-mu truncate">{c.branch} · {c.reasons[0]}</div>
                 </div>
                 <span
-                  className={`num ml-2 rounded-full px-2 py-0.5 text-[10.5px] font-bold ${
+                  className={`num ml-2 rounded-full px-2 py-0.5 text-[10.5px] font-bold transition-transform duration-200 hover:scale-110 ${
                     c.score >= 0.75
                       ? 'bg-rb text-rd border border-rd/20'
                       : c.score >= 0.5
@@ -515,7 +518,7 @@ export default function PrimaryDashboard() {
       {/* Bottom Grid: Active Investigators, Decision Distribution Semicircle, and Shift Session Timer */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         {/* Active Investigators Status (5 cols) */}
-        <div className="lg:col-span-5 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
+        <div className="card-micro lg:col-span-5 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3 border-b border-bd/50">
             <div>
               <h2 className="text-[16px] font-bold text-tx">Active Investigators</h2>
@@ -523,7 +526,7 @@ export default function PrimaryDashboard() {
             </div>
             <Link
               href="/dashboard/team"
-              className="flex items-center gap-1 rounded-full border border-bd bg-so/30 px-2.5 py-1 text-[11.5px] font-semibold text-tx hover:bg-so/60 transition cursor-pointer"
+              className="flex items-center gap-1 rounded-full border border-bd bg-so/30 px-2.5 py-1 text-[11.5px] font-semibold text-tx hover:bg-so/60 active:scale-90 transition-all duration-200 cursor-pointer"
             >
               <span>Team</span>
               <ArrowUpRight size={12} />
@@ -565,10 +568,10 @@ export default function PrimaryDashboard() {
                 statusClass: 'bg-ab text-am border border-am/20',
               },
             ].map((m, i) => (
-              <div key={i} className="flex items-center justify-between gap-3 py-2.5">
+              <div key={i} className="flex items-center justify-between gap-3 py-2.5 px-2 rounded-xl hover:bg-so/30 hover:translate-x-1 transition-all duration-200">
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-tx shadow-2xs"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-tx shadow-2xs transition-transform duration-200 hover:scale-110"
                     style={{ backgroundColor: m.bg }}
                   >
                     {m.init}
@@ -589,13 +592,13 @@ export default function PrimaryDashboard() {
         </div>
 
         {/* Decision Distribution Semicircle Gauge (3 cols) */}
-        <div className="lg:col-span-3 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between text-center">
+        <div className="card-micro lg:col-span-3 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between text-center">
           <div className="text-left">
             <h2 className="text-[16px] font-bold text-tx">Decision Coverage</h2>
             <span className="text-[11px] text-mu">Shift clearance performance</span>
           </div>
 
-          {/* Semicircle SVG Arc Gauge */}
+          {/* Semicircle SVG Arc Gauge with animated arc drawing */}
           <div className="relative flex flex-col items-center justify-center my-auto py-2">
             <svg viewBox="0 0 240 130" className="w-48 h-auto overflow-visible">
               <defs>
@@ -621,6 +624,7 @@ export default function PrimaryDashboard() {
                 strokeWidth="20"
                 strokeDasharray="181 267"
                 strokeDashoffset="0"
+                className="anim-gauge-arc"
               />
 
               {/* Confirmed Fraud Segment (22%) */}
@@ -631,6 +635,8 @@ export default function PrimaryDashboard() {
                 strokeWidth="20"
                 strokeDasharray="59 267"
                 strokeDashoffset="-181"
+                className="anim-gauge-arc"
+                style={{ animationDelay: '150ms' }}
               />
 
               {/* Pending Segment (Hatched pattern 10%) */}
@@ -641,6 +647,8 @@ export default function PrimaryDashboard() {
                 strokeWidth="20"
                 strokeDasharray="27 267"
                 strokeDashoffset="-240"
+                className="anim-gauge-arc"
+                style={{ animationDelay: '300ms' }}
               />
             </svg>
 
@@ -669,11 +677,11 @@ export default function PrimaryDashboard() {
         </div>
 
         {/* Shift Session Timer Card (4 cols) */}
-        <div className="time-tracker-card lg:col-span-4 rounded-[26px] p-6 shadow-md text-white flex flex-col justify-between">
+        <div className="time-tracker-card card-micro lg:col-span-4 rounded-[26px] p-6 shadow-md text-white flex flex-col justify-between">
           <div className="relative z-10 flex items-center justify-between">
             <h2 className="text-[15px] font-bold text-white/90">Shift Session Timer</h2>
-            <div className="flex items-center gap-1 text-[11px] text-white/70">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#5dbd8b] animate-ping" />
+            <div className="flex items-center gap-1.5 text-[11px] text-white/80">
+              <span className="h-2 w-2 rounded-full bg-[#5dbd8b] anim-live-pulse" />
               <span>Active Shift</span>
             </div>
           </div>
@@ -693,7 +701,7 @@ export default function PrimaryDashboard() {
             <button
               onClick={() => setIsRunning(!isRunning)}
               aria-label={isRunning ? 'Pause timer' : 'Start timer'}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0d3a23] shadow-md hover:scale-105 active:scale-95 transition cursor-pointer"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0d3a23] shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
             >
               {isRunning ? <Pause size={18} /> : <Play size={18} className="translate-x-0.5" />}
             </button>
@@ -704,7 +712,7 @@ export default function PrimaryDashboard() {
                 say('Triage shift logged and committed.');
               }}
               aria-label="Stop timer"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-rd text-white shadow-md hover:scale-105 active:scale-95 transition cursor-pointer"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-rd text-white shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
             >
               <Square size={16} />
             </button>

@@ -160,10 +160,10 @@ export default function TasksKanban() {
               {/* Column Head */}
               <div className="flex items-center justify-between px-2 py-1">
                 <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${col.dotColor}`} />
+                  <span className={`h-2.5 w-2.5 rounded-full ${col.dotColor} ${isOver ? 'anim-live-pulse' : ''}`} />
                   <h2 className="text-[14px] font-bold text-tx">{col.label}</h2>
                 </div>
-                <span className="num flex h-5 min-w-[20px] items-center justify-center rounded-full bg-so px-2 text-[11px] font-bold text-tx">
+                <span className="num flex h-5 min-w-[20px] items-center justify-center rounded-full bg-so px-2 text-[11px] font-bold text-tx transition-transform duration-200">
                   {colCases.length}
                 </span>
               </div>
@@ -181,11 +181,11 @@ export default function TasksKanban() {
                       onDragStart={e => handleDragStart(e, c.id)}
                       onDragEnd={() => setDraggingCaseId(null)}
                       onClick={() => select(c.id)}
-                      className={`group relative flex flex-col gap-2.5 rounded-[20px] border bg-card p-4 shadow-xs transition-all duration-200 cursor-grab active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-md ${
+                      className={`card-micro group relative flex flex-col gap-2.5 rounded-[20px] border bg-card p-4 shadow-xs transition-all duration-200 cursor-grab active:cursor-grabbing hover:border-ac/40 ${
                         isSelected
                           ? 'border-ac ring-2 ring-ac/30 bg-so/10'
                           : 'border-bd/80'
-                      } ${isDragging ? 'task-dragging opacity-40 scale-95' : ''}`}
+                      } ${isDragging ? 'task-dragging opacity-40 scale-95 rotate-1' : ''}`}
                     >
                       {/* Top row: Tags & Score */}
                       <div className="flex items-center justify-between gap-2">

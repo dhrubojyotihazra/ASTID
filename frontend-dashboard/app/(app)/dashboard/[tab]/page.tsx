@@ -114,7 +114,7 @@ export default function Page({ params }: { params: { tab: string } }) {
 
   return (
     <div className="flex flex-wrap items-start gap-[18px]">
-      <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-4">
+      <div key={tab} className="tab-page-transition flex min-w-0 flex-[999_1_520px] flex-col gap-4">
         {view}
       </div>
       {withPanel && <CasePanel />}

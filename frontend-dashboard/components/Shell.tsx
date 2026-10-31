@@ -58,9 +58,42 @@ export default function Shell({ children }: { children: ReactNode }) {
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Moving green indicator bar state (matching Image 2)
+  const [indicator, setIndicator] = useState({ top: 0, height: 32, opacity: 0 });
+  const desktopSidebarRef = useRef<HTMLElement>(null);
+  const mobileSidebarRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     if (a.ready && !a.role) router.replace('/login');
   }, [a.ready, a.role, router]);
+
+  // Update sliding green bar position whenever path or role changes
+  useEffect(() => {
+    const updateIndicator = () => {
+      const container = (window.innerWidth >= 1024 ? desktopSidebarRef.current : mobileSidebarRef.current) || desktopSidebarRef.current;
+      if (!container) return;
+      const activeLink = container.querySelector<HTMLElement>('a[aria-current="page"]');
+      if (activeLink) {
+        const containerRect = container.getBoundingClientRect();
+        const linkRect = activeLink.getBoundingClientRect();
+        setIndicator({
+          top: linkRect.top - containerRect.top + 5,
+          height: linkRect.height - 10,
+          opacity: 1,
+        });
+      } else {
+        setIndicator(prev => ({ ...prev, opacity: 0 }));
+      }
+    };
+
+    updateIndicator();
+    const t = setTimeout(updateIndicator, 60);
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [path, a.role, mobileNavOpen]);
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -192,26 +225,15 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      {/* Bottom Promo Card matching Sentinel Mobile Companion */}
-      <div className="promo-card mt-auto p-4 rounded-[22px] text-white flex flex-col gap-3 shadow-md">
-        <div className="relative z-10 flex items-center justify-between">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-white/40 text-[10px] font-bold">
-            0
-          </span>
-          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-            Mobile Ops
-          </span>
+      {/* Bottom System Operational Status (clean replacement for removed promo card) */}
+      <div className="mt-auto pt-4 border-t border-bd/60 flex items-center justify-between text-[11px] text-mu px-1">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-ac animate-pulse" />
+          <span className="font-semibold text-tx">Engine v2.4</span>
         </div>
-        <div className="relative z-10">
-          <b className="block text-[13px] font-bold leading-tight">Sentinel Mobile</b>
-          <span className="text-[11.5px] text-white/70">Your fraud alerts, on the go.</span>
-        </div>
-        <button
-          onClick={() => a.say('Sentinel Mobile companion app package ready')}
-          className="relative z-10 flex min-h-[34px] w-full items-center justify-center rounded-full bg-[#155a37] text-[12px] font-bold text-white shadow-xs hover:bg-[#1d7347] active:scale-95 transition cursor-pointer"
-        >
-          Download
-        </button>
+        <span className="font-mono text-[10.5px] rounded-full bg-so px-2 py-0.5 text-ac font-bold border border-ac/15">
+          99.8% SLA
+        </span>
       </div>
     </div>
   );
@@ -232,15 +254,41 @@ export default function Shell({ children }: { children: ReactNode }) {
 
       {/* Mobile Slide-Out Drawer Sidebar */}
       <aside
-        className={`lg:hidden fixed inset-y-0 left-0 z-50 w-[290px] max-w-[84vw] bg-card p-5 border-r border-bd shadow-2xl transition-transform duration-350 ease-[cubic-bezier(.22,1,.36,1)] ${
+        ref={mobileSidebarRef}
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 w-[290px] max-w-[84vw] bg-card p-5 border-r border-bd shadow-2xl transition-transform duration-350 ease-[cubic-bezier(.22,1,.36,1)] relative ${
           mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
+        {/* Moving Active Green Bar Indicator */}
+        <div
+          aria-hidden="true"
+          className="absolute left-0 w-[4px] rounded-r-full bg-[#0d3a23] dark:bg-[#5dbd8b] shadow-xs pointer-events-none transition-all duration-350 ease-[cubic-bezier(.22,1,.36,1)]"
+          style={{
+            top: `${indicator.top}px`,
+            height: `${indicator.height}px`,
+            opacity: indicator.opacity,
+            boxShadow: a.dark ? '0 0 12px 2px rgba(93, 189, 139, 0.45)' : '0 0 10px 1px rgba(13, 58, 35, 0.3)',
+          }}
+        />
         {sidebarContent}
       </aside>
 
       {/* Desktop Sticky Sidebar */}
-      <aside className="hidden lg:flex min-h-[860px] w-[240px] flex-none flex-col rounded-[26px] border border-bd bg-card p-5 sticky top-5 h-[calc(100vh-40px)] shadow-xs">
+      <aside
+        ref={desktopSidebarRef}
+        className="hidden lg:flex min-h-[860px] w-[240px] flex-none flex-col rounded-[26px] border border-bd bg-card p-5 sticky top-5 h-[calc(100vh-40px)] shadow-xs relative overflow-hidden"
+      >
+        {/* Moving Active Green Bar Indicator (matching Image 2) */}
+        <div
+          aria-hidden="true"
+          className="absolute left-0 w-[4.5px] rounded-r-full bg-[#0d3a23] dark:bg-[#5dbd8b] shadow-xs pointer-events-none transition-all duration-350 ease-[cubic-bezier(.22,1,.36,1)]"
+          style={{
+            top: `${indicator.top}px`,
+            height: `${indicator.height}px`,
+            opacity: indicator.opacity,
+            boxShadow: a.dark ? '0 0 12px 2px rgba(93, 189, 139, 0.45)' : '0 0 10px 1px rgba(13, 58, 35, 0.3)',
+          }}
+        />
         {sidebarContent}
       </aside>
 

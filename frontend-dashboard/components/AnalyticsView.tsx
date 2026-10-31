@@ -88,6 +88,8 @@ export default function AnalyticsView() {
   const { say } = useApp();
   const [range, setRange] = useState<'7' | '30' | '90'>('30');
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
+  const [hoveredDecile, setHoveredDecile] = useState<number | null>(null);
+  const [hoveredBranch, setHoveredBranch] = useState<typeof BRANCH_DISTRIBUTION[0] | null>(null);
 
   const handleExport = () => {
     downloadCsv('sentinel_riskops_analytics.csv', [
@@ -174,20 +176,22 @@ export default function AnalyticsView() {
               </div>
             </div>
 
-            {/* Sparkline SVG at card base */}
+            {/* Sparkline SVG at card base with animated drawing */}
             <div className="w-[calc(100%+40px)] -mx-5 -mb-5 mt-4 h-12">
               <svg
                 viewBox="0 0 120 36"
                 preserveAspectRatio="none"
                 className="w-full h-full overflow-hidden"
               >
-                <path d={k.area} fill="#e3f2e9" className="dark:fill-[#1e2b24]" />
+                <path d={k.area} fill="#e3f2e9" className="dark:fill-[#1e2b24] anim-chart-area" />
                 <polyline
                   points={k.points}
                   fill="none"
                   stroke="#27865a"
-                  strokeWidth="2"
+                  strokeWidth="2.5"
                   vectorEffect="non-scaling-stroke"
+                  className="anim-sparkline"
+                  style={{ animationDelay: `${i * 120}ms` }}
                 />
               </svg>
             </div>
@@ -247,39 +251,56 @@ export default function AnalyticsView() {
                 strokeDasharray="4 4"
               />
 
-              {/* Current Period Area & Line */}
+              {/* Current Period Area & Line with SVG draw animations */}
               <path
                 d="M0,120 C60,115 100,130 150,118 C200,105 250,125 300,100 C350,110 400,105 450,90 C500,100 550,95 600,105 L600,210 L0,210 Z"
                 fill="url(#area-grad)"
+                className="anim-chart-area"
               />
               <path
                 d="M0,120 C60,115 100,130 150,118 C200,105 250,125 300,100 C350,110 400,105 450,90 C500,100 550,95 600,105"
                 fill="none"
                 stroke="#1d7347"
-                strokeWidth="2.5"
+                strokeWidth="2.8"
+                className="anim-chart-line"
               />
 
-              {/* Key datapoint dots */}
+              {/* Key datapoint dots with interactive pulse */}
               {[
                 { cx: 0, cy: 120, label: 'Oct 2: 212k txns · 24 flags' },
                 { cx: 150, cy: 118, label: 'Oct 9: 218k txns · 28 flags' },
                 { cx: 300, cy: 100, label: 'Oct 17: 242k txns · 36 flags' },
                 { cx: 450, cy: 90, label: 'Oct 24: 256k txns · 41 flags' },
                 { cx: 600, cy: 105, label: 'Oct 31: 234k txns · 29 flags' },
-              ].map((pt, idx) => (
-                <circle
-                  key={idx}
-                  cx={pt.cx}
-                  cy={pt.cy}
-                  r="4.5"
-                  fill="#ffffff"
-                  stroke="#0d3a23"
-                  strokeWidth="2"
-                  className="cursor-pointer hover:scale-150 transition-transform"
-                  onMouseEnter={() => setHoveredPoint(pt.label)}
-                  onMouseLeave={() => setHoveredPoint(null)}
-                />
-              ))}
+              ].map((pt, idx) => {
+                const isHovered = hoveredPoint === pt.label;
+                return (
+                  <g key={idx}>
+                    {isHovered && (
+                      <circle
+                        cx={pt.cx}
+                        cy={pt.cy}
+                        r="9"
+                        fill="none"
+                        stroke="#5dbd8b"
+                        strokeWidth="2"
+                        className="animate-ping opacity-60"
+                      />
+                    )}
+                    <circle
+                      cx={pt.cx}
+                      cy={pt.cy}
+                      r={isHovered ? '6' : '4.5'}
+                      fill="#ffffff"
+                      stroke="#0d3a23"
+                      strokeWidth={isHovered ? '3' : '2'}
+                      className="cursor-pointer transition-all duration-200"
+                      onMouseEnter={() => setHoveredPoint(pt.label)}
+                      onMouseLeave={() => setHoveredPoint(null)}
+                    />
+                  </g>
+                );
+              })}
             </svg>
 
             {/* Hover Tooltip */}
@@ -307,7 +328,7 @@ export default function AnalyticsView() {
             <p className="text-[12.5px] text-mu">Regional triage workload breakdown</p>
           </div>
 
-          {/* Donut SVG */}
+          {/* Donut SVG with interactive segment hover */}
           <div className="relative flex items-center justify-center my-4">
             <svg viewBox="0 0 160 160" className="w-44 h-44">
               <circle cx="80" cy="80" r="60" fill="none" stroke="#e3e7e4" strokeWidth="20" />
@@ -318,9 +339,12 @@ export default function AnalyticsView() {
                 r="60"
                 fill="none"
                 stroke="#0d3a23"
-                strokeWidth="20"
+                strokeWidth={hoveredBranch?.name === 'Kolkata-SaltLake' ? '24' : '20'}
                 strokeDasharray="116.8 377"
                 strokeDashoffset="94"
+                className="transition-all duration-200 cursor-pointer"
+                onMouseEnter={() => setHoveredBranch(BRANCH_DISTRIBUTION[0])}
+                onMouseLeave={() => setHoveredBranch(null)}
               />
               <circle
                 cx="80"
@@ -328,9 +352,12 @@ export default function AnalyticsView() {
                 r="60"
                 fill="none"
                 stroke="#1d7347"
-                strokeWidth="20"
+                strokeWidth={hoveredBranch?.name === 'Mumbai-BKC' ? '24' : '20'}
                 strokeDasharray="90.5 377"
                 strokeDashoffset="-22.8"
+                className="transition-all duration-200 cursor-pointer"
+                onMouseEnter={() => setHoveredBranch(BRANCH_DISTRIBUTION[1])}
+                onMouseLeave={() => setHoveredBranch(null)}
               />
               <circle
                 cx="80"
@@ -338,9 +365,12 @@ export default function AnalyticsView() {
                 r="60"
                 fill="none"
                 stroke="#5dbd8b"
-                strokeWidth="20"
+                strokeWidth={hoveredBranch?.name === 'Bengaluru-HSR' ? '24' : '20'}
                 strokeDasharray="75.4 377"
                 strokeDashoffset="-113.3"
+                className="transition-all duration-200 cursor-pointer"
+                onMouseEnter={() => setHoveredBranch(BRANCH_DISTRIBUTION[2])}
+                onMouseLeave={() => setHoveredBranch(null)}
               />
               <circle
                 cx="80"
@@ -348,9 +378,12 @@ export default function AnalyticsView() {
                 r="60"
                 fill="none"
                 stroke="#f59f00"
-                strokeWidth="20"
+                strokeWidth={hoveredBranch?.name === 'Delhi-Connaught' ? '24' : '20'}
                 strokeDasharray="56.5 377"
                 strokeDashoffset="-188.7"
+                className="transition-all duration-200 cursor-pointer"
+                onMouseEnter={() => setHoveredBranch(BRANCH_DISTRIBUTION[3])}
+                onMouseLeave={() => setHoveredBranch(null)}
               />
               <circle
                 cx="80"
@@ -358,36 +391,51 @@ export default function AnalyticsView() {
                 r="60"
                 fill="none"
                 stroke="#94a3b8"
-                strokeWidth="20"
+                strokeWidth={hoveredBranch?.name === 'Chennai-Guindy' ? '24' : '20'}
                 strokeDasharray="37.7 377"
                 strokeDashoffset="-245.2"
+                className="transition-all duration-200 cursor-pointer"
+                onMouseEnter={() => setHoveredBranch(BRANCH_DISTRIBUTION[4])}
+                onMouseLeave={() => setHoveredBranch(null)}
               />
             </svg>
-            <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="num text-[17px] font-extrabold text-tx leading-tight">
-                1,188
+            <div className="absolute flex flex-col items-center justify-center text-center px-4 pointer-events-none">
+              <span className="num text-[16px] font-extrabold text-tx leading-tight truncate max-w-[110px]">
+                {hoveredBranch ? hoveredBranch.name.split('-')[0] : '1,188'}
               </span>
-              <span className="text-[10.5px] font-semibold text-mu">cases · 30d</span>
+              <span className="text-[10.5px] font-semibold text-mu">
+                {hoveredBranch ? `${hoveredBranch.cases} cases (${hoveredBranch.pct}%)` : 'cases · 30d'}
+              </span>
             </div>
           </div>
 
           {/* Branch legend */}
           <div className="flex flex-col gap-2 pt-2 border-t border-bd/40">
-            {BRANCH_DISTRIBUTION.map((b, i) => (
-              <div key={i} className="flex items-center justify-between text-[12.5px]">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: b.color }} />
-                  <span className="font-semibold text-tx">{b.name}</span>
+            {BRANCH_DISTRIBUTION.map((b, i) => {
+              const isHovered = hoveredBranch?.name === b.name;
+              return (
+                <div
+                  key={i}
+                  onMouseEnter={() => setHoveredBranch(b)}
+                  onMouseLeave={() => setHoveredBranch(null)}
+                  className={`flex items-center justify-between text-[12.5px] p-1 rounded-xl transition cursor-pointer ${
+                    isHovered ? 'bg-so/60 scale-[1.02]' : 'hover:bg-so/30'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: b.color }} />
+                    <span className="font-semibold text-tx">{b.name}</span>
+                  </div>
+                  <span className="num font-bold text-mu">{b.cases} ({b.pct}%)</span>
                 </div>
-                <span className="num font-bold text-mu">{b.cases} ({b.pct}%)</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* MERGED SYSTEM HEALTH: Score Distribution Stability */}
-      <div className="rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col gap-4">
+      <div className="rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col gap-4 card-micro">
         <div className="flex flex-wrap justify-between items-start gap-2">
           <div>
             <div className="flex items-center gap-2">
@@ -395,6 +443,11 @@ export default function AnalyticsView() {
               <span className="rounded-full bg-so px-2.5 py-0.5 text-[10.5px] font-bold text-ac border border-ac/15">
                 Divergence: 0.042 (Negligible)
               </span>
+              {hoveredDecile !== null && (
+                <span className="anim-up rounded-full bg-[#0d3a23] dark:bg-[#155a37] text-white px-2.5 py-0.5 text-[10.5px] font-bold">
+                  Decile {hoveredDecile + 1}: Baseline {BASELINE_DECILES[hoveredDecile]}% vs Live {LIVE_DECILES[hoveredDecile]}%
+                </span>
+              )}
             </div>
             <p className="text-[12.5px] text-mu mt-0.5">
               Evaluates live transaction risk score distributions against the 30-day baseline standard
@@ -410,22 +463,34 @@ export default function AnalyticsView() {
           </div>
         </div>
 
-        {/* 10 Decile Bar Pairs */}
+        {/* 10 Decile Bar Pairs with interactive inspection */}
         <div className="flex h-[160px] items-end gap-2 px-2 pt-4 border-b border-bd/60 pb-2">
-          {BASELINE_DECILES.map((v, i) => (
-            <div key={i} className="flex h-full flex-1 items-end gap-[3px]">
+          {BASELINE_DECILES.map((v, i) => {
+            const isHovered = hoveredDecile === i;
+            const isDimmed = hoveredDecile !== null && !isHovered;
+
+            return (
               <div
-                className="anim-gr flex-1 rounded-t-sm bg-so"
-                style={{ height: v * 4 + '%', animationDelay: i * 50 + 'ms' }}
-                title={`Baseline Decile ${i + 1}: ${v}%`}
-              />
-              <div
-                className="anim-gr flex-1 rounded-t-sm bg-[#0d3a23] dark:bg-[#155a37]"
-                style={{ height: LIVE_DECILES[i] * 4 + '%', animationDelay: i * 50 + 25 + 'ms' }}
-                title={`Live Stream Decile ${i + 1}: ${LIVE_DECILES[i]}%`}
-              />
-            </div>
-          ))}
+                key={i}
+                onMouseEnter={() => setHoveredDecile(i)}
+                onMouseLeave={() => setHoveredDecile(null)}
+                className={`flex h-full flex-1 items-end gap-[3px] p-1 rounded-t-lg transition-all duration-200 cursor-pointer ${
+                  isHovered ? 'bg-so/50 scale-105' : isDimmed ? 'opacity-40' : ''
+                }`}
+              >
+                <div
+                  className="anim-decile-bar flex-1 rounded-t-sm bg-so"
+                  style={{ height: v * 4 + '%', animationDelay: i * 40 + 'ms' }}
+                  title={`Baseline Decile ${i + 1}: ${v}%`}
+                />
+                <div
+                  className="anim-decile-bar flex-1 rounded-t-sm bg-[#0d3a23] dark:bg-[#155a37]"
+                  style={{ height: LIVE_DECILES[i] * 4 + '%', animationDelay: i * 40 + 20 + 'ms' }}
+                  title={`Live Stream Decile ${i + 1}: ${LIVE_DECILES[i]}%`}
+                />
+              </div>
+            );
+          })}
         </div>
         <div className="flex items-center justify-between text-[12px] text-mu">
           <span>Decile 1 (Low Risk: 0.0 - 0.1)</span>

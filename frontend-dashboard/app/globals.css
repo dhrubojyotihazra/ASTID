@@ -112,6 +112,135 @@ body {
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes tab-page-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tab-page-transition {
+  animation: tab-page-enter 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+/* EDA Visuals & Interactive Chart Animations */
+@keyframes chart-draw-line {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.anim-chart-line {
+  stroke-dasharray: 1000;
+  animation: chart-draw-line 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes chart-fade-fill {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.anim-chart-area {
+  animation: chart-fade-fill 1.8s ease-out forwards;
+}
+
+@keyframes decile-rise {
+  0% {
+    transform: scaleY(0);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.anim-decile-bar {
+  transform-origin: bottom;
+  animation: decile-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.anim-float {
+  animation: float-gentle 3.5s ease-in-out infinite;
+}
+
+@keyframes pulse-live {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.anim-live-pulse {
+  animation: pulse-live 2s infinite;
+}
+
+@keyframes gauge-draw {
+  0% {
+    stroke-dashoffset: 267;
+  }
+}
+
+.anim-gauge-arc {
+  animation: gauge-draw 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes sparkline-draw {
+  0% {
+    stroke-dashoffset: 200;
+    opacity: 0.2;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.anim-sparkline {
+  stroke-dasharray: 200;
+  animation: sparkline-draw 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.card-micro {
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.24s ease;
+}
+.card-micro:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -10px rgba(13, 58, 35, 0.12), 0 4px 12px -4px rgba(0,0,0,0.05);
+}
+.dark .card-micro:hover {
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.6), 0 0 20px -5px rgba(93, 189, 139, 0.15);
+}
+
 @keyframes pulse-ring {
   0% { transform: scale(0.95); opacity: 0.8; }
   50% { transform: scale(1.05); opacity: 0.4; }

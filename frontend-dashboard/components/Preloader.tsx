@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Volume2, VolumeX, ArrowRight, Play } from 'lucide-react';
+import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
 
 // Exact cubic-bezier(0.76, 0, 0.24, 1) ease evaluator from Woblo Omni Curve
 function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
@@ -20,117 +20,135 @@ function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
 
 const easeOmni = cubicBezier(0.76, 0, 0.24, 1);
 
-type Point = [number, number];
-
-function interpPts(ptsA: Point[], ptsB: Point[], t: number): Point[] {
-  return ptsA.map((a, i) => {
-    const b = ptsB[i];
-    return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
-  });
-}
-
-function ptsToD(p: Point[]): string {
-  return `M ${p[0][0].toFixed(2)} ${p[0][1].toFixed(2)} C ${p[1][0].toFixed(2)} ${p[1][1].toFixed(2)}, ${p[2][0].toFixed(2)} ${p[2][1].toFixed(2)}, ${p[3][0].toFixed(2)} ${p[3][1].toFixed(2)} L ${p[4][0].toFixed(2)} ${p[4][1].toFixed(2)} C ${p[5][0].toFixed(2)} ${p[5][1].toFixed(2)}, ${p[6][0].toFixed(2)} ${p[6][1].toFixed(2)}, ${p[7][0].toFixed(2)} ${p[7][1].toFixed(2)} Z`;
-}
-
 export default function Preloader() {
   const [loading, setLoading] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [videoProgress, setVideoProgress] = useState(0);
 
-  // Omni Curve State
-  const [maskPathD, setMaskPathD] = useState<string>('');
+  // Omni Curve Transition State
+  const [isExiting, setIsExiting] = useState(false);
+  const [topCurtainD, setTopCurtainD] = useState<string>('M -10 0 L 110 0 L 110 50 L -10 50 Z');
+  const [botCurtainD, setBotCurtainD] = useState<string>('M -10 100 L 110 100 L 110 50 L -10 50 Z');
   const [trail1D, setTrail1D] = useState<string>('');
   const [trail2D, setTrail2D] = useState<string>('');
-  const [trail1Op, setTrail1Op] = useState<number>(0);
-  const [trail2Op, setTrail2Op] = useState<number>(0);
+  const [trailOpacity, setTrailOpacity] = useState<number>(0);
   const [videoOpacity, setVideoOpacity] = useState<number>(1);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const animRunningRef = useRef<boolean>(false);
   const exitStartedRef = useRef<boolean>(false);
 
-  // Start the Omni Curve Horizontal Centre transition
+  // Trigger Woblo Omni Curve Horizontal Centre Curtain Animation
   const triggerCurveExit = useCallback(() => {
     if (exitStartedRef.current) return;
     exitStartedRef.current = true;
+    setIsExiting(true);
 
     const screenH = typeof window !== 'undefined' ? window.innerHeight || 800 : 800;
     const barThickness = 4; // px
-    const halfY = ((barThickness / screenH) * 100) / 2;
+    const slitY = ((barThickness / screenH) * 100) / 2; // half slit in SVG coords
 
-    // Mathematical points for Horizontal Centre transition
-    const Q: Point[] = [
-      [50, 50 - halfY], [50, 50 - halfY], [50, 50 - halfY], [50, 50 - halfY],
-      [50, 50 + halfY], [50, 50 + halfY], [50, 50 + halfY], [50, 50 + halfY],
-    ];
-
-    const S: Point[] = [
-      [-10, 50 - halfY], [25, 50 - halfY], [75, 50 - halfY], [110, 50 - halfY],
-      [110, 50 + halfY], [75, 50 + halfY], [25, 50 + halfY], [-10, 50 + halfY],
-    ];
-
-    const R: Point[] = [
-      [-10, -200], [25, -20], [75, -20], [110, -200],
-      [110, 300], [75, 120], [25, 120], [-10, 300],
-    ];
-
-    // Stage 1: Horizontal slit expands from center (Q -> S) in 550ms
-    const slitDuration = 550;
+    // Stage 1: Horizontal center slit opens (500ms)
+    // Slit opens from center x=50 across to full width
+    const slitDuration = 450;
     const slitStartTime = performance.now();
 
     function animateSlit(now: number) {
       const elapsed = now - slitStartTime;
-      const progress = Math.min(1, elapsed / slitDuration);
-      const eased = easeOmni(progress);
-      const currentPts = interpPts(Q, S, eased);
-      setMaskPathD(ptsToD(currentPts));
+      const p = Math.min(1, elapsed / slitDuration);
+      const eased = easeOmni(p);
 
-      if (progress < 1) {
+      // Slit expands horizontally: center stays at 50, edges expand from 50 to -10 and 110
+      const leftX = 50 - 60 * eased;
+      const rightX = 50 + 60 * eased;
+
+      const topY = 50 - slitY * eased;
+      const botY = 50 + slitY * eased;
+
+      setTopCurtainD(`M -10 0 L 110 0 L 110 ${topY.toFixed(2)} L -10 ${topY.toFixed(2)} Z`);
+      setBotCurtainD(`M -10 100 L 110 100 L 110 ${botY.toFixed(2)} L -10 ${botY.toFixed(2)} Z`);
+
+      // Show initial glowing slit line
+      if (eased > 0.1) {
+        setTrailOpacity(Math.min(1, eased * 1.5));
+        setTrail1D(`M ${leftX.toFixed(2)} 50 L ${rightX.toFixed(2)} 50`);
+      }
+
+      if (p < 1) {
         requestAnimationFrame(animateSlit);
       } else {
-        // Slit opened. Brief 80ms pause then unmask with echo trails (S -> R)
-        setTimeout(startCurveStage, 80);
+        // Slit opened. Brief 80ms pause then unmask with the signature Bell Curve
+        setTimeout(startBellCurve, 60);
       }
     }
 
-    // Stage 2: Bell curve unmasks vertically (S -> R) with echo trails
-    function startCurveStage() {
-      const curveDuration = 800; // ms
+    // Stage 2: Bell curve sweeps open vertically past screen edges (750ms)
+    function startBellCurve() {
+      const curveDuration = 750;
       const curveStartTime = performance.now();
-      setTrail1Op(1);
-      setTrail2Op(1);
 
       function animateCurve(now: number) {
         const elapsed = now - curveStartTime;
+        const p = Math.min(1, elapsed / curveDuration);
+        const eased = easeOmni(p);
 
-        // Trail 1 (Lead trail, #6FBF8F): offset 0ms
-        const p1 = Math.min(1, Math.max(0, elapsed / curveDuration));
+        // Echo trail 1 (Lead trail, #6FBF8F): offset 0ms
+        const p1 = Math.min(1, Math.max(0, elapsed / (curveDuration * 0.9)));
         const e1 = easeOmni(p1);
-        setTrail1D(ptsToD(interpPts(S, R, e1)));
 
-        // Trail 2 (Mid trail, #BEF264): offset 50ms
-        const p2 = Math.min(1, Math.max(0, (elapsed - 50) / curveDuration));
+        // Echo trail 2 (Mid trail, #BEF264): offset 50ms
+        const p2 = Math.min(1, Math.max(0, (elapsed - 50) / (curveDuration * 0.9)));
         const e2 = easeOmni(p2);
-        setTrail2D(ptsToD(interpPts(S, R, e2)));
 
-        // Main mask cutout: offset 100ms
-        const pM = Math.min(1, Math.max(0, (elapsed - 100) / curveDuration));
-        const eM = easeOmni(pM);
-        setMaskPathD(ptsToD(interpPts(S, R, eM)));
+        // Main curtain curve: offset 90ms
+        const pMain = Math.min(1, Math.max(0, (elapsed - 90) / (curveDuration * 0.85)));
+        const eMain = easeOmni(pMain);
 
-        // Fade out video in sync with curve opening
-        setVideoOpacity(Math.max(0, 1 - pM * 1.5));
+        // Top curve boundary: pulls from y=50 up to edges: -200, center: -20
+        const edgeYTop = (50 - slitY) + (-200 - (50 - slitY)) * eMain;
+        const ctrlYTop = (50 - slitY) + (-20 - (50 - slitY)) * eMain;
 
-        if (pM < 1) {
+        // Bottom curve boundary: pulls from y=50 down to edges: 300, center: 120
+        const edgeYBot = (50 + slitY) + (300 - (50 + slitY)) * eMain;
+        const ctrlYBot = (50 + slitY) + (120 - (50 + slitY)) * eMain;
+
+        setTopCurtainD(
+          `M -10 0 L 110 0 L 110 ${edgeYTop.toFixed(2)} C 75 ${ctrlYTop.toFixed(2)}, 25 ${ctrlYTop.toFixed(2)}, -10 ${edgeYTop.toFixed(2)} Z`
+        );
+        setBotCurtainD(
+          `M -10 100 L 110 100 L 110 ${edgeYBot.toFixed(2)} C 75 ${ctrlYBot.toFixed(2)}, 25 ${ctrlYBot.toFixed(2)}, -10 ${edgeYBot.toFixed(2)} Z`
+        );
+
+        // Calculate Trail 1 curve
+        const t1EdgeTop = (50 - slitY) + (-200 - (50 - slitY)) * e1;
+        const t1CtrlTop = (50 - slitY) + (-20 - (50 - slitY)) * e1;
+        const t1EdgeBot = (50 + slitY) + (300 - (50 + slitY)) * e1;
+        const t1CtrlBot = (50 + slitY) + (120 - (50 + slitY)) * e1;
+
+        setTrail1D(
+          `M -10 ${t1EdgeTop.toFixed(2)} C 25 ${t1CtrlTop.toFixed(2)}, 75 ${t1CtrlTop.toFixed(2)}, 110 ${t1EdgeTop.toFixed(2)} M -10 ${t1EdgeBot.toFixed(2)} C 25 ${t1CtrlBot.toFixed(2)}, 75 ${t1CtrlBot.toFixed(2)}, 110 ${t1EdgeBot.toFixed(2)}`
+        );
+
+        // Calculate Trail 2 curve
+        const t2EdgeTop = (50 - slitY) + (-200 - (50 - slitY)) * e2;
+        const t2CtrlTop = (50 - slitY) + (-20 - (50 - slitY)) * e2;
+        const t2EdgeBot = (50 + slitY) + (300 - (50 + slitY)) * e2;
+        const t2CtrlBot = (50 + slitY) + (120 - (50 + slitY)) * e2;
+
+        setTrail2D(
+          `M -10 ${t2EdgeTop.toFixed(2)} C 25 ${t2CtrlTop.toFixed(2)}, 75 ${t2CtrlTop.toFixed(2)}, 110 ${t2EdgeTop.toFixed(2)} M -10 ${t2EdgeBot.toFixed(2)} C 25 ${t2CtrlBot.toFixed(2)}, 75 ${t2CtrlBot.toFixed(2)}, 110 ${t2EdgeBot.toFixed(2)}`
+        );
+
+        // Fade out video smoothly as curve sweeps open
+        setVideoOpacity(Math.max(0, 1 - eMain * 1.8));
+
+        if (pMain < 1) {
           requestAnimationFrame(animateCurve);
         } else {
           // Finished!
-          setTrail1Op(0);
-          setTrail2Op(0);
+          setTrailOpacity(0);
           setTimeout(() => {
             setLoading(false);
-          }, 60);
+          }, 50);
         }
       }
 
@@ -140,22 +158,17 @@ export default function Preloader() {
     requestAnimationFrame(animateSlit);
   }, []);
 
-  // Initialize playback and listen for events
+  // Ensure video plays immediately on mount
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
-      video.playbackRate = 2.0; // 2x speed as requested
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Browser prevented autoplay with sound, keep muted and retry
-          video.muted = true;
-          video.play().catch(() => {});
-        });
-      }
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playbackRate = 2.0; // 2x playback speed
+      video.play().catch(() => {});
     }
 
-    // Key shortcut to skip (Space or Enter or Escape)
+    // Keyboard shortcut to skip
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
         e.preventDefault();
@@ -167,13 +180,15 @@ export default function Preloader() {
     // Global custom event to replay preloader anytime from UI
     const handleReplay = () => {
       exitStartedRef.current = false;
+      setIsExiting(false);
       setLoading(true);
       setVideoOpacity(1);
-      setMaskPathD('');
+      setTopCurtainD('M -10 0 L 110 0 L 110 50 L -10 50 Z');
+      setBotCurtainD('M -10 100 L 110 100 L 110 50 L -10 50 Z');
       setTrail1D('');
       setTrail2D('');
-      setTrail1Op(0);
-      setTrail2Op(0);
+      setTrailOpacity(0);
+
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.currentTime = 0;
@@ -190,15 +205,15 @@ export default function Preloader() {
     };
   }, [triggerCurveExit]);
 
-  // Video progress and auto-exit trigger
+  // Video progress & auto trigger
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const current = videoRef.current.currentTime;
-    const dur = videoRef.current.duration || 4.98;
+    const dur = videoRef.current.duration || 4.96;
     setVideoProgress((current / dur) * 100);
 
-    // Trigger curve transition right at the climax of the reveal (around 4.4s at 2x)
-    if (current >= dur - 0.5 && !exitStartedRef.current) {
+    // Trigger transition when logo reveal finishes (~4.4s at 2x)
+    if (current >= dur - 0.4 && !exitStartedRef.current) {
       triggerCurveExit();
     }
   };
@@ -208,61 +223,78 @@ export default function Preloader() {
   return (
     <div
       aria-label="ASTID Reveal Preloader"
-      className="fixed inset-0 z-[9999] overflow-hidden pointer-events-auto select-none bg-[#0E1411]"
+      className="fixed inset-0 z-[9999] overflow-hidden select-none"
     >
-      {/* Omni Curve SVG Mask Overlay (Woblo Horizontal Centre) */}
+      {/* Woblo Omni Curve Curtains Layer: Top and Bottom SVG paths that part along the bell curve */}
       <svg
         preserveAspectRatio="none"
         viewBox="0 0 100 100"
-        className="absolute inset-0 w-full h-full pointer-events-none z-20"
+        className="absolute inset-0 w-full h-full pointer-events-none z-30"
         aria-hidden="true"
       >
-        <defs>
-          <mask id="omni-curve-bell-mask">
-            {/* White background: overlay remains opaque */}
-            <rect x="0" y="0" width="100" height="100" fill="white" />
-            {/* Animated black path cuts out the horizontal slit and curved bell */}
-            {maskPathD && <path fill="black" d={maskPathD} />}
-          </mask>
-        </defs>
+        {/* Top Curtain (sweeps up past y=0) */}
+        <path fill="#0E1411" d={topCurtainD} />
 
-        {/* Group with bell mask cuts through the dark canvas */}
-        <g mask="url(#omni-curve-bell-mask)">
-          {/* Base full-page dark overlay */}
-          <rect x="0" y="0" width="100" height="100" fill="#0E1411" />
+        {/* Bottom Curtain (sweeps down past y=100) */}
+        <path fill="#0E1411" d={botCurtainD} />
 
-          {/* Echo Trail 1 (Lead trail: ASTID Emerald #6FBF8F) */}
-          {trail1Op > 0 && trail1D && (
-            <path fill="#6FBF8F" opacity={trail1Op} d={trail1D} />
-          )}
+        {/* Echo Trail 1 (Lead trail: ASTID Emerald #6FBF8F, 3px stroke) */}
+        {trailOpacity > 0 && trail1D && (
+          <path
+            fill="none"
+            stroke="#6FBF8F"
+            strokeWidth="0.8"
+            strokeLinecap="round"
+            opacity={trailOpacity}
+            d={trail1D}
+          />
+        )}
 
-          {/* Echo Trail 2 (Mid trail: ASTID Lime #BEF264) */}
-          {trail2Op > 0 && trail2D && (
-            <path fill="#BEF264" opacity={trail2Op} d={trail2D} />
-          )}
-        </g>
+        {/* Echo Trail 2 (Mid trail: ASTID Lime #BEF264, 2px stroke) */}
+        {trailOpacity > 0 && trail2D && (
+          <path
+            fill="none"
+            stroke="#BEF264"
+            strokeWidth="0.5"
+            strokeLinecap="round"
+            opacity={trailOpacity * 0.85}
+            d={trail2D}
+          />
+        )}
       </svg>
 
-      {/* Video Reveal Stage (Center aligned, 2x playback speed) */}
+      {/* Video Reveal Stage: Displayed front-and-center on the preloader canvas */}
       <div
-        className="relative z-10 flex h-full w-full flex-col items-center justify-center p-4 transition-opacity duration-300"
+        className="relative z-10 flex h-full w-full flex-col items-center justify-center p-4 bg-[#0E1411] transition-opacity duration-300"
         style={{ opacity: videoOpacity }}
       >
-        {/* Cinematic Video Card */}
-        <div className="relative w-full max-w-4xl aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/60 flex items-center justify-center">
+        {/* High-definition Video Card */}
+        <div className="relative w-full max-w-4xl aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black flex items-center justify-center">
           <video
             ref={videoRef}
-            src="/astid-reveal-2x.mp4"
             autoPlay
             playsInline
             muted={isMuted}
+            preload="auto"
+            onLoadedMetadata={() => {
+              if (videoRef.current) {
+                videoRef.current.playbackRate = 2.0;
+                videoRef.current.play().catch(() => {});
+              }
+            }}
             onTimeUpdate={handleTimeUpdate}
             onEnded={triggerCurveExit}
             className="w-full h-full object-contain"
-          />
+          >
+            <source src="/astid-reveal-2x.mp4" type="video/mp4" />
+            <source
+              src="/Logo_reveal_animation_a63dc0df_1080p (online-video-cutter.com).mp4"
+              type="video/mp4"
+            />
+          </video>
 
-          {/* Subtle gradient vignette to blend with dark mode */}
-          <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-white/10 rounded-3xl" />
+          {/* Border highlight ring */}
+          <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-white/15 rounded-3xl" />
         </div>
 
         {/* Footer controls: Audio toggle, timeline indicator, and Skip button */}
@@ -271,22 +303,23 @@ export default function Preloader() {
             <button
               onClick={() => {
                 if (videoRef.current) {
-                  videoRef.current.muted = !isMuted;
-                  setIsMuted(!isMuted);
+                  const nextMuted = !isMuted;
+                  videoRef.current.muted = nextMuted;
+                  setIsMuted(nextMuted);
                 }
               }}
               className="flex items-center gap-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 px-3 py-1.5 font-medium text-white transition-all cursor-pointer"
               aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
             >
               {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-[#6FBF8F]" />}
-              <span>{isMuted ? 'Unmute Sound' : 'Audio On'}</span>
+              <span>{isMuted ? 'Unmute Audio' : 'Audio Active'}</span>
             </button>
             <span className="hidden sm:inline font-mono text-[11px] text-white/50">
-              2.0× Hardware Render
+              ASTID Reveal · 2.0× Speed
             </span>
           </div>
 
-          {/* Progress bar */}
+          {/* Progress bar and Skip button */}
           <div className="flex items-center gap-3">
             <div className="w-32 h-1 rounded-full bg-white/15 overflow-hidden">
               <div

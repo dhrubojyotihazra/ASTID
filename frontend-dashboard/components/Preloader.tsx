@@ -1,15 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
 
 const NUM_BARS = 5;
 const BARS = Array.from({ length: NUM_BARS }, (_, i) => i);
 
 export default function Preloader() {
   const [loading, setLoading] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
-  const [videoProgress, setVideoProgress] = useState(0);
 
   // Transition states
   const [isExiting, setIsExiting] = useState(false);
@@ -68,7 +65,7 @@ export default function Preloader() {
       video.play().catch(() => {});
     }
 
-    // Keyboard shortcut to skip
+    // Keyboard shortcut or click anywhere to skip
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
         e.preventDefault();
@@ -83,7 +80,6 @@ export default function Preloader() {
       setIsExiting(false);
       setBarsSliding(false);
       setLoading(true);
-      setVideoProgress(0);
 
       setTimeout(() => {
         if (videoRef.current) {
@@ -106,7 +102,6 @@ export default function Preloader() {
     if (!videoRef.current) return;
     const current = videoRef.current.currentTime;
     const dur = videoRef.current.duration || 4.98;
-    setVideoProgress((current / dur) * 100);
 
     // Auto-trigger curtain at the very last frame of the video
     if (current >= dur - 0.25 && !exitStartedRef.current) {
@@ -121,14 +116,15 @@ export default function Preloader() {
   return (
     <div
       aria-label="ASTID Reveal Preloader"
-      className="fixed inset-0 z-[9999] overflow-hidden select-none bg-[#d4d5d0]"
+      onClick={triggerExit}
+      className="fixed inset-0 z-[9999] overflow-hidden select-none bg-[#d4d5d0] cursor-pointer"
     >
-      {/* ── Active Video Layer (Edge-to-Edge True Fullscreen, NO padding, NO frames) ── */}
+      {/* ── Active Video Layer (Edge-to-Edge True Fullscreen, Clean Cinematic) ── */}
       <video
         ref={videoRef}
         autoPlay
         playsInline
-        muted={isMuted}
+        muted
         preload="auto"
         onLoadedMetadata={() => {
           if (videoRef.current) {
@@ -138,7 +134,7 @@ export default function Preloader() {
         }}
         onTimeUpdate={handleTimeUpdate}
         onEnded={triggerExit}
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
         style={{
           opacity: isExiting ? 0 : 1,
           transition: 'opacity 120ms ease-out',
@@ -196,55 +192,6 @@ export default function Preloader() {
           })}
         </div>
       )}
-
-      {/* ── Floating Controls Pill (Minimalist glass bar pinned at bottom) ── */}
-      <div
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center justify-between gap-4 px-5 py-2 rounded-full border border-black/15 bg-black/25 backdrop-blur-md text-white shadow-xl transition-opacity duration-200"
-        style={{
-          opacity: isExiting ? 0 : 1,
-          pointerEvents: isExiting ? 'none' : 'auto',
-          maxWidth: '92vw',
-          width: '520px',
-        }}
-      >
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => {
-              if (videoRef.current) {
-                const nextMuted = !isMuted;
-                videoRef.current.muted = nextMuted;
-                setIsMuted(nextMuted);
-              }
-            }}
-            className="flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/25 px-3 py-1 text-xs font-semibold text-white transition-all cursor-pointer"
-            aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
-          >
-            {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} className="text-[#6FBF8F]" />}
-            <span>{isMuted ? 'Unmute' : 'Audio On'}</span>
-          </button>
-          <span className="hidden sm:inline font-mono text-[11px] text-white/60">
-            ASTID · 2.0×
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* Progress bar */}
-          <div className="w-24 sm:w-32 h-1 rounded-full bg-white/20 overflow-hidden">
-            <div
-              className="h-full bg-[#6FBF8F] rounded-full transition-all duration-100 ease-out"
-              style={{ width: `${videoProgress}%` }}
-            />
-          </div>
-
-          <button
-            onClick={triggerExit}
-            className="group flex items-center gap-1.5 rounded-full bg-[#0d3a23] hover:bg-[#155a37] border border-[#6FBF8F]/40 px-3.5 py-1 text-xs font-semibold text-white transition-all cursor-pointer active:scale-95 shadow-sm"
-          >
-            <span>Skip</span>
-            <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

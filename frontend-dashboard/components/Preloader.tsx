@@ -26,7 +26,6 @@ export default function Preloader() {
 
     const video = videoRef.current;
     if (video) {
-      // Try to capture current frame to canvas for seamless freeze
       try {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 1280;
@@ -38,7 +37,6 @@ export default function Preloader() {
           setFrozenFrame(dataUrl);
         }
       } catch {
-        // Fallback to /last_frame.png
         setFrozenFrame('/last_frame.png');
       }
       video.pause();
@@ -123,40 +121,35 @@ export default function Preloader() {
   return (
     <div
       aria-label="ASTID Reveal Preloader"
-      className="fixed inset-0 z-[9999] overflow-hidden select-none"
-      style={{ background: bgGradient }}
+      className="fixed inset-0 z-[9999] overflow-hidden select-none bg-[#d4d5d0]"
     >
-      {/* ── Active Video Layer (visible during playback) ── */}
-      <div
-        className="absolute inset-0 flex items-center justify-center p-4 md:p-8"
+      {/* ── Active Video Layer (Edge-to-Edge True Fullscreen, NO padding, NO frames) ── */}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted={isMuted}
+        preload="auto"
+        onLoadedMetadata={() => {
+          if (videoRef.current) {
+            videoRef.current.playbackRate = 2.0;
+            videoRef.current.play().catch(() => {});
+          }
+        }}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={triggerExit}
+        className="absolute inset-0 w-full h-full object-cover object-center"
         style={{
           opacity: isExiting ? 0 : 1,
-          transition: 'opacity 150ms ease-out',
+          transition: 'opacity 120ms ease-out',
         }}
       >
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted={isMuted}
-          preload="auto"
-          onLoadedMetadata={() => {
-            if (videoRef.current) {
-              videoRef.current.playbackRate = 2.0;
-              videoRef.current.play().catch(() => {});
-            }
-          }}
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={triggerExit}
-          className="w-full h-full object-contain max-h-[85vh] max-w-[92vw] drop-shadow-sm"
-        >
-          <source src="/astid-reveal-2x.mp4" type="video/mp4" />
-          <source
-            src="/Logo_reveal_animation_a63dc0df_1080p (online-video-cutter.com).mp4"
-            type="video/mp4"
-          />
-        </video>
-      </div>
+        <source src="/astid-reveal-2x.mp4" type="video/mp4" />
+        <source
+          src="/Logo_reveal_animation_a63dc0df_1080p (online-video-cutter.com).mp4"
+          type="video/mp4"
+        />
+      </video>
 
       {/* ── Multiple Bars Curtain Up Layer (triggers on last frame / exit) ── */}
       {isExiting && (
@@ -164,7 +157,6 @@ export default function Preloader() {
           {BARS.map(i => {
             const widthPct = 100 / NUM_BARS;
             const leftPct = i * widthPct;
-            // Left-to-right staggered wave delay (80ms between columns)
             const delayMs = i * 80;
 
             return (
@@ -173,21 +165,21 @@ export default function Preloader() {
                 className="absolute top-0 bottom-0 overflow-hidden"
                 style={{
                   left: `${leftPct}%`,
-                  width: `${widthPct + 0.15}%`, // tiny 0.15% overlap prevents 1px subpixel seams
+                  width: `${widthPct + 0.15}%`, // tiny overlap prevents 1px subpixel seams
                   transform: barsSliding ? 'translateY(-100%)' : 'translateY(0%)',
                   transition: 'transform 800ms cubic-bezier(0.76, 0, 0.24, 1)',
                   transitionDelay: `${delayMs}ms`,
-                  borderBottom: '3px solid #6FBF8F', // ASTID luminous emerald bottom trim
-                  boxShadow: '0 20px 40px -5px rgba(0, 0, 0, 0.35)',
+                  borderBottom: '3.5px solid #6FBF8F', // ASTID luminous emerald bottom trim
+                  boxShadow: '0 25px 45px -5px rgba(0, 0, 0, 0.4)',
                   background: bgGradient,
                   willChange: 'transform',
                 }}
               >
-                {/* Inner screen clone: shifted counter-offset so the entire image aligns seamlessly across all bars */}
+                {/* Inner screen clone: 100% matching edge-to-edge full viewport */}
                 <div
-                  className="absolute top-0 bottom-0 flex items-center justify-center p-4 md:p-8"
+                  className="absolute top-0 bottom-0"
                   style={{
-                    left: `-${(i * 100)}%`,
+                    left: `-${i * 100}%`,
                     width: `${NUM_BARS * 100}%`,
                     height: '100%',
                     background: bgGradient,
@@ -196,7 +188,7 @@ export default function Preloader() {
                   <img
                     src={frozenFrame}
                     alt="ASTID Reveal"
-                    className="w-full h-full object-contain max-h-[85vh] max-w-[92vw] drop-shadow-sm"
+                    className="w-full h-full object-cover object-center"
                   />
                 </div>
               </div>
@@ -205,14 +197,14 @@ export default function Preloader() {
         </div>
       )}
 
-      {/* ── Floating Controls Pill (Pinned at bottom, hidden during exit) ── */}
+      {/* ── Floating Controls Pill (Minimalist glass bar pinned at bottom) ── */}
       <div
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center justify-between gap-4 px-5 py-2.5 rounded-full border border-black/10 bg-black/20 backdrop-blur-md text-white shadow-lg transition-opacity duration-200"
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center justify-between gap-4 px-5 py-2 rounded-full border border-black/15 bg-black/25 backdrop-blur-md text-white shadow-xl transition-opacity duration-200"
         style={{
           opacity: isExiting ? 0 : 1,
           pointerEvents: isExiting ? 'none' : 'auto',
-          maxWidth: '90vw',
-          width: '560px',
+          maxWidth: '92vw',
+          width: '520px',
         }}
       >
         <div className="flex items-center gap-2.5">

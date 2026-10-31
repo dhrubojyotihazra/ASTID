@@ -76,6 +76,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Eliminate harsh yellow browser autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--cd) inset !important;
+  -webkit-text-fill-color: var(--tx) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .num {
   font-family: ui-monospace, Menlo, monospace;
   font-variant-numeric: tabular-nums;

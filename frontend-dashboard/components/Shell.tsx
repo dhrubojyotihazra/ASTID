@@ -139,27 +139,27 @@ export default function Shell({ children }: { children: ReactNode }) {
     <div className="flex h-full flex-col">
       {/* Brand Header with ASTID Logo & Vector Wordmark */}
       <div className="flex items-center justify-between px-2 pb-5 border-b border-bd/60 mb-3">
-        <Link href="/dashboard/home" className="flex items-center gap-1.5 group">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1 shadow-xs transition-transform duration-200 group-hover:scale-105 flex-shrink-0">
+        <Link href="/dashboard/home" className="flex items-center gap-1 group">
+          <div className="relative flex h-9 w-9 items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
             <Image
               src="/astid-logo-square.png"
               alt="ASTID Logo"
-              width={38}
-              height={38}
-              className="object-contain"
+              width={36}
+              height={36}
+              className="object-contain drop-shadow-xs"
               priority
             />
           </div>
-          <div className="flex flex-col min-w-0 -ml-0.5">
+          <div className="flex flex-col min-w-0 -ml-1.5">
             <Image
               src="/astid-wordmark.png"
               alt="astid"
-              width={88}
-              height={26}
-              className="object-contain h-[23px] w-auto transition-transform duration-200 group-hover:scale-105"
+              width={82}
+              height={24}
+              className="object-contain h-[22px] w-auto transition-transform duration-200 group-hover:scale-105"
               priority
             />
-            <span className="block text-[9.5px] uppercase font-bold tracking-widest text-mu mt-0.5 whitespace-nowrap">Fraud Defense</span>
+            <span className="block text-[9px] uppercase font-bold tracking-widest text-mu mt-0.5 whitespace-nowrap">Fraud Defense</span>
           </div>
         </Link>
         {/* Mobile close button */}

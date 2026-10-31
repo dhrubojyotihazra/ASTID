@@ -34,35 +34,40 @@ export default function Login() {
         <span>{a.dark ? 'Light mode' : 'Dark mode'}</span>
       </button>
 
-      <Card className="anim-up flex w-[440px] max-w-full flex-col gap-4 !p-8 shadow-md border-bd/80">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1.5 shadow-xs flex-shrink-0">
+      <Card className="anim-up flex w-[440px] max-w-full flex-col gap-4 !p-8 md:!p-9 shadow-2xl border-bd/80 bg-card/95 backdrop-blur-md rounded-[28px]">
+        {/* Balanced Centered Brand Lockup */}
+        <div className="flex flex-col items-center text-center pt-1 pb-1">
+          <div className="relative mb-2.5 flex h-14 w-14 items-center justify-center">
             <Image
               src="/astid-logo-square.png"
-              alt="ASTID Logo"
-              width={48}
-              height={48}
-              className="object-contain"
+              alt="ASTID Emblem"
+              width={52}
+              height={52}
+              className="object-contain drop-shadow-md"
               priority
             />
           </div>
-          <div className="flex flex-col min-w-0 -ml-0.5">
-            <Image
-              src="/astid-wordmark.png"
-              alt="astid"
-              width={118}
-              height={34}
-              className="object-contain h-[32px] w-auto drop-shadow-xs"
-              priority
-            />
-            <div className="text-[11.5px] font-medium text-mu mt-0.5">AI Shield for Transaction Integrity &amp; Defense</div>
-          </div>
+          <Image
+            src="/astid-wordmark.png"
+            alt="astid"
+            width={124}
+            height={36}
+            className="object-contain h-[34px] w-auto drop-shadow-xs"
+            priority
+          />
+          <p className="mt-1.5 text-[12px] font-medium text-mu max-w-[280px]">
+            AI Shield for Transaction Integrity &amp; Defense
+          </p>
         </div>
 
-        <div className="pt-1">
-          <h1 className="text-[24px] font-bold tracking-tight text-tx">Sign In</h1>
-          <p className="mt-1 text-[13px] text-mu">
-            Authorized bank staff only. You will automatically route to your assigned branch scope.
+        {/* Subtle section divider */}
+        <div className="h-px w-full bg-bd/60" />
+
+        {/* Clean Sign In Heading */}
+        <div>
+          <h1 className="text-[20px] font-bold tracking-tight text-tx">Sign In to Workbench</h1>
+          <p className="mt-0.5 text-[12.5px] text-mu">
+            Authorized bank personnel only · Scope routed by branch
           </p>
         </div>
 

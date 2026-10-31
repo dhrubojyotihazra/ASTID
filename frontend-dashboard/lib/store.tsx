@@ -49,7 +49,7 @@ function triggerWaveRipple(x: number, y: number, nextDark: boolean) {
   document.body.appendChild(ripple);
   setTimeout(() => {
     ripple.remove();
-  }, 750);
+  }, 825);
 }
 
 function triggerFallbackWave(x: number, y: number, nextDark: boolean, onDone: () => void) {
@@ -69,8 +69,8 @@ function triggerFallbackWave(x: number, y: number, nextDark: boolean, onDone: ()
     wave.style.opacity = '0';
     setTimeout(() => {
       wave.remove();
-    }, 300);
-  }, 500);
+    }, 330);
+  }, 550);
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -141,7 +141,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ],
           },
           {
-            duration: 650,
+            duration: 715,
             easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
             pseudoElement: '::view-transition-new(root)',
           }

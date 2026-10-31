@@ -325,7 +325,7 @@ body {
   border-radius: 50%;
   border-style: solid;
   transform: translate(-50%, -50%) scale(0);
-  animation: theme-wave-spread 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: theme-wave-spread 0.77s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes theme-wave-spread {
@@ -360,7 +360,7 @@ body {
   z-index: 99999;
   border-radius: 50%;
   transform: translate(-50%, -50%) scale(0);
-  animation: theme-fallback-expand 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: theme-fallback-expand 0.605s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transition: opacity 0.3s ease;
 }
 

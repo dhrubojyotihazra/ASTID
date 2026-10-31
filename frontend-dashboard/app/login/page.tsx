@@ -35,7 +35,7 @@ export default function Login() {
       </button>
 
       <Card className="anim-up flex w-[440px] max-w-full flex-col gap-4 !p-8 shadow-md border-bd/80">
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-2.5">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1.5 shadow-xs flex-shrink-0">
             <Image
               src="/astid-logo-square.png"
@@ -46,7 +46,7 @@ export default function Login() {
               priority
             />
           </div>
-          <div className="flex flex-col min-w-0">
+          <div className="flex flex-col min-w-0 -ml-0.5">
             <Image
               src="/astid-wordmark.png"
               alt="astid"

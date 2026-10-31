@@ -139,7 +139,7 @@ export default function Shell({ children }: { children: ReactNode }) {
     <div className="flex h-full flex-col">
       {/* Brand Header with ASTID Logo & Vector Wordmark */}
       <div className="flex items-center justify-between px-2 pb-5 border-b border-bd/60 mb-3">
-        <Link href="/dashboard/home" className="flex items-center gap-2.5 group">
+        <Link href="/dashboard/home" className="flex items-center gap-1.5 group">
           <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1 shadow-xs transition-transform duration-200 group-hover:scale-105 flex-shrink-0">
             <Image
               src="/astid-logo-square.png"
@@ -150,7 +150,7 @@ export default function Shell({ children }: { children: ReactNode }) {
               priority
             />
           </div>
-          <div className="flex flex-col min-w-0">
+          <div className="flex flex-col min-w-0 -ml-0.5">
             <Image
               src="/astid-wordmark.png"
               alt="astid"

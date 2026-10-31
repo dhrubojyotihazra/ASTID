@@ -166,7 +166,6 @@ export default function Preloader({ initialActive = true }: { initialActive?: bo
                   transition: 'transform 800ms cubic-bezier(0.76, 0, 0.24, 1)',
                   transitionDelay: `${delayMs}ms`,
                   borderBottom: '3.5px solid #6FBF8F', // ASTID luminous emerald bottom trim
-                  boxShadow: '0 25px 45px -5px rgba(0, 0, 0, 0.4)',
                   background: bgGradient,
                   willChange: 'transform',
                 }}

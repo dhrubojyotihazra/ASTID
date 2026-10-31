@@ -106,7 +106,7 @@ export default function HelpView() {
               <button
                 key={i}
                 onClick={() => say(`Viewing topic guide: ${topic.title}`)}
-                className="flex items-center gap-3.5 rounded-2xl bg-white/10 hover:bg-white/18 p-4 text-left backdrop-blur-xl border border-white/20 transition-all duration-200 active:scale-95 cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
+                className="flex items-center gap-3.5 rounded-2xl liquid-glass-sub p-4 text-left transition-all duration-200 active:scale-95 cursor-pointer"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
                   <Icon size={18} />

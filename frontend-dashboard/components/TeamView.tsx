@@ -356,7 +356,7 @@ export default function TeamView() {
       {viewMode === 'hierarchy' && (
         <div className="flex flex-col gap-6">
           {/* Hierarchy Banner */}
-          <div className="rounded-[24px] border border-bd/80 bg-so/20 p-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="rounded-[24px] liquid-glass p-5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-ac animate-pulse" />

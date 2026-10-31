@@ -417,64 +417,192 @@ input:-webkit-autofill:focus {
 .heat-box[data-l="3"] { background: var(--g-700); }
 .heat-box[data-l="4"] { background: var(--g-950); }
 
-/* ─── Liquid Glass / Glassmorphism ─── */
-.glass-card {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+/* ─── Apple Liquid Glass (inspired by iyinchao/liquid-glass-studio) ─── */
+.liquid-glass {
+  position: relative;
+  /* 45deg specular glare gradient: bright top-left entry, transparent core, subtle bottom-right rim reflection */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0.16) 28%,
+    rgba(255, 255, 255, 0.05) 55%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+  backdrop-filter: blur(28px) saturate(185%) contrast(103%) brightness(104%);
+  -webkit-backdrop-filter: blur(28px) saturate(185%) contrast(103%) brightness(104%);
   border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+    /* Fresnel top & left specular rim highlight */
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.85),
+    inset 1.5px 0 1px 0 rgba(255, 255, 255, 0.55),
+    /* Opposite edge Fresnel / glare reflection */
+    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.35),
+    inset -1px 0 1px 0 rgba(255, 255, 255, 0.25),
+    /* Soft ambient occlusion shadow underneath */
+    0 10px 30px -10px rgba(13, 58, 35, 0.12),
+    0 4px 12px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.dark .glass-card {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.10);
+.liquid-glass:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.50) 0%,
+    rgba(255, 255, 255, 0.20) 28%,
+    rgba(255, 255, 255, 0.08) 55%,
+    rgba(255, 255, 255, 0.24) 100%
+  );
   box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 1.5px 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.45),
+    0 16px 36px -12px rgba(13, 58, 35, 0.18),
+    0 6px 16px -4px rgba(0, 0, 0, 0.08);
 }
 
-/* Variant: thinner glass for nested cards inside glass containers */
-.glass-card-inner {
-  background: rgba(255, 255, 255, 0.50);
-  backdrop-filter: blur(16px) saturate(1.3);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
-  border: 1px solid rgba(255, 255, 255, 0.50);
+/* Dark mode Liquid Glass: deep obsidian crystal with luminous emerald refraction */
+.dark .liquid-glass {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    rgba(255, 255, 255, 0.01) 60%,
+    rgba(111, 191, 143, 0.08) 100%
+  );
+  backdrop-filter: blur(28px) saturate(190%) brightness(108%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(108%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
   box-shadow:
-    0 2px 12px -3px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1.5px 0 rgba(111, 191, 143, 0.18),
+    0 14px 34px -8px rgba(0, 0, 0, 0.55),
+    0 0 20px -5px rgba(93, 189, 139, 0.12);
 }
 
-.dark .glass-card-inner {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
+.dark .liquid-glass:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    rgba(255, 255, 255, 0.02) 60%,
+    rgba(111, 191, 143, 0.14) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.22);
   box-shadow:
-    0 2px 12px -3px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1.2px 1px 0 rgba(255, 255, 255, 0.40),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 1.5px 0 rgba(111, 191, 143, 0.25),
+    0 18px 42px -10px rgba(0, 0, 0, 0.65),
+    0 0 24px -4px rgba(93, 189, 139, 0.20);
 }
 
-/* Glass header bar */
-.glass-header {
-  background: rgba(255, 255, 255, 0.50);
-  backdrop-filter: blur(28px) saturate(1.6);
-  -webkit-backdrop-filter: blur(28px) saturate(1.6);
-  border: 1px solid rgba(255, 255, 255, 0.50);
+/* Secondary / nested liquid glass (e.g. for case cards or tiles inside a glass board) */
+.liquid-glass-sub {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.52) 0%,
+    rgba(255, 255, 255, 0.22) 32%,
+    rgba(255, 255, 255, 0.10) 65%,
+    rgba(255, 255, 255, 0.28) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.60);
   box-shadow:
-    0 2px 16px -4px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    inset 0 1px 0.8px 0 rgba(255, 255, 255, 0.85),
+    inset 1px 0 0.8px 0 rgba(255, 255, 255, 0.50),
+    0 4px 16px -3px rgba(13, 58, 35, 0.08);
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.dark .glass-header {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
+.liquid-glass-sub:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.28) 32%,
+    rgba(255, 255, 255, 0.15) 65%,
+    rgba(255, 255, 255, 0.35) 100%
+  );
   box-shadow:
-    0 2px 16px -4px rgba(0, 0, 0, 0.40),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    inset 0 1.2px 1px 0 rgba(255, 255, 255, 0.95),
+    0 8px 24px -4px rgba(13, 58, 35, 0.14);
 }
+
+.dark .liquid-glass-sub {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 35%,
+    rgba(255, 255, 255, 0.005) 65%,
+    rgba(111, 191, 143, 0.05) 100%
+  );
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    inset 0 1px 0.8px 0 rgba(255, 255, 255, 0.20),
+    0 4px 16px -3px rgba(0, 0, 0, 0.40);
+}
+
+.dark .liquid-glass-sub:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 35%,
+    rgba(255, 255, 255, 0.015) 65%,
+    rgba(111, 191, 143, 0.09) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0.8px 0 rgba(255, 255, 255, 0.30),
+    0 8px 24px -4px rgba(0, 0, 0, 0.55),
+    0 0 16px -4px rgba(93, 189, 139, 0.15);
+}
+
+/* Header bar liquid glass */
+.liquid-glass-header {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.18) 35%,
+    rgba(255, 255, 255, 0.08) 70%,
+    rgba(255, 255, 255, 0.22) 100%
+  );
+  backdrop-filter: blur(32px) saturate(190%) contrast(104%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%) contrast(104%);
+  border: 1px solid rgba(255, 255, 255, 0.60);
+  box-shadow:
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.90),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.60),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.30),
+    0 8px 28px -6px rgba(13, 58, 35, 0.10);
+}
+
+.dark .liquid-glass-header {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.11) 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.01) 70%,
+    rgba(111, 191, 143, 0.06) 100%
+  );
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.25),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1.5px 0 rgba(111, 191, 143, 0.15),
+    0 8px 30px -6px rgba(0, 0, 0, 0.50);
+}
+
+/* Aliases for backwards compatibility */
+.glass-card { @apply liquid-glass; }
+.glass-card-inner { @apply liquid-glass-sub; }
+.glass-header { @apply liquid-glass-header; }
 
 /* Draggable Kanban Card States */
 .task-drag-over {

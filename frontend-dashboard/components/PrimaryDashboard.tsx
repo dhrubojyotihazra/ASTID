@@ -325,52 +325,42 @@ export default function PrimaryDashboard() {
       {/* Middle Grid: Weekly Review Activity, Priority Alert, and Recent Cases */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         {/* Weekly Review Activity (5 cols) */}
-        <div className="card-micro lg:col-span-5 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-[16px] font-bold text-tx">Weekly Review Activity</h2>
-              <p className="text-[12px] text-mu">Case resolutions across days</p>
+        <div className="card-micro lg:col-span-5 rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col justify-between min-h-[300px]">
+          {/* Card Header: Locked min-height and nowrap badge so layout never shifts */}
+          <div className="flex items-start justify-between gap-3 min-h-[44px] flex-shrink-0">
+            <div className="min-w-0">
+              <h2 className="text-[16px] font-bold text-tx leading-tight">Weekly Review Activity</h2>
+              <p className="text-[12px] text-mu leading-tight mt-0.5">Case resolutions across days</p>
             </div>
-            {hoveredBar ? (
-              <span className="text-[11.5px] font-bold text-ac rounded-full bg-so px-2.5 py-0.5 animate-fadeIn">
-                {hoveredBar}
+            <div className="flex-shrink-0 pt-0.5">
+              <span
+                className={`inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap transition-colors duration-150 ${
+                  hoveredBar ? 'text-ac bg-so font-bold' : 'text-mu bg-so/40'
+                }`}
+              >
+                {hoveredBar || 'Hover to inspect'}
               </span>
-            ) : (
-              <span className="text-[11.5px] font-bold text-mu rounded-full bg-so/40 px-2 py-0.5">
-                Hover to inspect
-              </span>
-            )}
+            </div>
           </div>
 
-          {/* 7 Bars (Sunday to Saturday) matching Screen 1 styling */}
-          <div className="relative flex items-end justify-between gap-2.5 h-48 pt-10 pb-2">
-            {[
-              { day: 'S', pct: 60, height: 60, barClass: 'bar--plan', desc: 'Sunday: 48 cases cleared · 98% clean', delay: 0 },
-              { day: 'M', pct: 86, height: 86, barClass: 'bar--mid', desc: 'Monday: 124 cases · 14 escalations', delay: 60 },
-              { day: 'T', pct: 74, height: 74, barClass: 'bar--light', desc: 'Tuesday: 98 cases · 8 escalations', delay: 120 },
-              { day: 'W', pct: 96, height: 96, barClass: 'bar--dark', desc: 'Wednesday: 142 cases · 100% SLA met', delay: 180 },
-              { day: 'T', pct: 68, height: 68, barClass: 'bar--plan', desc: 'Thursday: 84 cases · 6 escalations', delay: 240 },
-              { day: 'F', pct: 55, height: 55, barClass: 'bar--plan', desc: 'Friday: 76 cases · 12 escalations', delay: 300 },
-              { day: 'S', pct: 45, height: 45, barClass: 'bar--plan', desc: 'Saturday: 52 cases · Low weekend volume', delay: 360 },
-            ].map((d, idx) => {
-              const isHovered = hoveredDayIdx === idx;
+          {/* 7 Bars (Sunday to Saturday) with rock-solid full-column hover & pin tooltip */}
+          <div className="relative flex flex-col justify-end mt-4 select-none">
+            {/* Bar Track (144px height) - Each column spans 100% height as steady hover hitbox */}
+            <div className="relative flex items-end justify-between gap-2.5 h-36">
+              {[
+                { day: 'S', pct: 60, height: 60, barClass: 'bar--plan', desc: 'Sunday · 48 cases · 98% clean', delay: 0 },
+                { day: 'M', pct: 86, height: 86, barClass: 'bar--mid', desc: 'Monday · 124 cases · 14 esc', delay: 60 },
+                { day: 'T', pct: 74, height: 74, barClass: 'bar--light', desc: 'Tuesday · 98 cases · 8 esc', delay: 120 },
+                { day: 'W', pct: 96, height: 96, barClass: 'bar--dark', desc: 'Wednesday · 142 cases · 100% SLA', delay: 180 },
+                { day: 'T', pct: 68, height: 68, barClass: 'bar--plan', desc: 'Thursday · 84 cases · 6 esc', delay: 240 },
+                { day: 'F', pct: 55, height: 55, barClass: 'bar--plan', desc: 'Friday · 76 cases · 12 esc', delay: 300 },
+                { day: 'S', pct: 45, height: 45, barClass: 'bar--plan', desc: 'Saturday · 52 cases · Low vol', delay: 360 },
+              ].map((d, idx) => {
+                const isHovered = hoveredDayIdx === idx;
 
-              return (
-                <div key={idx} className="relative flex flex-col items-center flex-1 h-full justify-end gap-2">
-                  {/* Pin Tooltip directly over active bar (matching reference) */}
-                  {isHovered && (
-                    <div
-                      className="absolute z-20 flex flex-col items-center pointer-events-none anim-up"
-                      style={{ bottom: `calc(${d.height}% + 12px)` }}
-                    >
-                      <div className="rounded-lg border border-bd/90 bg-card px-2 py-0.5 text-[11.5px] font-bold text-tx shadow-sm">
-                        {d.pct}%
-                      </div>
-                      <div className="w-[1.5px] h-2.5 bg-mu/60" />
-                    </div>
-                  )}
-
+                return (
                   <div
+                    key={idx}
                     onMouseEnter={() => {
                       setHoveredDayIdx(idx);
                       setHoveredBar(d.desc);
@@ -379,15 +369,46 @@ export default function PrimaryDashboard() {
                       setHoveredDayIdx(null);
                       setHoveredBar(null);
                     }}
-                    className={`bar-pill ${d.barClass} anim-decile-bar w-full cursor-pointer transition-opacity duration-150 ${
-                      hoveredDayIdx !== null && !isHovered ? 'opacity-60' : 'opacity-100'
-                    }`}
-                    style={{ height: `${d.height}%`, animationDelay: `${d.delay}ms` }}
-                  />
-                  <span className="text-[12px] font-semibold text-mu">{d.day}</span>
-                </div>
-              );
-            })}
+                    className="group relative flex flex-col items-center justify-end flex-1 h-full cursor-pointer"
+                  >
+                    {/* Pin Tooltip: anchored exactly at top of bar */}
+                    {isHovered && (
+                      <div
+                        className="absolute z-30 flex flex-col items-center pointer-events-none transition-opacity duration-150"
+                        style={{ bottom: `${d.height}%` }}
+                      >
+                        <div className="rounded-lg border border-bd/90 bg-card px-2 py-0.5 text-[11.5px] font-bold text-tx shadow-md whitespace-nowrap mb-[-1px]">
+                          {d.pct}%
+                        </div>
+                        <div className="w-[1.5px] h-3 bg-mu/70" />
+                      </div>
+                    )}
+
+                    {/* Bar Pill */}
+                    <div
+                      className={`bar-pill ${d.barClass} anim-decile-bar w-full transition-opacity duration-150 ${
+                        hoveredDayIdx !== null && !isHovered ? 'opacity-50' : 'opacity-100'
+                      }`}
+                      style={{ height: `${d.height}%`, animationDelay: `${d.delay}ms` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Day Letters row below bars */}
+            <div className="flex items-center justify-between gap-2.5 pt-2.5">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+                <span
+                  key={idx}
+                  className={`text-[12px] font-semibold text-center flex-1 transition-colors duration-150 ${
+                    hoveredDayIdx === idx ? 'text-tx font-bold' : 'text-mu'
+                  }`}
+                >
+                  {day}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 

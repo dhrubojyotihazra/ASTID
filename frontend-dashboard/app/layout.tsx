@@ -7,11 +7,11 @@ export const metadata = {
   description: 'AI Shield for Transaction Integrity & Defense | Bank Fraud Operations Workbench',
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.png', type: 'image/png' },
+      { url: '/icon.png?v=5', type: 'image/png', sizes: '512x512' },
+      { url: '/favicon.ico?v=5', sizes: 'any' },
     ],
-    shortcut: '/favicon.ico',
-    apple: '/icon.png',
+    shortcut: '/favicon.ico?v=5',
+    apple: '/icon.png?v=5',
   },
 };
 

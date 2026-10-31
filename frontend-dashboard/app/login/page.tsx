@@ -19,7 +19,7 @@ export default function Login() {
   };
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center p-6 bg-bg">
+    <main className="relative flex min-h-screen items-center justify-center p-6 bg-transparent">
       <button
         onClick={e => a.toggleTheme(e)}
         aria-label={a.dark ? 'Switch to light mode' : 'Switch to dark mode'}

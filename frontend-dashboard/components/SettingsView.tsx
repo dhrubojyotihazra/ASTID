@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { User, Bell, Palette, Check } from 'lucide-react';
+import { User, Bell, Palette, Check, Shield } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ROLES } from '@/lib/roles';
 
@@ -9,12 +9,12 @@ export default function SettingsView() {
   const [activeTab, setActiveTab] = useState<'profile' | 'notify' | 'look'>('profile');
 
   // Profile form state
-  const me = role ? ROLES[role] : { name: 'Noah Castell', label: 'Project Lead' };
-  const [name, setName] = useState('Noah Castell');
-  const [email, setEmail] = useState('noah@fernly.app');
-  const [userRole, setUserRole] = useState('Project Lead');
-  const [tz, setTz] = useState('GMT+7 · Jakarta');
-  const [bio, setBio] = useState('Shipping calm software with a kind team.');
+  const me = role ? ROLES[role] : { name: 'Noah Castell', label: 'Branch Analyst', branch: 'Kolkata-SaltLake' };
+  const [name, setName] = useState(me.name);
+  const [email, setEmail] = useState(`${me.name.toLowerCase().replace(' ', '.')}@riskops.bank.in`);
+  const [userRole, setUserRole] = useState(me.label);
+  const [tz, setTz] = useState('GMT+5:30 · Kolkata / Mumbai');
+  const [bio, setBio] = useState('Specialized in rapid transaction inspection, account velocity analysis, and money trail investigation.');
 
   // Notification toggles
   const [dailyDigest, setDailyDigest] = useState(true);
@@ -26,25 +26,25 @@ export default function SettingsView() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    say('Settings saved successfully');
+    say('Investigator profile and preferences saved');
   };
 
   const handleDiscard = () => {
-    setName('Noah Castell');
-    setEmail('noah@fernly.app');
-    setUserRole('Project Lead');
-    setTz('GMT+7 · Jakarta');
-    setBio('Shipping calm software with a kind team.');
+    setName(me.name);
+    setEmail(`${me.name.toLowerCase().replace(' ', '.')}@riskops.bank.in`);
+    setUserRole(me.label);
+    setTz('GMT+5:30 · Kolkata / Mumbai');
+    setBio('Specialized in rapid transaction inspection, account velocity analysis, and money trail investigation.');
     say('Discarded changes');
   };
 
   return (
     <div className="flex flex-col gap-5 page-transition">
-      {/* Board Head matching Screen 5 */}
+      {/* Board Head matching Sentinel style */}
       <div>
         <h1 className="text-[26px] font-bold tracking-tight text-tx leading-tight">Settings</h1>
         <p className="text-[13.5px] text-mu mt-0.5">
-          Your profile, notifications and how Fernly looks.
+          Your investigator credentials, operational alerts, and display preferences.
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export default function SettingsView() {
             }`}
           >
             <User size={16} />
-            <span>Profile</span>
+            <span>Profile &amp; Credentials</span>
           </button>
           <button
             type="button"
@@ -77,7 +77,7 @@ export default function SettingsView() {
             }`}
           >
             <Bell size={16} />
-            <span>Notifications</span>
+            <span>Operational Alerts</span>
           </button>
           <button
             type="button"
@@ -89,7 +89,7 @@ export default function SettingsView() {
             }`}
           >
             <Palette size={16} />
-            <span>Appearance</span>
+            <span>Appearance &amp; Theme</span>
           </button>
         </nav>
 
@@ -100,12 +100,12 @@ export default function SettingsView() {
               {/* Profile Header */}
               <div className="flex items-center gap-4 pb-6 border-b border-bd/60">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#fed7aa] text-[18px] font-extrabold text-tx shadow-xs">
-                  NC
+                  {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
                 <div>
-                  <h2 className="text-[17px] font-bold text-tx">Profile</h2>
+                  <h2 className="text-[17px] font-bold text-tx">{name}</h2>
                   <p className="text-[12.5px] text-mu">
-                    This is how teammates see you across the workspace.
+                    {userRole} · Assigned to {me.branch}
                   </p>
                 </div>
               </div>
@@ -114,7 +114,7 @@ export default function SettingsView() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[12px] font-semibold text-mu block mb-1.5">
-                    Full name
+                    Full Name
                   </label>
                   <input
                     type="text"
@@ -124,7 +124,9 @@ export default function SettingsView() {
                   />
                 </div>
                 <div>
-                  <label className="text-[12px] font-semibold text-mu block mb-1.5">Email</label>
+                  <label className="text-[12px] font-semibold text-mu block mb-1.5">
+                    Official Email
+                  </label>
                   <input
                     type="email"
                     value={email}
@@ -136,35 +138,39 @@ export default function SettingsView() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[12px] font-semibold text-mu block mb-1.5">Role</label>
+                  <label className="text-[12px] font-semibold text-mu block mb-1.5">
+                    Assigned Role Tier
+                  </label>
                   <input
                     type="text"
+                    readOnly
                     value={userRole}
-                    onChange={e => setUserRole(e.target.value)}
-                    className="w-full rounded-2xl border border-bd bg-card px-4 py-2.5 text-[13.5px] text-tx focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac"
+                    className="w-full rounded-2xl border border-bd bg-so/30 px-4 py-2.5 text-[13.5px] text-tx font-medium cursor-not-allowed"
                   />
                 </div>
                 <div>
                   <label className="text-[12px] font-semibold text-mu block mb-1.5">
-                    Time zone
+                    Operational Time Zone
                   </label>
                   <select
                     value={tz}
                     onChange={e => setTz(e.target.value)}
                     className="w-full rounded-2xl border border-bd bg-card px-4 py-2.5 text-[13.5px] text-tx focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac"
                   >
-                    <option value="GMT+7 · Jakarta">GMT+7 · Jakarta</option>
                     <option value="GMT+5:30 · Kolkata / Mumbai">
-                      GMT+5:30 · Kolkata / Mumbai
+                      GMT+5:30 · Kolkata / Mumbai (IST)
                     </option>
-                    <option value="UTC+0 · London">UTC+0 · London</option>
-                    <option value="UTC-5 · New York">UTC-5 · New York</option>
+                    <option value="GMT+7 · Jakarta">GMT+7 · Jakarta</option>
+                    <option value="UTC+0 · London">UTC+0 · London (GMT)</option>
+                    <option value="UTC-5 · New York">UTC-5 · New York (EST)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="text-[12px] font-semibold text-mu block mb-1.5">Bio</label>
+                <label className="text-[12px] font-semibold text-mu block mb-1.5">
+                  Investigation Specialization &amp; Scope
+                </label>
                 <textarea
                   rows={3}
                   value={bio}
@@ -186,7 +192,7 @@ export default function SettingsView() {
                   type="submit"
                   className="flex min-h-[42px] items-center justify-center rounded-full bg-[#0d3a23] dark:bg-[#155a37] px-6 text-[13px] font-bold text-white shadow-xs hover:opacity-95 active:scale-95 transition cursor-pointer"
                 >
-                  Save changes
+                  Save Changes
                 </button>
               </div>
             </form>
@@ -194,13 +200,13 @@ export default function SettingsView() {
 
           {activeTab === 'notify' && (
             <div className="flex flex-col gap-5">
-              <h2 className="text-[17px] font-bold text-tx">Notification Preferences</h2>
+              <h2 className="text-[17px] font-bold text-tx">Operational Alert Subscriptions</h2>
               <div className="flex flex-col gap-4">
                 <label className="flex items-center justify-between p-4 rounded-2xl border border-bd/60 bg-so/20 cursor-pointer">
                   <div>
-                    <div className="font-semibold text-tx text-[13.5px]">Daily Morning Digest</div>
+                    <div className="font-semibold text-tx text-[13.5px]">Daily Morning Briefing</div>
                     <div className="text-[12px] text-mu">
-                      Receive an executive summary of outstanding review queues at 8:00 AM.
+                      Receive an automated risk report of outstanding queue volume at 8:00 AM IST.
                     </div>
                   </div>
                   <input
@@ -213,9 +219,9 @@ export default function SettingsView() {
 
                 <label className="flex items-center justify-between p-4 rounded-2xl border border-bd/60 bg-so/20 cursor-pointer">
                   <div>
-                    <div className="font-semibold text-tx text-[13.5px]">High-Severity SLA Alerts</div>
+                    <div className="font-semibold text-tx text-[13.5px]">Critical 15-Minute SLA Alerts</div>
                     <div className="text-[12px] text-mu">
-                      Immediate alert when an escalated case reaches 5 minutes before SLA breach.
+                      Immediate banner warning when an escalated case reaches 5 minutes before SLA breach.
                     </div>
                   </div>
                   <input
@@ -228,9 +234,9 @@ export default function SettingsView() {
 
                 <label className="flex items-center justify-between p-4 rounded-2xl border border-bd/60 bg-so/20 cursor-pointer">
                   <div>
-                    <div className="font-semibold text-tx text-[13.5px]">Tactile Audio Feedback</div>
+                    <div className="font-semibold text-tx text-[13.5px]">Auditory Feedback on Commit</div>
                     <div className="text-[12px] text-mu">
-                      Soft subtle click sounds on decision confirmation and drag release.
+                      Subtle tactile chime when a determination is saved or case escalated.
                     </div>
                   </div>
                   <input
@@ -245,10 +251,10 @@ export default function SettingsView() {
               <div className="flex justify-end pt-4 border-t border-bd/60">
                 <button
                   type="button"
-                  onClick={() => say('Notification preferences updated')}
+                  onClick={() => say('Alert preferences updated')}
                   className="rounded-full bg-[#0d3a23] dark:bg-[#155a37] px-6 py-2.5 text-[13px] font-bold text-white shadow-xs"
                 >
-                  Save preferences
+                  Save Preferences
                 </button>
               </div>
             </div>
@@ -256,7 +262,7 @@ export default function SettingsView() {
 
           {activeTab === 'look' && (
             <div className="flex flex-col gap-6">
-              <h2 className="text-[17px] font-bold text-tx">Appearance & Theme</h2>
+              <h2 className="text-[17px] font-bold text-tx">Appearance &amp; Display</h2>
 
               <div>
                 <label className="text-[12.5px] font-semibold text-mu block mb-2">
@@ -288,7 +294,7 @@ export default function SettingsView() {
 
               <div>
                 <label className="text-[12.5px] font-semibold text-mu block mb-2">
-                  Accent Color
+                  Accent Palette
                 </label>
                 <div className="flex items-center gap-3">
                   {[

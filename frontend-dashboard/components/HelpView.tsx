@@ -5,57 +5,59 @@ import {
   BookOpen,
   CheckSquare,
   Users,
-  CreditCard,
+  FileText,
   Plus,
   MessageCircle,
   Mail,
   Command,
+  Download,
+  ShieldAlert,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 
 const FAQS = [
   {
-    q: 'How do I create my first project?',
-    a: 'Click the "+ Add Project" button at the top right of your Dashboard or Projects section. Enter the project name, assign team members, specify target milestones, and click Create.',
+    q: 'How do I review a flagged transaction?',
+    a: 'Navigate to Cases in the sidebar. Click on any flagged card to open the case inspection side-panel. The panel displays transaction amounts, risk scores, velocity indicators, and transaction journey hops. You can record notes and commit determinations (Confirmed Fraud or False Positive).',
   },
   {
-    q: 'Can I import projects from a spreadsheet?',
-    a: 'Yes. On the Dashboard, click "Import Data" next to Add Project. Upload your CSV containing columns for project title, assignee initials, due date, and priority status.',
+    q: 'How do I upload a batch of transactions for offline scoring?',
+    a: 'Admins can navigate to Batch Upload from the sidebar. Drag and drop any Parquet or CSV transaction archive, select your target branch hub, and click Start Ingestion. The calibrated XGBoost + Autoencoder pipeline will score every record in real-time.',
   },
   {
-    q: 'How do I move a task to another stage?',
-    a: 'You can drag and drop any card across the 4 Kanban columns (To do, In progress, In review, Done). Alternatively, click the "..." menu on any card or use the Alt + [ / ] keyboard shortcut.',
+    q: 'How do I escalate an urgent high-risk case to a senior analyst?',
+    a: 'On any case in the Cases board or queue, click the Escalate button or drag the card into the "Pending Escalation" column. The case routes immediately to Senior Analysts under a strict 15-minute resolution SLA.',
   },
   {
-    q: 'What does the progress gauge measure?',
-    a: 'The progress gauge displays the proportion of projects concluded against your active sprint cycle (completed projects in green, running streams in dark green, and pending in striped pattern).',
+    q: 'What does the Detection Catch Rate measure?',
+    a: 'The detection catch rate represents the proportion of true fraud events detected by our hybrid behavioral engine (94.21% on verified historical test archives), compared against static legacy rules (0.19%).',
   },
   {
-    q: 'How do I invite a teammate?',
-    a: 'Navigate to the Team tab from the left sidebar, click "+ Invite member", provide their work email address, select their department, and an instant onboarding link will be sent.',
+    q: 'How does the 15-Minute SLA timer work?',
+    a: 'When a case is escalated, a real-time countdown timer begins. If the timer reaches 0 before a determination is recorded, the case turns red and flags an operational SLA breach visible to the Risk Operations Lead.',
   },
   {
-    q: 'Who can see my time tracker?',
-    a: 'Time logged on the Time Tracker is private to you until a session is finalized and submitted against an active project sprint.',
+    q: 'Where do committed decisions go?',
+    a: 'Every determination is committed to the immutable Investigator Audit Trail with an exact timestamp, investigator ID, case number, and decision outcome. Leads and Admins can export this trail as CSV.',
   },
   {
-    q: 'Is there a free plan?',
-    a: 'Yes, Fernly RiskOps provides a complimentary tier for independent teams and pilot clusters up to 10 active operational users.',
+    q: 'Can I simulate workload changes if we adjust risk thresholds?',
+    a: 'Yes. Team Leads can navigate to the Threshold Simulator to drag sliders for review cutoffs and escalation cutoffs, simulating real-time automation ratios and investigator queue volume.',
   },
   {
-    q: 'How do I change my accent colour?',
-    a: 'Head into Settings > Appearance, where you can switch between Deep Forest, Emerald Calm, and Cobalt Trust accents.',
+    q: 'How do I switch active roles for examiner walkthroughs?',
+    a: 'Click your profile avatar in the upper right header to reveal the quick role switcher menu. Select Branch Analyst, Senior Analyst, Team Lead, or Admin to immediately view the interface from that role perspective.',
   },
 ];
 
 const SHORTCUTS = [
-  { keys: ['Ctrl', 'K'], desc: 'Search' },
-  { keys: ['/'], desc: 'Search, from anywhere' },
+  { keys: ['Ctrl', 'K'], desc: 'Search cases & people' },
+  { keys: ['/'], desc: 'Quick search focus' },
   { keys: ['G', 'D'], desc: 'Go to dashboard' },
-  { keys: ['G', 'T'], desc: 'Go to tasks' },
-  { keys: ['G', 'C'], desc: 'Go to calendar' },
-  { keys: ['Alt', '–', '+'], desc: 'Move a focused task card' },
-  { keys: ['Esc'], desc: 'Close menus and dialogs' },
+  { keys: ['G', 'C'], desc: 'Go to cases board' },
+  { keys: ['G', 'A'], desc: 'Go to analytics & health' },
+  { keys: ['Alt', '–', '+'], desc: 'Move focused case card' },
+  { keys: ['Esc'], desc: 'Close dialogs and side-panel' },
 ];
 
 export default function HelpView() {
@@ -72,38 +74,38 @@ export default function HelpView() {
 
   return (
     <div className="flex flex-col gap-6 page-transition">
-      {/* Board Head matching Screen 6 */}
+      {/* Board Head matching Sentinel style */}
       <div>
-        <h1 className="text-[26px] font-bold tracking-tight text-tx leading-tight">Help center</h1>
+        <h1 className="text-[26px] font-bold tracking-tight text-tx leading-tight">Help Center</h1>
         <p className="text-[13.5px] text-mu mt-0.5">
-          Answers, shortcuts, and a human when you need one.
+          Operational protocols, system guidelines, and examiner walkthrough instructions.
         </p>
       </div>
 
-      {/* Top Hero Banner matching Screen 6 */}
+      {/* Top Hero Banner */}
       <section className="help-hero-banner relative rounded-[28px] p-8 md:p-10 shadow-lg text-white">
         <div className="relative z-10 max-w-2xl">
           <h2 className="text-[24px] md:text-[28px] font-extrabold tracking-tight mb-2">
-            How can we help?
+            Sentinel FraudOps Knowledge Base
           </h2>
           <p className="text-[14px] text-white/80 mb-6">
-            Type in the search bar above, or pick a topic.
+            Search operational procedures, verification protocols, or pick a guide below.
           </p>
         </div>
 
         {/* 4 Topic Cards */}
         <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-2">
           {[
-            { title: 'Getting started', count: '2 articles', icon: BookOpen },
-            { title: 'Projects & tasks', count: '2 articles', icon: CheckSquare },
-            { title: 'Team', count: '2 articles', icon: Users },
-            { title: 'Billing & plans', count: '2 articles', icon: CreditCard },
+            { title: 'Triage & Ingestion', count: '4 guides', icon: BookOpen },
+            { title: 'Cases & Escalations', count: '6 guides', icon: CheckSquare },
+            { title: 'Team & Supervisory', count: '3 guides', icon: Users },
+            { title: 'Audits & Exports', count: '2 guides', icon: Download },
           ].map((topic, i) => {
             const Icon = topic.icon;
             return (
               <button
                 key={i}
-                onClick={() => say(`Viewing topic: ${topic.title}`)}
+                onClick={() => say(`Viewing topic guide: ${topic.title}`)}
                 className="flex items-center gap-3.5 rounded-2xl bg-white/10 hover:bg-white/18 p-4 text-left backdrop-blur-md border border-white/15 transition-all duration-200 active:scale-95 cursor-pointer"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
@@ -124,11 +126,11 @@ export default function HelpView() {
         {/* Left: Frequently Asked Accordion (8 cols) */}
         <div className="lg:col-span-8 flex flex-col gap-2 rounded-[26px] border border-bd/80 bg-card p-6 md:p-8 shadow-xs">
           <div className="flex items-center justify-between pb-3 border-b border-bd/60 mb-2">
-            <h2 className="text-[17px] font-bold text-tx">Frequently asked</h2>
+            <h2 className="text-[17px] font-bold text-tx">Frequently Asked Questions</h2>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="text-[12px] text-ac font-semibold"
+                className="text-[12px] text-ac font-semibold cursor-pointer"
               >
                 Clear filter
               </button>
@@ -165,11 +167,11 @@ export default function HelpView() {
           </div>
         </div>
 
-        {/* Right: Keyboard Shortcuts + Still Stuck Card (4 cols) */}
+        {/* Right: Keyboard Shortcuts + Support Card (4 cols) */}
         <div className="lg:col-span-4 flex flex-col gap-4">
           {/* Keyboard Shortcuts Card */}
           <div className="rounded-[26px] border border-bd/80 bg-card p-6 shadow-xs flex flex-col gap-3">
-            <h2 className="text-[16px] font-bold text-tx">Keyboard shortcuts</h2>
+            <h2 className="text-[16px] font-bold text-tx">Operational Shortcuts</h2>
             <div className="flex flex-col gap-2 pt-1">
               {SHORTCUTS.map((s, i) => (
                 <div key={i} className="flex items-center justify-between text-[12.5px] py-1 border-b border-bd/40 last:border-b-0">
@@ -189,31 +191,31 @@ export default function HelpView() {
             </div>
           </div>
 
-          {/* Still Stuck Dark Wavy Card */}
+          {/* Direct Support Card */}
           <div className="time-tracker-card rounded-[26px] p-6 text-white shadow-md flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white">
-                <MessageCircle size={20} />
+                <ShieldAlert size={20} />
               </div>
-              <h3 className="text-[17px] font-extrabold tracking-tight">Still stuck?</h3>
+              <h3 className="text-[17px] font-extrabold tracking-tight">Lead Incident Desk</h3>
             </div>
             <p className="text-[13px] text-white/80 leading-relaxed">
-              Our team answers in under 10 minutes, Monday to Friday.
+              For high-severity fraud ring outbreaks or critical engine alerts, escalate directly to the central risk desk.
             </p>
             <div className="flex items-center gap-2.5 pt-2">
               <button
                 type="button"
-                onClick={() => say('Opening live support chat...')}
+                onClick={() => say('Opening direct channel to Central Risk Desk...')}
                 className="flex-1 flex min-h-[38px] items-center justify-center rounded-full bg-white text-[#0d3a23] text-[12.5px] font-bold shadow-xs hover:bg-white/90 active:scale-95 transition cursor-pointer"
               >
-                Start a chat
+                Contact Lead
               </button>
               <button
                 type="button"
-                onClick={() => say('Opening email client to help@fernly.app')}
+                onClick={() => say('Operational handbook dispatched to examiner email.')}
                 className="flex-1 flex min-h-[38px] items-center justify-center rounded-full border border-white/30 text-white text-[12.5px] font-semibold hover:bg-white/10 active:scale-95 transition cursor-pointer"
               >
-                Email us
+                Handbook
               </button>
             </div>
           </div>

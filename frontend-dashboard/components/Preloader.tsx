@@ -58,10 +58,10 @@ export default function Preloader() {
 
         {/* Brand name */}
         <h2 className="text-[20px] font-bold tracking-tight text-[#0E1A14] dark:text-[#EAF1EC] mb-1">
-          Fernly <span className="text-[14px] font-medium text-[#646d67] dark:text-[#A3B3A9]">· RiskOps</span>
+          Sentinel <span className="text-[14px] font-medium text-[#646d67] dark:text-[#A3B3A9]">· FraudOps</span>
         </h2>
         <p className="text-[13px] text-[#646d67] dark:text-[#A3B3A9] mb-5">
-          Everything your team is shipping, in one calm place.
+          Real-time transaction inspection and operational fraud intelligence.
         </p>
 
         {/* Loading Progress Bar */}
@@ -74,7 +74,7 @@ export default function Preloader() {
 
         <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[#0F5132] dark:text-[#6FBF8F]">
           <Sparkles size={13} className="animate-spin" />
-          <span>Synchronizing calm workspace {progress}%</span>
+          <span>Synchronizing calibrated model streams {progress}%</span>
         </div>
       </div>
     </div>

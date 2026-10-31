@@ -35,6 +35,7 @@ import Preloader from './Preloader';
 
 const ICONS: Record<string, any> = {
   home: LayoutDashboard,
+  cases: CheckSquare,
   tasks: CheckSquare,
   queue: ListChecks,
   search: Search,
@@ -85,7 +86,8 @@ export default function Shell({ children }: { children: ReactNode }) {
   if (!a.ready || !a.role) return null;
   const me = ROLES[a.role];
   const openEsc = a.cases.filter(c => c.kind === 'escalate' && !c.res).length;
-  const bellOn = a.role === 'senior' && openEsc > 0;
+  const pendingReview = a.cases.filter(c => c.kind === 'review' && !c.res).length;
+  const bellOn = (a.role === 'senior' && openEsc > 0) || (a.role === 'analyst' && pendingReview > 0);
 
   const navItemClass = (on: boolean) =>
     `flex min-h-[42px] w-full items-center gap-3 rounded-2xl px-3.5 text-left text-[13.5px] font-semibold transition-all duration-200 ease-[cubic-bezier(.22,1,.36,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac ${
@@ -96,14 +98,15 @@ export default function Shell({ children }: { children: ReactNode }) {
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      {/* Brand Header matching Fernly logo in Screen 1 */}
+      {/* Brand Header matching Sentinel logo */}
       <div className="flex items-center justify-between px-2 pb-5 border-b border-bd/60 mb-3">
         <Link href="/dashboard/home" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#0d3a23] dark:bg-[#155a37] text-white shadow-xs">
             <ShieldCheck size={20} className="text-[#5dbd8b]" />
           </div>
           <div>
-            <b className="text-[17px] font-extrabold tracking-tight text-tx">Fernly</b>
+            <b className="text-[17px] font-extrabold tracking-tight text-tx">Sentinel</b>
+            <span className="block text-[10px] uppercase font-bold tracking-widest text-mu -mt-1">FraudOps</span>
           </div>
         </Link>
         {/* Mobile close button */}
@@ -118,10 +121,10 @@ export default function Shell({ children }: { children: ReactNode }) {
 
       {/* Navigation Sections */}
       <div className="flex flex-col gap-4 w-full flex-1 overflow-y-auto pr-1">
-        {/* MENU Section */}
+        {/* OPERATIONS Section */}
         <div>
           <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-mu/75">
-            Menu
+            Operations
           </div>
           <nav aria-label="Main Navigation" className="flex flex-col gap-1 w-full">
             {me.tabs.map(t => {
@@ -136,9 +139,9 @@ export default function Shell({ children }: { children: ReactNode }) {
                 >
                   <I size={17} className={on ? 'text-ac' : 'text-mu'} />
                   <span>{t.label}</span>
-                  {t.badge && (
+                  {t.key === 'cases' && pendingReview > 0 && (
                     <span className="num ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#0d3a23] px-1.5 text-[11px] font-bold text-white shadow-2xs">
-                      {t.badge}
+                      {pendingReview}
                     </span>
                   )}
                   {t.key === 'esc' && openEsc > 0 && (
@@ -155,7 +158,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         {/* GENERAL Section */}
         <div className="pt-2">
           <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-mu/75">
-            General
+            System
           </div>
           <div className="flex flex-col gap-1 w-full">
             <Link
@@ -172,7 +175,7 @@ export default function Shell({ children }: { children: ReactNode }) {
               className={navItemClass(path === '/dashboard/help')}
             >
               <HelpCircle size={17} />
-              <span>Help</span>
+              <span>Help Center</span>
             </Link>
             <button
               onClick={() => {
@@ -183,25 +186,28 @@ export default function Shell({ children }: { children: ReactNode }) {
               className="flex min-h-[42px] w-full items-center gap-3 rounded-2xl px-3.5 text-left text-[13.5px] font-semibold text-mu transition-all duration-200 hover:translate-x-1 hover:bg-rb/40 hover:text-rd active:scale-95 cursor-pointer"
             >
               <LogOut size={17} />
-              <span>Logout</span>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Bottom Promo Card matching Screen 1 */}
+      {/* Bottom Promo Card matching Sentinel Mobile Companion */}
       <div className="promo-card mt-auto p-4 rounded-[22px] text-white flex flex-col gap-3 shadow-md">
         <div className="relative z-10 flex items-center justify-between">
           <span className="flex h-5 w-5 items-center justify-center rounded-full border border-white/40 text-[10px] font-bold">
             0
           </span>
+          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+            Mobile Ops
+          </span>
         </div>
         <div className="relative z-10">
-          <b className="block text-[13px] font-bold leading-tight">Fernly for iOS & Android</b>
-          <span className="text-[11.5px] text-white/70">Your board, in your pocket.</span>
+          <b className="block text-[13px] font-bold leading-tight">Sentinel Mobile</b>
+          <span className="text-[11.5px] text-white/70">Your fraud alerts, on the go.</span>
         </div>
         <button
-          onClick={() => a.say('Mobile companion downloading...')}
+          onClick={() => a.say('Sentinel Mobile companion app package ready')}
           className="relative z-10 flex min-h-[34px] w-full items-center justify-center rounded-full bg-[#155a37] text-[12px] font-bold text-white shadow-xs hover:bg-[#1d7347] active:scale-95 transition cursor-pointer"
         >
           Download
@@ -240,7 +246,7 @@ export default function Shell({ children }: { children: ReactNode }) {
 
       {/* Main Content Area */}
       <main className="flex min-w-0 flex-1 flex-col gap-4">
-        {/* Top Header Bar matching Screen 1 */}
+        {/* Top Header Bar */}
         <header className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-bd/80 bg-card/80 px-4 py-3 backdrop-blur-md shadow-xs">
           {/* Left: Mobile hamburger & Search input with Ctrl+K */}
           <div className="flex items-center gap-3 flex-1 max-w-md">
@@ -260,7 +266,7 @@ export default function Shell({ children }: { children: ReactNode }) {
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search projects & people"
+                placeholder="Search cases, accounts & investigators..."
                 className="w-full rounded-full border border-bd/90 bg-card/90 py-2 pl-9 pr-14 text-[13px] text-tx placeholder:text-mu focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac transition"
               />
               <kbd className="absolute right-3 rounded-md border border-bd bg-so/50 px-1.5 py-0.5 text-[10.5px] font-mono font-bold text-mu pointer-events-none">
@@ -271,9 +277,9 @@ export default function Shell({ children }: { children: ReactNode }) {
 
           {/* Right: Message Mail icon, Bell icon, User Avatar & Role Switcher */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Mail Icon with unread badge */}
+            {/* Mail Icon with alert badge */}
             <button
-              onClick={() => a.say('You have 2 unread team messages')}
+              onClick={() => a.say('You have 2 unread operational alerts')}
               aria-label="Messages"
               className="relative flex h-10 w-10 items-center justify-center rounded-full border border-bd bg-card text-mu hover:text-tx transition-all duration-200 hover:-translate-y-0.5 active:scale-95 cursor-pointer"
             >
@@ -285,7 +291,7 @@ export default function Shell({ children }: { children: ReactNode }) {
             <button
               aria-label="Notifications"
               onClick={() =>
-                a.role === 'senior' ? router.push('/dashboard/esc') : a.say('No critical alerts pending')
+                a.role === 'senior' ? router.push('/dashboard/esc') : a.say(`Operational queue: ${pendingReview} cases pending review`)
               }
               className="relative flex h-10 w-10 items-center justify-center rounded-full border border-bd bg-card text-mu hover:text-tx transition-all duration-200 hover:-translate-y-0.5 active:scale-95 cursor-pointer"
             >
@@ -312,7 +318,7 @@ export default function Shell({ children }: { children: ReactNode }) {
                 className="flex items-center gap-2.5 rounded-full border border-bd/80 bg-card p-1 pr-3 hover:bg-so/40 transition active:scale-95 cursor-pointer"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fed7aa] text-[12px] font-extrabold text-tx shadow-2xs">
-                  NC
+                  {me.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
                 <div className="text-left hidden sm:block">
                   <div className="text-[12.5px] font-bold text-tx leading-tight">
@@ -326,7 +332,7 @@ export default function Shell({ children }: { children: ReactNode }) {
               {roleMenuOpen && (
                 <div
                   onClick={e => e.stopPropagation()}
-                  className="anim-dlg absolute right-0 top-12 z-50 flex w-56 flex-col gap-1 rounded-[22px] border border-bd bg-card p-2 shadow-2xl text-[12.5px]"
+                  className="anim-dlg absolute right-0 top-12 z-50 flex w-60 flex-col gap-1 rounded-[22px] border border-bd bg-card p-2 shadow-2xl text-[12.5px]"
                 >
                   <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-mu">
                     Switch Active Role
@@ -345,7 +351,10 @@ export default function Shell({ children }: { children: ReactNode }) {
                           : 'text-tx hover:bg-so/50'
                       }`}
                     >
-                      <span>{ROLES[r].label}</span>
+                      <div>
+                        <div>{ROLES[r].label}</div>
+                        <div className="text-[10.5px] font-normal text-mu">{ROLES[r].branch}</div>
+                      </div>
                       {a.role === r && <Check size={14} className="text-ac" />}
                     </button>
                   ))}

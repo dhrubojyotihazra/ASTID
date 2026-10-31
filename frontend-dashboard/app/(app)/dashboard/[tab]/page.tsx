@@ -19,6 +19,7 @@ export default function Page({ params }: { params: { tab: string } }) {
 
   const allowedTabs = [
     'home',
+    'cases',
     'tasks',
     'review',
     'analytics',
@@ -41,7 +42,8 @@ export default function Page({ params }: { params: { tab: string } }) {
 
   const allowed =
     ROLES[role].tabs.some(t => t.key === tab) ||
-    ['settings', 'help', 'tasks', 'analytics', 'team'].includes(tab) ||
+    ['settings', 'help', 'cases', 'tasks', 'analytics', 'team'].includes(tab) ||
+    (tab === 'health' && canSeeHealth(role)) ||
     (tab === 'audit' && canSeeHealth(role));
 
   if (!allowed) return <V.Denied />;
@@ -53,11 +55,14 @@ export default function Page({ params }: { params: { tab: string } }) {
     case 'home':
       view = <PrimaryDashboard />;
       break;
+    case 'cases':
     case 'tasks':
     case 'review':
       view = <TasksKanban />;
+      withPanel = true;
       break;
     case 'analytics':
+    case 'health':
       view = <AnalyticsView />;
       break;
     case 'team':
@@ -87,9 +92,6 @@ export default function Page({ params }: { params: { tab: string } }) {
       break;
     case 'branches':
       view = <V.BranchTable />;
-      break;
-    case 'health':
-      view = <V.Health />;
       break;
     case 'sim':
       view = <V.Simulator />;

@@ -10,8 +10,10 @@ export const Card = ({
   interactive?: boolean;
 }) => (
   <div
-    className={`rounded-[22px] border border-bd bg-card p-5 transition ${
-      interactive ? 'hover:-translate-y-0.5 hover:border-ac/40 cursor-pointer' : ''
+    className={`rounded-[26px] border border-bd bg-card p-5 transition-all duration-200 ${
+      interactive
+        ? 'hover:-translate-y-1 hover:border-ac/50 hover:shadow-md active:scale-[0.99] cursor-pointer'
+        : 'shadow-xs'
     } ${className}`}
   >
     {children}
@@ -28,7 +30,7 @@ export const Pill = ({
   className?: string;
 }) => (
   <span
-    className={`num inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold transition-colors ${
+    className={`num inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold transition-all duration-150 ${
       tone === 'r'
         ? 'bg-rb text-rd border border-rd/25'
         : tone === 'a'
@@ -49,21 +51,21 @@ export function Btn({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { v?: 'p' | 's' | 'd' }) {
   const c =
     v === 'p'
-      ? 'bg-ac text-on border-ac hover:bg-ac/90 shadow-sm'
+      ? 'bg-ac text-on border-ac hover:bg-ac/90 hover:shadow-md'
       : v === 'd'
-      ? 'bg-rd text-card border-rd hover:bg-rd/90'
+      ? 'bg-rd text-card border-rd hover:bg-rd/90 hover:shadow-md'
       : 'bg-transparent text-ac border-bd hover:bg-so hover:border-ac/50';
 
   return (
     <button
       {...p}
-      className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border px-5 text-[13.5px] font-semibold transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${c} ${className}`}
+      className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border px-5 text-[13.5px] font-semibold transition-all duration-200 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${c} ${className}`}
     />
   );
 }
 
 export const H1 = ({ children }: { children: ReactNode }) => (
-  <h1 className="text-[26px] font-bold tracking-tight text-tx">{children}</h1>
+  <h1 className="text-[28px] font-bold tracking-[-0.035em] text-tx">{children}</h1>
 );
 
 export const Stats = ({
@@ -75,7 +77,9 @@ export const Stats = ({
     {items.map(([label, value, sub]) => (
       <Card key={label} className="anim-up">
         <div className="text-[12.5px] font-medium text-mu">{label}</div>
-        <div className="num mt-1.5 text-[30px] font-bold tracking-tight text-tx">{value}</div>
+        <div className="num mt-1.5 text-[32px] font-bold tracking-tight text-tx leading-tight">
+          {value}
+        </div>
         {sub && <div className="mt-1 text-[11.5px] text-mu">{sub}</div>}
       </Card>
     ))}

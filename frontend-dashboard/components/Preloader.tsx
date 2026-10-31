@@ -58,7 +58,7 @@ export default function Preloader() {
               alt="ASTID Logo"
               width={64}
               height={64}
-              className="object-contain animate-bounce"
+              className="object-contain animate-bounce astid-logo-glow"
               priority
             />
           </div>
@@ -71,7 +71,7 @@ export default function Preloader() {
             alt="astid"
             width={110}
             height={34}
-            className="object-contain h-[32px] w-auto drop-shadow-xs"
+            className="object-contain h-[32px] w-auto drop-shadow-xs astid-logo-glow"
             priority
           />
         </div>

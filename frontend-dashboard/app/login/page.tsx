@@ -43,7 +43,7 @@ export default function Login() {
               alt="ASTID Emblem"
               width={52}
               height={52}
-              className="object-contain drop-shadow-md"
+              className="object-contain drop-shadow-md astid-logo-glow"
               priority
             />
           </div>
@@ -52,7 +52,7 @@ export default function Login() {
             alt="astid"
             width={124}
             height={36}
-            className="object-contain h-[34px] w-auto drop-shadow-xs"
+            className="object-contain h-[34px] w-auto drop-shadow-xs astid-logo-glow"
             priority
           />
           <p className="mt-1.5 text-[12px] font-medium text-mu max-w-[280px]">

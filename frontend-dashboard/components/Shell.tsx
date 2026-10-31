@@ -137,10 +137,10 @@ export default function Shell({ children }: { children: ReactNode }) {
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      {/* Brand Header with ASTID Logo */}
+      {/* Brand Header with ASTID Logo & Vector Wordmark */}
       <div className="flex items-center justify-between px-2 pb-5 border-b border-bd/60 mb-3">
-        <Link href="/dashboard/home" className="flex items-center gap-3 group">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1 shadow-xs transition-transform duration-200 group-hover:scale-105">
+        <Link href="/dashboard/home" className="flex items-center gap-2.5 group">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1 shadow-xs transition-transform duration-200 group-hover:scale-105 flex-shrink-0">
             <Image
               src="/astid-logo-square.png"
               alt="ASTID Logo"
@@ -150,9 +150,16 @@ export default function Shell({ children }: { children: ReactNode }) {
               priority
             />
           </div>
-          <div>
-            <b className="text-[19px] font-extrabold tracking-tight text-tx leading-none block">ASTID</b>
-            <span className="block text-[10.5px] uppercase font-bold tracking-widest text-mu mt-1">Fraud Defense</span>
+          <div className="flex flex-col min-w-0">
+            <Image
+              src="/astid-wordmark.png"
+              alt="astid"
+              width={88}
+              height={26}
+              className="object-contain h-[23px] w-auto transition-transform duration-200 group-hover:scale-105"
+              priority
+            />
+            <span className="block text-[9.5px] uppercase font-bold tracking-widest text-mu mt-0.5 whitespace-nowrap">Fraud Defense</span>
           </div>
         </Link>
         {/* Mobile close button */}

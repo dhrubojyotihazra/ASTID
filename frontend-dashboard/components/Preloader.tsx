@@ -64,10 +64,18 @@ export default function Preloader() {
           </div>
         </div>
 
-        {/* Brand name */}
-        <h2 className="text-[20px] font-bold tracking-tight text-[#0E1A14] dark:text-[#EAF1EC] mb-1">
-          ASTID <span className="text-[14px] font-medium text-[#646d67] dark:text-[#A3B3A9]">· Fraud Defense</span>
-        </h2>
+        {/* Brand name with vector wordmark */}
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <Image
+            src="/astid-wordmark.png"
+            alt="astid"
+            width={105}
+            height={32}
+            className="object-contain h-[30px] w-auto drop-shadow-xs"
+            priority
+          />
+          <span className="text-[13px] font-semibold text-mu">· Fraud Defense</span>
+        </div>
         <p className="text-[13px] text-[#646d67] dark:text-[#A3B3A9] mb-5">
           AI Shield for Transaction Integrity &amp; Defense.
         </p>

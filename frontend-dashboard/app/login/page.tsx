@@ -36,7 +36,7 @@ export default function Login() {
 
       <Card className="anim-up flex w-[440px] max-w-full flex-col gap-4 !p-8 shadow-md border-bd/80">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1.5 shadow-xs">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-so/70 dark:bg-so/25 border border-ac/25 p-1.5 shadow-xs flex-shrink-0">
             <Image
               src="/astid-logo-square.png"
               alt="ASTID Logo"
@@ -46,9 +46,16 @@ export default function Login() {
               priority
             />
           </div>
-          <div>
-            <div className="text-[21px] font-extrabold text-tx leading-tight tracking-tight">ASTID</div>
-            <div className="text-[12px] font-medium text-mu">AI Shield for Transaction Integrity &amp; Defense</div>
+          <div className="flex flex-col min-w-0">
+            <Image
+              src="/astid-wordmark.png"
+              alt="astid"
+              width={118}
+              height={34}
+              className="object-contain h-[32px] w-auto drop-shadow-xs"
+              priority
+            />
+            <div className="text-[11.5px] font-medium text-mu mt-0.5">AI Shield for Transaction Integrity &amp; Defense</div>
           </div>
         </div>
 

@@ -26,7 +26,11 @@ class MiniGl {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    const gl = this.canvas.getContext("webgl", { antialias: true });
+    const gl = this.canvas.getContext("webgl", {
+      antialias: true,
+      preserveDrawingBuffer: true,
+      alpha: true,
+    });
     if (!gl) throw new Error("WebGL not supported");
     this.gl = gl;
 
@@ -679,6 +683,31 @@ void main() {
     this.last = 0;
   }
 
+  setColors(newColors: string[]): void {
+    if (!newColors || newColors.length < 2) return;
+    this.colors = newColors;
+    const sectionColors = this.colors.map((hex) =>
+      normalizeColor(parseInt(hex.replace("#", "0x"), 16))
+    );
+    try {
+      const uniforms = this.mesh?.material?.uniforms;
+      if (!uniforms) return;
+      if (uniforms.u_baseColor && sectionColors[0]) {
+        uniforms.u_baseColor.value = sectionColors[0];
+      }
+      if (uniforms.u_waveLayers && uniforms.u_waveLayers.value) {
+        for (let i = 1; i < sectionColors.length; i++) {
+          const layerUniform = uniforms.u_waveLayers.value[i - 1];
+          if (layerUniform && layerUniform.value && layerUniform.value.color) {
+            layerUniform.value.color.value = sectionColors[i];
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("GradientWave: error updating uniforms", e);
+    }
+  }
+
   dispose(): void {
     this.stop();
     window.removeEventListener("resize", this.resizeHandler);
@@ -797,6 +826,7 @@ export function GradientWave({
       ? darkColors
       : lightColors);
 
+  // Initialize WebGL canvas once on mount
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -845,15 +875,24 @@ export function GradientWave({
       if (gradientRef.current === gradient) gradientRef.current = null;
       if (container.contains(canvas)) container.removeChild(canvas);
     };
-  }, [
-    activeColors,
-    isPlaying,
-    shadowPower,
-    darkenTop,
-    noiseSpeed,
-    noiseFrequency,
-    deform,
-  ]);
+  }, []);
+
+  // Smoothly update colors on theme change without tearing down the WebGL canvas
+  useEffect(() => {
+    if (gradientRef.current) {
+      gradientRef.current.setColors(activeColors);
+    }
+  }, [activeColors]);
+
+  // Handle play/pause
+  useEffect(() => {
+    if (!gradientRef.current) return;
+    if (isPlaying) {
+      gradientRef.current.start();
+    } else {
+      gradientRef.current.stop();
+    }
+  }, [isPlaying]);
 
   return (
     <div

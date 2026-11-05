@@ -141,10 +141,7 @@ export default function Preloader({ initialActive = true }: { initialActive?: bo
         }}
       >
         <source src="/astid-reveal-2x.mp4" type="video/mp4" />
-        <source
-          src="/Logo_reveal_animation_a63dc0df_1080p (online-video-cutter.com).mp4"
-          type="video/mp4"
-        />
+        <source src="/astid-reveal.mp4" type="video/mp4" />
       </video>
 
       {/* ── Multiple Bars Curtain Up Layer (triggers on last frame / exit) ── */}

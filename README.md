@@ -108,15 +108,19 @@ ASTID_v2/
 │       ├── duckdb_manager.py           # In-process columnar DuckDB connector
 │       └── data/                       # Columnar Parquet warehouse tables
 ├── frontend-dashboard/                 # Next.js 14 App Router, Tailwind CSS, shadcn/ui
-│   ├── app/
-│   │   ├── (auth)/login/page.tsx       # Evaluator Quick-Login Drawer (1-click RLS testing)
-│   │   ├── dashboard/                  # Analyst, Escalations, Team Lead, and Admin views
-│   │   └── simulator/page.tsx          # Standalone Simulator with 5 Preset Attack Scenarios
-├── supabase/
-│   ├── migrations/                     # 8-table DDL, SECURITY DEFINER functions, 3-tier RLS
-│   └── seed.sql                        # 5 branches, 4 demo users, 200 pre-scored transactions
-├── vibe_coding_context/                # Full technical specifications (PRD, Architecture, Schemas, etc.)
-└── ASTID_Master_Engineering_Dossier.pdf # 18-page publication-grade architecture dossier
+│   ├── app/                            # Routes (/login, /dashboard/[tab])
+│   ├── components/                     # Operational Workbench views, Kanban, Shell, Preloader
+│   ├── lib/                            # State store, RBAC permissions, export utilities
+│   └── public/                         # Production brand assets, video reveal, tab favicon
+├── docs/                               # Project documentation, presentations, forms & dossier
+│   ├── reviews/                        # Academic Review 1 & 2 evaluation forms and preview PDFs
+│   ├── dossier/                        # Master Engineering Dossier & editorial HTML source
+│   ├── handoff/                        # Master CSD782 handoff documentation
+│   ├── specs/                          # Full technical specifications (PRDs, Architecture, API Schemas)
+│   └── scripts/                        # Dossier & asset generation scripts
+└── ml/                                 # Machine Learning modeling, notebooks & PaySim data
+    ├── notebooks/                      # Exploratory data analysis & ML prototype notebooks
+    └── data/                           # Columnar & raw datasets (PaySim 6.36M records, git-ignored)
 ```
 
 ---

@@ -57,3 +57,10 @@ async def score_live_transaction(
     background_tasks.add_task(storage_instance.persist_transaction, result)
 
     return result
+
+@router.post("/benchmark")
+async def run_benchmark_endpoint(sample_size: int = 100):
+    from backend.ml.test_simulation_confusion_matrix import run_simulation_benchmark
+    sample_size = max(10, min(500, sample_size))
+    metrics = run_simulation_benchmark(n_legit=sample_size)
+    return metrics

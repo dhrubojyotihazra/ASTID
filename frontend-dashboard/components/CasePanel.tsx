@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { X, ArrowRight, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { X, ArrowRight, AlertTriangle, ShieldCheck, Sparkles, Copy, Check, Cpu, FileText } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { inr } from '@/lib/export';
+import { generateSarNarrative } from '@/lib/api';
 import { Btn, Card, Pill } from './ui';
 
 const SectionHeader = ({ children }: { children: string }) => (
@@ -15,7 +16,53 @@ export default function CasePanel() {
   const [modal, setModal] = useState(false);
   const [choice, setChoice] = useState<'fraud' | 'fp'>('fraud');
 
+  const [sarNarrative, setSarNarrative] = useState<string | null>(null);
+  const [sarLoading, setSarLoading] = useState(false);
+  const [sarModel, setSarModel] = useState<string | null>(null);
+  const [sarLatency, setSarLatency] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
+
   const c = a.cases.find(x => x.id === a.selected);
+
+  useEffect(() => {
+    setSarNarrative(null);
+    setSarModel(null);
+    setSarLatency(null);
+  }, [c?.id]);
+
+  const handleGenerateSar = async () => {
+    if (!c) return;
+    setSarLoading(true);
+    try {
+      const res = await generateSarNarrative({
+        id: c.id,
+        amount: c.amount,
+        branch: c.branch,
+        score: c.score,
+        kind: c.kind,
+        reasons: c.reasons,
+        chain: c.chain,
+        originAcc: c.originAcc,
+        destVpa: c.destVpa,
+      });
+      setSarNarrative(res.narrative);
+      setSarModel(res.model);
+      setSarLatency(res.generation_latency_ms);
+      a.say(`SAR generated in ${res.generation_latency_ms}ms via Groq`);
+    } catch {
+      a.say('Failed to generate SAR narrative');
+    } finally {
+      setSarLoading(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (!sarNarrative) return;
+    navigator.clipboard.writeText(sarNarrative);
+    setCopied(true);
+    a.say('SAR narrative copied to clipboard');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Keyboard accessibility: Close drawer on Escape
   useEffect(() => {
@@ -146,6 +193,68 @@ export default function CasePanel() {
             </span>
           ))}
         </div>
+      </div>
+
+      {/* AI Compliance SAR Narrative (Groq Cloud LPU) */}
+      <div className="rounded-[22px] border border-bd/70 bg-card p-3.5 shadow-xs flex flex-col gap-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Sparkles size={14} className="text-ac" />
+            <SectionHeader>Regulatory SAR Summary</SectionHeader>
+          </div>
+          {sarLatency && (
+            <span className="text-[10.5px] font-mono text-mu">
+              {sarModel} · <strong className="text-ac">{sarLatency}ms</strong>
+            </span>
+          )}
+        </div>
+
+        {sarNarrative ? (
+          <div className="flex flex-col gap-2">
+            <div className="rounded-xl border border-bd/60 bg-so/20 p-3 text-[12px] text-tx leading-relaxed whitespace-pre-line font-normal">
+              {sarNarrative}
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={copyToClipboard}
+                className="flex items-center gap-1.5 rounded-lg border border-bd bg-card px-2.5 py-1 text-[11.5px] font-semibold text-tx hover:bg-so/40 transition active:scale-95 cursor-pointer"
+              >
+                {copied ? <Check size={12} className="text-ac" /> : <Copy size={12} />}
+                <span>{copied ? 'Copied' : 'Copy SAR Text'}</span>
+              </button>
+              <button
+                onClick={handleGenerateSar}
+                disabled={sarLoading}
+                className="text-[11px] font-semibold text-mu hover:text-tx transition cursor-pointer"
+              >
+                Regenerate
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-3 text-center gap-2 border border-dashed border-bd/80 rounded-xl bg-so/10">
+            <div className="text-[12px] text-mu">
+              Auto-synthesize an AML regulatory report using TreeSHAP signals via Groq LPU.
+            </div>
+            <button
+              onClick={handleGenerateSar}
+              disabled={sarLoading}
+              className="flex items-center gap-1.5 rounded-xl bg-ac text-white px-3 py-1.5 text-[12px] font-bold shadow-xs hover:bg-[#0c4127] transition active:scale-95 cursor-pointer disabled:opacity-50"
+            >
+              {sarLoading ? (
+                <>
+                  <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Synthesizing SAR...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles size={13} />
+                  <span>Generate SAR Narrative (Groq LPU)</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Operational Actions */}

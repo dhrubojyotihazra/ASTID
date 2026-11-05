@@ -103,6 +103,31 @@ export async function scoreLiveTransaction(tx: ScoreRequest): Promise<ScoreRespo
   return await res.json();
 }
 
+export interface BenchmarkMetrics {
+  total_tested: number;
+  true_negatives: number;
+  false_positives: number;
+  true_positives: number;
+  false_negatives: number;
+  false_negative_rate_pct: number;
+  recall_pct: number;
+  specificity_pct: number;
+  latency_p50_ms: number;
+  latency_p95_ms: number;
+}
+
+export async function runSimulationBenchmark(sampleSize: number = 100): Promise<BenchmarkMetrics> {
+  const res = await fetch(`${API_BASE}/score/benchmark?sample_size=${sampleSize}`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    throw new Error(`Benchmark failed (${res.status})`);
+  }
+  return await res.json();
+}
+
+
+
 export async function fetchEscalations(): Promise<EscalationRecord[]> {
   try {
     const res = await fetch(`${API_BASE}/escalations`, { cache: 'no-store' });
@@ -143,3 +168,48 @@ export async function resolveBackendEscalation(
     return false;
   }
 }
+
+export interface SarNarrativeResponse {
+  case_id: string;
+  narrative: string;
+  model: string;
+  generation_latency_ms: number;
+}
+
+export async function generateSarNarrative(caseData: {
+  id: string;
+  amount: number;
+  branch?: string;
+  score: number;
+  kind?: string;
+  reasons: string[];
+  chain?: string[];
+  originAcc?: string;
+  destVpa?: string;
+}): Promise<SarNarrativeResponse> {
+  const res = await fetch(`${API_BASE}/narratives/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: caseData.id,
+      amount: caseData.amount,
+      branch: caseData.branch || 'Central Hub',
+      score: caseData.score,
+      kind: caseData.kind || 'review',
+      reasons: caseData.reasons || [],
+      chain: caseData.chain || [],
+      originAcc: caseData.originAcc,
+      destVpa: caseData.destVpa,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Narrative generation failed (${res.status})`);
+  }
+
+  return await res.json();
+}
+
+
+
+

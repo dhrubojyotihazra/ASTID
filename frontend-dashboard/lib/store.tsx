@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { BASE_CASES, BaseCase, Role } from './data';
 import { ROLES } from './roles';
@@ -22,6 +22,9 @@ type Ctx = {
   log: Log[];
   stats: { reviewed: number; fp: number; escalated: number };
   health: SystemHealth | null;
+  wsConnected: boolean;
+  streamActive: boolean;
+  toggleStream: () => void;
   signIn: (r: Role) => void;
   signOut: () => void;
   setDark: (b: boolean, event?: React.MouseEvent | MouseEvent) => void;
@@ -90,6 +93,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [stats, setStats] = useState({ reviewed: 0, fp: 0, escalated: 0 });
   const [dynamicCases, setDynamicCases] = useState<BaseCase[]>([]);
   const [health, setHealth] = useState<SystemHealth | null>(null);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [streamActive, setStreamActive] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     // Poll backend health status
@@ -99,6 +105,73 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }, 15000);
     return () => clearInterval(hInterval);
   }, []);
+
+  // Connect to FastAPI WebSocket Stream
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.hostname}:8000/api/v1/ws/stream`;
+    let ws: WebSocket;
+    let retryTimer: NodeJS.Timeout;
+
+    const connect = () => {
+      try {
+        ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          setWsConnected(true);
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'STREAM_STATUS') {
+              setStreamActive(Boolean(data.is_running));
+            } else if (data.type === 'TX_EVENT') {
+              if (data.case) {
+                setDynamicCases(prev => [data.case, ...prev.filter(x => x.id !== data.case.id)]);
+                setToast(`Live Alert: ${data.case.id} flagged (${data.case.kind.toUpperCase()})`);
+                setTimeout(() => setToast(''), 4000);
+              }
+            }
+          } catch {}
+        };
+
+        ws.onclose = () => {
+          setWsConnected(false);
+          setStreamActive(false);
+          retryTimer = setTimeout(connect, 4000);
+        };
+
+        ws.onerror = () => {
+          ws.close();
+        };
+      } catch {
+        retryTimer = setTimeout(connect, 4000);
+      }
+    };
+
+    connect();
+
+    return () => {
+      clearTimeout(retryTimer);
+      if (wsRef.current) wsRef.current.close();
+    };
+  }, []);
+
+  const toggleStream = useCallback(() => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      setToast('WebSocket connecting to backend...');
+      setTimeout(() => setToast(''), 2500);
+      return;
+    }
+    const next = !streamActive;
+    wsRef.current.send(JSON.stringify({ action: next ? 'START' : 'STOP' }));
+    setStreamActive(next);
+    setToast(next ? 'Live generator stream active' : 'Live stream paused');
+    setTimeout(() => setToast(''), 2500);
+  }, [streamActive]);
 
   useEffect(() => {
     setRole((localStorage.getItem('ro_role') as Role) || null);
@@ -224,6 +297,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     log,
     stats,
     health,
+    wsConnected,
+    streamActive,
+    toggleStream,
     say,
     select,
     signIn: r => { localStorage.setItem('ro_role', r); setRole(r); },

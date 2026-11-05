@@ -375,6 +375,27 @@ export default function Shell({ children }: { children: ReactNode }) {
 
           {/* Right: Message Mail icon, Bell icon, User Avatar & Role Switcher */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Live WebSocket Transaction Stream Indicator & Toggle */}
+            <button
+              onClick={a.toggleStream}
+              aria-label="Toggle Live Stream Feed"
+              title={a.streamActive ? "Click to Pause Live Stream" : "Click to Start Live Stream"}
+              className={`flex h-10 items-center gap-2 rounded-full border px-3 text-[12px] font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
+                a.streamActive
+                  ? 'border-ac/30 bg-so text-ac shadow-xs'
+                  : 'border-bd bg-card text-mu hover:text-tx'
+              }`}
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  a.streamActive ? 'bg-ac animate-pulse' : a.wsConnected ? 'bg-mu/70' : 'bg-rd'
+                }`}
+              />
+              <span className="hidden md:inline">
+                {a.streamActive ? 'Live Stream: ON' : 'Live Stream: OFF'}
+              </span>
+            </button>
+
             {/* Mail Icon with alert badge */}
             <button
               onClick={() => a.say('You have 2 unread operational alerts')}

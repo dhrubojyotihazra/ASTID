@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api.routes_scoring import router as scoring_router
 from backend.app.api.routes_ops import router as ops_router
 from backend.app.api.routes_health import router as health_router
+from backend.app.api.routes_ws import router as ws_router
 
 app = FastAPI(
     title="ASTID RiskOps Intelligence API",
@@ -35,6 +36,7 @@ app.add_middleware(
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(scoring_router, prefix="/api/v1")
 app.include_router(ops_router, prefix="/api/v1")
+app.include_router(ws_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

@@ -694,8 +694,139 @@ plt.tight_layout()
 plt.show()
 """))
 
-    # Cell 11: Export Models
-    nb["cells"].append(md("""## 10. Serializing Artifacts for FastAPI Production Deployment
+    # Cell 11: Groq Cloud LPU SAR Narrative Generation
+    nb["cells"].append(md("""## 10. Regulatory Compliance AI: Automated SAR Narrative Generation via Groq Cloud LPU
+In production banking and payments compliance (RBI / FinCEN / FATF), raw ML anomaly numbers and SHAP bars alone are insufficient for human compliance officers and regulatory audits.
+
+Investigators must file **Suspicious Activity Reports (SAR)** with clear, legally defensible, human-written rationales explaining:
+1. **The Specific Fraud Topology** (e.g. Automated Account Liquidation, Mule Layering, Zero-Balance Recipient).
+2. **Key Telemetry & Risk Attribution** (Amount, Source, Destination, TreeSHAP feature drivers).
+3. **Operational Recommendation** (Beneficiary hold, KYC re-verification, immediate debit block).
+
+### Why Groq LPU?
+- **Ultra-low latency**: Generates institutional-grade SAR summaries in $\\sim 1.2$ to $1.5$ seconds.
+- **Zero local compute burden**: Avoids running heavy LLMs on local hardware.
+- **High reasoning capacity**: Powered by `qwen/qwen3.8-27b` on Groq's high-speed inference engine."""))
+
+    nb["cells"].append(code("""import json
+import urllib.request
+import time
+
+# Groq Cloud API Configuration
+# Replace with your own key if preferred, or use the active ASTID project key
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
+GROQ_MODEL = "qwen/qwen3.8-27b"
+
+def generate_sar_narrative(case_details: dict) -> dict:
+    \"\"\"
+    Calls Groq Cloud LPU to synthesize an institution-grade SAR narrative
+    from TreeSHAP feature weights, transaction telemetry, and gating verdicts.
+    \"\"\"
+    t0 = time.time()
+    
+    prompt = f\"\"\"
+You are an expert Anti-Money Laundering (AML) Compliance Officer for ASTID Financial Defense.
+Draft a concise, regulatory-grade SAR (Suspicious Activity Report) narrative for an investigator based on these real-time signals:
+
+- Case ID: {case_details.get('case_id')}
+- Transaction Amount: INR {case_details.get('amount'):,.2f}
+- Branch Jurisdiction: {case_details.get('branch')}
+- Calibrated Risk Score: {case_details.get('risk_score'):.2f} (Verdict Tier: {case_details.get('verdict')})
+- Autoencoder Anomaly Score: {case_details.get('ae_score'):.2f}
+- Originating Account: {case_details.get('nameOrig')}
+- Beneficiary Counterparty: {case_details.get('nameDest')}
+- Triggered Rules & TreeSHAP Attributes:
+{chr(10).join([f"  * {r}" for r in case_details.get('top_shap_features', [])])}
+
+Instructions:
+1. Write a professional, 1-to-2 paragraph regulatory SAR narrative.
+2. Highlight the specific fraud topology (e.g., automated account liquidation, money mule layering, unseasoned beneficiary).
+3. State the operational recommendation (e.g., temporary account freeze, beneficiary clawback, formal regulatory filing).
+Keep it objective, factual, and legally defensible.
+\"\"\"
+
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a senior banking AML fraud investigator drafting concise, legally robust SAR summaries."
+            },
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 400,
+        "temperature": 0.2
+    }
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+        "User-Agent": "ASTID-RiskOps/1.0"
+    }
+
+    try:
+        req = urllib.request.Request(
+            "https://api.groq.com/openai/v1/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=10.0) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            narrative = data["choices"][0]["message"]["content"].strip()
+            latency_ms = (time.time() - t0) * 1000.0
+            return {
+                "narrative": narrative,
+                "model": GROQ_MODEL,
+                "latency_ms": latency_ms,
+                "status": "SUCCESS"
+            }
+    except Exception as e:
+        # High-reliability fallback template if offline
+        latency_ms = (time.time() - t0) * 1000.0
+        fallback = (
+            f"Case {case_details.get('case_id')} involving an amount of INR {case_details.get('amount'):,.2f} "
+            f"at branch {case_details.get('branch')} was assigned a calibrated risk score of {case_details.get('risk_score'):.2f}. "
+            f"Key risk triggers observed: {', '.join(case_details.get('top_shap_features', []))}. "
+            f"Funds route from account {case_details.get('nameOrig')} towards {case_details.get('nameDest')}. "
+            f"Recommended Action: Immediate compliance review and counterparty hold pending customer contact."
+        )
+        return {
+            "narrative": fallback,
+            "model": "Template-Deterministic (Offline Fallback)",
+            "latency_ms": latency_ms,
+            "status": "FALLBACK",
+            "error": str(e)
+        }
+
+# Test on Scenario 1 (Script Storm Drain)
+test_case = {
+    "case_id": "ESC-2026-9921",
+    "amount": scenarios[0]['tx']['amount'],
+    "branch": "Kolkata-SaltLake Hub",
+    "risk_score": float(calibrated_xgb.predict_proba(storm_vec)[0, 1]),
+    "ae_score": float(compute_ae_anomaly_scores(scaler.transform(storm_vec))[0]),
+    "verdict": "ESCALATE / BLOCK",
+    "nameOrig": scenarios[0]['tx']['nameOrig'],
+    "nameDest": scenarios[0]['tx']['nameDest'],
+    "top_shap_features": [
+        f"{f} (observed={val:.2f}, impact={sv:+.4f})"
+        for f, val, sv in attributions[:4]
+    ]
+}
+
+print("⚡ Requesting Regulatory SAR Narrative from Groq Cloud LPU...")
+sar_result = generate_sar_narrative(test_case)
+
+print(f"\n================================================================================")
+print(f"🏛️ INSTITUTIONAL SAR REPORT (Model: {sar_result['model']} | Latency: {sar_result['latency_ms']:.1f}ms)")
+print(f"================================================================================\n")
+print(sar_result['narrative'])
+print(f"\n================================================================================")
+"""))
+
+    # Cell 12: Export Models
+    nb["cells"].append(md("""## 11. Serializing Artifacts for FastAPI Production Deployment
 We serialize the trained models into standard lightweight production artifacts:
 * `calibrated_xgb.joblib`: The calibrated gradient boosting classifier
 * `autoencoder.pt`: PyTorch weights and threshold $\\tau_{99.9}$

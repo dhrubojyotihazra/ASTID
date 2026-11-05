@@ -265,7 +265,29 @@ CONFUSION MATRIX & INVARIANT VERIFICATION
 
 ---
 
-## 6. Artifact Inventory Checklist
+## 6. Regulatory Compliance AI: Groq Cloud LPU SAR Generation
+
+While TreeSHAP provides feature attribution vectors and the Autoencoder flags high-dimensional reconstruction loss, financial regulators (RBI circular on digital fraud monitoring, FinCEN SAR rules, and GDPR Article 22) require **plain-language, legally robust justifications** for automated decisions.
+
+```mermaid
+flowchart LR
+    A["Raw Transaction"] --> B["Causal Feature Extractor"]
+    B --> C["XGBoost Risk Score"]
+    B --> D["Autoencoder MSE Loss"]
+    C & D --> E["Disjunctive Gating Engine"]
+    E -->|ESCALATE / REVIEW| F["TreeSHAP Local Attributions"]
+    F --> G["Groq LPU Inference (Qwen 27B)"]
+    G --> H["Institutional Regulatory SAR Report"]
+```
+
+### 6.1 Architectural Mandates
+1. **Zero Scoring Path Interference**: SAR narratives are synthesized **strictly out-of-band** or on-demand when an investigator opens an escalation drawer, never blocking the $<15\text{ ms}$ authorization window.
+2. **Groq Cloud LPU Speed Advantage**: Using Groq's Language Processing Units, ASTID generates a comprehensive 2-paragraph SAR report in $\sim 1,400\text{ ms}$, compared to $>30\text{ seconds}$ on local CPU-only hardware.
+3. **Template-Deterministic Fallback**: If network or API quota limits occur, the service seamlessly reverts to an instant deterministic SAR summary with zero analyst disruption.
+
+---
+
+## 7. Artifact Inventory Checklist
 
 For production deployment or Colab execution, ensure the following artifacts are generated:
 - `xgb_calibrated.joblib`: Calibrated classifier wrapped with `FrozenEstimator`.

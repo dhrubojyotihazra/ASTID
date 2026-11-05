@@ -1,0 +1,22 @@
+{
+  "model_architecture": "DeepAutoencoder(11 -> 8 -> 4 -> 8 -> 11)",
+  "features": [
+    "log_amount",
+    "hour_of_day",
+    "balance_drain_ratio",
+    "log_oldbalanceOrg",
+    "dest_oldbalance_zero",
+    "is_merchant_dest",
+    "type_TRANSFER",
+    "type_CASH_OUT",
+    "type_PAYMENT",
+    "type_CASH_IN",
+    "type_DEBIT"
+  ],
+  "error_norm_p99_9": 1.0887023210525513,
+  "median_normal_error": 0.01885242573916912,
+  "review_threshold": 0.7,
+  "escalate_threshold": 0.9,
+  "trained_samples": 242146,
+  "validation_samples": 901
+}

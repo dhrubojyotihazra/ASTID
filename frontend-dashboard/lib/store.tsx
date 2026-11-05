@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, R
 import { flushSync } from 'react-dom';
 import { BASE_CASES, BaseCase, Role } from './data';
 import { ROLES } from './roles';
+import { fetchHealth, claimBackendEscalation, resolveBackendEscalation, SystemHealth } from './api';
 
 export type Case = BaseCase & { rem: number | null; res?: 'fraud' | 'fp'; claimed?: boolean; by?: Role };
 type Over = { kind?: 'escalate'; due?: number; res?: 'fraud' | 'fp'; claimed?: boolean; by?: Role };
@@ -20,6 +21,7 @@ type Ctx = {
   notes: Record<string, string[]>;
   log: Log[];
   stats: { reviewed: number; fp: number; escalated: number };
+  health: SystemHealth | null;
   signIn: (r: Role) => void;
   signOut: () => void;
   setDark: (b: boolean, event?: React.MouseEvent | MouseEvent) => void;
@@ -31,6 +33,7 @@ type Ctx = {
   decide: (id: string, res: 'fraud' | 'fp') => void;
   escalate: (id: string) => void;
   claim: (id: string) => void;
+  injectCase: (c: BaseCase) => void;
 };
 
 const C = createContext<Ctx>(null as unknown as Ctx);
@@ -85,6 +88,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [notes, setNotes] = useState<Record<string, string[]>>({});
   const [log, setLog] = useState<Log[]>([]);
   const [stats, setStats] = useState({ reviewed: 0, fp: 0, escalated: 0 });
+  const [dynamicCases, setDynamicCases] = useState<BaseCase[]>([]);
+  const [health, setHealth] = useState<SystemHealth | null>(null);
+
+  useEffect(() => {
+    // Poll backend health status
+    fetchHealth().then(h => setHealth(h));
+    const hInterval = setInterval(() => {
+      fetchHealth().then(h => setHealth(h));
+    }, 15000);
+    return () => clearInterval(hInterval);
+  }, []);
 
   useEffect(() => {
     setRole((localStorage.getItem('ro_role') as Role) || null);
@@ -170,7 +184,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToast(''), 3000);
   }, []);
 
-  const cases = useMemo<Case[]>(() => BASE_CASES.map(c => {
+  const allBaseCases = useMemo(() => [...dynamicCases, ...BASE_CASES], [dynamicCases]);
+
+  const cases = useMemo<Case[]>(() => allBaseCases.map(c => {
     const o = over[c.id] || {};
     const kind = o.kind || c.kind;
     const due = o.due ?? c.due;
@@ -182,12 +198,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       claimed: o.claimed,
       by: o.by,
     };
-  }), [over, tick]);
+  }), [allBaseCases, over, tick]);
 
   const patch = (id: string, p: Over, what: string) => {
     setOver(s => ({ ...s, [id]: { ...(s[id] || {}), ...p } }));
     setLog(l => [{ t: 'T+' + tick + 's', who: role ? ROLES[role].label : '', what, id }, ...l]);
   };
+
+  const injectCase = useCallback((c: BaseCase) => {
+    setDynamicCases(prev => [c, ...prev.filter(x => x.id !== c.id)]);
+    select(c.id);
+    say(`Case ${c.id} injected into active queue (${c.kind.toUpperCase()})`);
+  }, [say]);
 
   const value: Ctx = {
     ready,
@@ -201,6 +223,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     notes,
     log,
     stats,
+    health,
     say,
     select,
     signIn: r => { localStorage.setItem('ro_role', r); setRole(r); },
@@ -212,7 +235,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     decide: (id, res) => {
       patch(id, { res, by: role! }, res === 'fp' ? 'Marked false positive' : 'Confirmed fraud');
       setStats(s => ({ ...s, reviewed: s.reviewed + 1, fp: s.fp + (res === 'fp' ? 1 : 0) }));
-      say('Decision saved');
+      resolveBackendEscalation(
+        id,
+        res === 'fp' ? 'FALSE_POSITIVE' : 'CONFIRM_FRAUD',
+        res === 'fp' ? 'Investigator cleared false positive' : 'Investigator confirmed fraudulent drain',
+        role ? ROLES[role].name : 'investigator'
+      );
+      say('Decision saved & synchronized');
     },
     escalate: id => {
       patch(id, { kind: 'escalate', due: tick + 900, by: role! }, 'Escalated to Senior');
@@ -220,9 +249,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       say('Escalated. Senior Analysts notified.');
     },
     claim: id => {
-      patch(id, { claimed: true }, 'Claimed case');
-      say('Case claimed');
+      patch(id, { claimed: true, by: role! }, 'Claimed case');
+      claimBackendEscalation(id, role ? ROLES[role].name : 'investigator');
+      say('Case claimed & locked');
     },
+    injectCase,
   };
 
   return <C.Provider value={value}>{children}</C.Provider>;

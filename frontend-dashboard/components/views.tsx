@@ -12,11 +12,18 @@ import {
   ArrowRight,
   TrendingDown,
   Layers,
+  Zap,
+  ShieldAlert,
+  CheckCircle2,
+  Activity,
+  Send,
+  Cpu,
 } from 'lucide-react';
 import { Case, useApp } from '@/lib/store';
-import { BRANCHES, SYSTEM_METRICS } from '@/lib/data';
+import { BRANCHES, SYSTEM_METRICS, BaseCase } from '@/lib/data';
 import { ROLES } from '@/lib/roles';
 import { downloadCsv, inr, inrCr } from '@/lib/export';
+import { scoreLiveTransaction, ScoreResponse, ScoreRequest } from '@/lib/api';
 import { Btn, Card, H1, Pill, Stats } from './ui';
 import CaseList from './CaseList';
 import AnimatedTabs from './AnimatedTabs';
@@ -460,66 +467,194 @@ export function Health() {
 }
 
 export function Simulator() {
-  const { cases } = useApp();
-  const [rv, setRv] = useState(0.3);
-  const [ev, setEv] = useState(0.7);
+  const { cases, health, injectCase, say } = useApp();
+  const [rv, setRv] = useState(0.05);
+  const [ev, setEv] = useState(0.60);
+
+  // Live Transaction State
+  const [txType, setTxType] = useState<'TRANSFER' | 'CASH_OUT' | 'PAYMENT' | 'DEBIT' | 'CASH_IN'>('TRANSFER');
+  const [amount, setAmount] = useState('850000');
+  const [nameOrig, setNameOrig] = useState('C8888888888');
+  const [nameDest, setNameDest] = useState('C7777777777');
+  const [oldbalanceOrg, setOldbalanceOrg] = useState('850000');
+  const [oldbalanceDest, setOldbalanceDest] = useState('0');
+  const [branch, setBranch] = useState('Kolkata-SaltLake');
+
+  const [loading, setLoading] = useState(false);
+  const [scoreResult, setScoreResult] = useState<ScoreResponse | null>(null);
+  const [scoringError, setScoringError] = useState<string | null>(null);
 
   const nApprove = cases.filter(c => c.score < rv).length;
   const nReview = cases.filter(c => c.score >= rv && c.score < ev).length;
   const nEscalate = cases.filter(c => c.score >= ev).length;
 
-  const pctApprove = ((nApprove / cases.length) * 100).toFixed(1);
-  const pctReview = ((nReview / cases.length) * 100).toFixed(1);
-  const pctEscalate = ((nEscalate / cases.length) * 100).toFixed(1);
+  const total = cases.length || 1;
+  const pctApprove = ((nApprove / total) * 100).toFixed(1);
+  const pctReview = ((nReview / total) * 100).toFixed(1);
+  const pctEscalate = ((nEscalate / total) * 100).toFixed(1);
+
+  // Presets
+  const applyPreset = (preset: 'normal' | 'storm' | 'travel' | 'blacklist') => {
+    if (preset === 'normal') {
+      setTxType('PAYMENT');
+      setAmount('150');
+      setNameOrig('C2049182049');
+      setNameDest('M8821992010');
+      setOldbalanceOrg('14500');
+      setOldbalanceDest('0');
+      setBranch('Kolkata-SaltLake');
+    } else if (preset === 'storm') {
+      setTxType('TRANSFER');
+      setAmount('850000');
+      setNameOrig('C8888888888');
+      setNameDest('C7777777777');
+      setOldbalanceOrg('850000');
+      setOldbalanceDest('0');
+      setBranch('Mumbai-BKC');
+    } else if (preset === 'travel') {
+      setTxType('TRANSFER');
+      setAmount('42000');
+      setNameOrig('C4512991040');
+      setNameDest('C9912048123');
+      setOldbalanceOrg('45000');
+      setOldbalanceDest('1200');
+      setBranch('Delhi-Connaught');
+    } else if (preset === 'blacklist') {
+      setTxType('TRANSFER');
+      setAmount('10000');
+      setNameOrig('C1234567890');
+      setNameDest('C3341029188');
+      setOldbalanceOrg('25000');
+      setOldbalanceDest('500');
+      setBranch('Chennai-Guindy');
+    }
+  };
+
+  const handleScoreLive = async () => {
+    setLoading(true);
+    setScoringError(null);
+    try {
+      const geoCoords: Record<string, [number, number]> = {
+        'Kolkata-SaltLake': [22.5867, 88.4178],
+        'Mumbai-BKC': [19.0657, 72.8681],
+        'Bengaluru-HSR': [12.9121, 77.6446],
+        'Delhi-Connaught': [28.6315, 77.2167],
+        'Chennai-Guindy': [13.0067, 80.2038],
+      };
+      const coords = geoCoords[branch] || [22.5867, 88.4178];
+
+      const res = await scoreLiveTransaction({
+        type: txType,
+        amount: parseFloat(amount) || 0,
+        nameOrig,
+        nameDest,
+        oldbalanceOrg: parseFloat(oldbalanceOrg) || 0,
+        oldbalanceDest: parseFloat(oldbalanceDest) || 0,
+        geo_lat: coords[0],
+        geo_lon: coords[1],
+        branch,
+      });
+      setScoreResult(res);
+      say(`Scored in ${res.scoring_latency_ms}ms · Verdict: ${res.final_verdict}`);
+    } catch (err: any) {
+      setScoringError(err.message || 'Scoring API connection failed');
+      say('Error calling live scoring service');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const dispatchToQueue = () => {
+    if (!scoreResult) return;
+    const isEsc = scoreResult.final_verdict === 'ESCALATE' || scoreResult.final_verdict === 'BLOCK';
+    const newCase: BaseCase = {
+      id: `SIM-${scoreResult.transaction_id.slice(0, 6)}`,
+      amount: scoreResult.amount,
+      branch,
+      score: scoreResult.risk_score,
+      kind: isEsc ? 'escalate' : 'review',
+      due: isEsc ? 900 : undefined,
+      reasons: [
+        scoreResult.primary_reason,
+        ...scoreResult.whitebox_insights.map(w => `${w.badge}: ${w.explanation}`),
+      ],
+      chain: [scoreResult.name_orig, scoreResult.name_dest],
+      originAcc: scoreResult.name_orig,
+      destVpa: scoreResult.name_dest,
+      isHighValue: scoreResult.amount >= 100000,
+    };
+    injectCase(newCase);
+  };
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <H1>Threshold &amp; Workload Simulator</H1>
+          <H1>Risk Engine &amp; Attack Simulator</H1>
           <div className="text-[12.5px] text-mu mt-0.5">
-            Simulate investigator queue volume and automation ratios across 6.36M transactions
+            Real-time inference pipeline across Calibrated GBDT &amp; Deep Autoencoder (<span className="text-ac font-mono">&lt;15ms SLA</span>)
           </div>
         </div>
-        <Pill tone="b">Real-time Simulation</Pill>
+        <div className="flex items-center gap-2">
+          {health?.model_loaded ? (
+            <span className="flex items-center gap-1.5 rounded-full bg-so px-3 py-1 text-[12px] font-semibold text-ac border border-ac/20">
+              <span className="h-2 w-2 rounded-full bg-ac animate-pulse" />
+              ML Engine Online · {health.zero_day_ae_loaded ? 'GBDT + Autoencoder Active' : 'GBDT Active'}
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 rounded-full bg-ab/20 px-3 py-1 text-[12px] font-semibold text-am border border-am/20">
+              <span className="h-2 w-2 rounded-full bg-am" />
+              Connecting to ML Engine...
+            </span>
+          )}
+        </div>
       </div>
 
+      {/* Threshold & Workload Simulation */}
       <Card className="border-bd/80 flex flex-col gap-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-2">
+        <div className="flex items-center justify-between border-b border-bd/60 pb-3">
+          <div className="flex items-center gap-2">
+            <Layers size={17} className="text-ac" />
+            <h2 className="text-[14px] font-bold text-tx">Operational Threshold &amp; Workload Simulation</h2>
+          </div>
+          <span className="text-[11.5px] text-mu font-mono">Calibrated Bounds: Review 0.05 | Escalate 0.60</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-1">
           {/* Review Cutoff Slider */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center text-[13px]">
-              <span className="font-semibold text-tx">Review Queue Threshold</span>
+              <span className="font-semibold text-tx">Review Queue Cutoff (τ_review)</span>
               <span className="num font-bold text-ac bg-so px-2.5 py-0.5 rounded-full text-[12.5px]">
                 {rv.toFixed(2)}
               </span>
             </div>
             <input
               type="range"
-              min="0.10"
-              max="0.55"
-              step="0.05"
+              min="0.01"
+              max="0.30"
+              step="0.01"
               value={rv}
               onChange={e => setRv(Math.min(+e.target.value, ev - 0.05))}
               className="w-full accent-[#0F5132] cursor-pointer"
             />
             <div className="text-[11.5px] text-mu">
-              Transactions with score &ge; {rv.toFixed(2)} route to Branch Analysts
+              Transactions with risk score &ge; {rv.toFixed(2)} route to Branch Analysts
             </div>
           </div>
 
           {/* Escalate Cutoff Slider */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center text-[13px]">
-              <span className="font-semibold text-tx">Senior Escalation Threshold</span>
+              <span className="font-semibold text-tx">Senior Escalation Cutoff (τ_escalate)</span>
               <span className="num font-bold text-rd bg-rb px-2.5 py-0.5 rounded-full text-[12.5px]">
                 {ev.toFixed(2)}
               </span>
             </div>
             <input
               type="range"
-              min="0.55"
-              max="0.90"
+              min="0.35"
+              max="0.85"
               step="0.05"
               value={ev}
               onChange={e => setEv(Math.max(+e.target.value, rv + 0.05))}
@@ -535,17 +670,17 @@ export function Simulator() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2 border-t border-bd/60">
           <Card className="bg-so/20 border-bd/60">
             <div className="text-[12px] font-semibold text-ac uppercase tracking-wider">
-              Instant Approval
+              Instant Frictionless Approval
             </div>
             <div className="num mt-1 text-[28px] font-bold text-tx">{pctApprove}%</div>
             <div className="text-[11.5px] text-mu mt-0.5">
-              ~6,280,000 txns automated (friction-free)
+              ~6,280,000 txns automated (&lt;5ms fast path)
             </div>
           </Card>
 
           <Card className="bg-ab/10 border-bd/60">
             <div className="text-[12px] font-semibold text-am uppercase tracking-wider">
-              Analyst Review Queue
+              Branch Analyst Review
             </div>
             <div className="num mt-1 text-[28px] font-bold text-tx">{pctReview}%</div>
             <div className="text-[11.5px] text-mu mt-0.5">
@@ -555,14 +690,273 @@ export function Simulator() {
 
           <Card className="bg-rb/10 border-bd/60">
             <div className="text-[12px] font-semibold text-rd uppercase tracking-wider">
-              Senior Escalation
+              Senior Escalation (15m SLA)
             </div>
             <div className="num mt-1 text-[28px] font-bold text-tx">{pctEscalate}%</div>
             <div className="text-[11.5px] text-mu mt-0.5">
-              ~8,200 urgent cases (15m SLA window)
+              ~8,200 urgent cases (zero-loss interdiction)
             </div>
           </Card>
         </div>
+      </Card>
+
+      {/* Interactive Live Attack Studio & Inference */}
+      <Card className="border-bd/80 flex flex-col gap-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-bd/60 pb-3">
+          <div className="flex items-center gap-2">
+            <Zap size={18} className="text-am" />
+            <div>
+              <h2 className="text-[14px] font-bold text-tx">Live Transaction Injection &amp; Attack Studio</h2>
+              <div className="text-[11.5px] text-mu">Test model behavior, zero-day autoencoder responses, and sub-15ms inference latency</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-semibold uppercase text-mu mr-1">Attack Presets:</span>
+            <button
+              onClick={() => applyPreset('normal')}
+              className="rounded-lg border border-bd bg-so/30 hover:bg-so/60 px-2.5 py-1 text-[11.5px] font-semibold text-ac transition cursor-pointer"
+            >
+              Normal UPI
+            </button>
+            <button
+              onClick={() => applyPreset('storm')}
+              className="rounded-lg border border-rd/30 bg-rb/20 hover:bg-rb/40 px-2.5 py-1 text-[11.5px] font-semibold text-rd transition cursor-pointer"
+            >
+              Script Storm Drain
+            </button>
+            <button
+              onClick={() => applyPreset('travel')}
+              className="rounded-lg border border-am/30 bg-ab/20 hover:bg-ab/40 px-2.5 py-1 text-[11.5px] font-semibold text-am transition cursor-pointer"
+            >
+              Impossible Travel
+            </button>
+            <button
+              onClick={() => applyPreset('blacklist')}
+              className="rounded-lg border border-purple-400/30 bg-purple-500/10 hover:bg-purple-500/20 px-2.5 py-1 text-[11.5px] font-semibold text-purple-700 dark:text-purple-300 transition cursor-pointer"
+            >
+              Blacklist Match
+            </button>
+          </div>
+        </div>
+
+        {/* Input Form Fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-[12.5px]">
+          <div>
+            <label className="block text-mu font-medium mb-1">Transaction Type</label>
+            <select
+              value={txType}
+              onChange={e => setTxType(e.target.value as any)}
+              className="w-full rounded-xl border border-bd bg-card px-3 py-2 text-tx focus:outline-none focus:ring-2 focus:ring-ac"
+            >
+              <option value="TRANSFER">TRANSFER (P2P / Interbank)</option>
+              <option value="CASH_OUT">CASH_OUT (ATM / Withdrawal)</option>
+              <option value="PAYMENT">PAYMENT (Merchant / UPI)</option>
+              <option value="DEBIT">DEBIT (Direct Debit)</option>
+              <option value="CASH_IN">CASH_IN (Deposit)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-mu font-medium mb-1">Amount (INR ₹)</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              className="w-full rounded-xl border border-bd bg-card px-3 py-2 text-tx font-mono focus:outline-none focus:ring-2 focus:ring-ac"
+              placeholder="e.g. 850000"
+            />
+          </div>
+
+          <div>
+            <label className="block text-mu font-medium mb-1">Sender Pre-Auth Balance</label>
+            <input
+              type="number"
+              value={oldbalanceOrg}
+              onChange={e => setOldbalanceOrg(e.target.value)}
+              className="w-full rounded-xl border border-bd bg-card px-3 py-2 text-tx font-mono focus:outline-none focus:ring-2 focus:ring-ac"
+              placeholder="e.g. 850000"
+            />
+          </div>
+
+          <div>
+            <label className="block text-mu font-medium mb-1">Recipient Pre-Auth Balance</label>
+            <input
+              type="number"
+              value={oldbalanceDest}
+              onChange={e => setOldbalanceDest(e.target.value)}
+              className="w-full rounded-xl border border-bd bg-card px-3 py-2 text-tx font-mono focus:outline-none focus:ring-2 focus:ring-ac"
+              placeholder="0.00 for empty account"
+            />
+          </div>
+
+          <div>
+            <label className="block text-mu font-medium mb-1">Sender Account ID (nameOrig)</label>
+            <input
+              type="text"
+              value={nameOrig}
+              onChange={e => setNameOrig(e.target.value)}
+              className="w-full rounded-xl border border-bd bg-card px-3 py-2 text-tx font-mono focus:outline-none focus:ring-2 focus:ring-ac"
+            />
+          </div>
+
+          <div>
+            <label className="block text-mu font-medium mb-1">Recipient Account ID (nameDest)</label>
+            <input
+              type="text"
+              value={nameDest}
+              onChange={e => setNameDest(e.target.value)}
+              className="w-full rounded-xl border border-bd bg-card px-3 py-2 text-tx font-mono focus:outline-none focus:ring-2 focus:ring-ac"
+            />
+          </div>
+
+          <div>
+            <label className="block text-mu font-medium mb-1">Initiating Branch</label>
+            <select
+              value={branch}
+              onChange={e => setBranch(e.target.value)}
+              className="w-full rounded-xl border border-bd bg-card px-3 py-2 text-tx focus:outline-none focus:ring-2 focus:ring-ac"
+            >
+              {BRANCHES.map(b => (
+                <option key={b.name} value={b.name}>
+                  {b.name} ({b.region})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-end">
+            <button
+              onClick={handleScoreLive}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-ac hover:bg-[#0c4127] text-white py-2 px-4 font-bold text-[13px] shadow-sm transition active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Scoring...
+                </>
+              ) : (
+                <>
+                  <Zap size={16} />
+                  Score Live (&lt;15ms SLA)
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {scoringError && (
+          <div className="rounded-xl border border-rd/30 bg-rb/20 p-3 text-[12.5px] text-rd flex items-center gap-2">
+            <AlertCircle size={16} />
+            <span>{scoringError}</span>
+          </div>
+        )}
+
+        {/* Live Scoring Output Console */}
+        {scoreResult && (
+          <div className="mt-2 rounded-2xl border border-bd/80 bg-so/10 p-5 flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-bd/60 pb-3">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`px-3 py-1 rounded-full text-[13px] font-extrabold uppercase tracking-wide border ${
+                    scoreResult.final_verdict === 'APPROVE'
+                      ? 'bg-so text-ac border-ac/30 shadow-xs'
+                      : scoreResult.final_verdict === 'REVIEW'
+                      ? 'bg-ab/20 text-am border-am/30 shadow-xs'
+                      : scoreResult.final_verdict === 'ESCALATE'
+                      ? 'bg-rb/30 text-rd border-rd/30 shadow-xs'
+                      : 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30'
+                  }`}
+                >
+                  {scoreResult.final_verdict}
+                </span>
+                <span className="text-[13px] font-semibold text-tx">
+                  {scoreResult.primary_reason}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-card border border-bd px-2.5 py-1 text-[11.5px] font-mono text-mu">
+                  Latency: <strong className="text-ac">{scoreResult.scoring_latency_ms}ms</strong> (SLA &lt;15ms)
+                </span>
+                {(scoreResult.final_verdict === 'REVIEW' || scoreResult.final_verdict === 'ESCALATE') && (
+                  <button
+                    onClick={dispatchToQueue}
+                    className="flex items-center gap-1.5 rounded-xl bg-tx text-bg px-3 py-1 text-[12px] font-bold hover:opacity-90 transition active:scale-95 cursor-pointer"
+                  >
+                    <Send size={13} />
+                    Dispatch to Active Queue
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Score & Gauge Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[12px]">
+              <div className="rounded-xl bg-card p-3 border border-bd/60">
+                <div className="text-mu text-[11px] font-semibold uppercase">Calibrated Risk Score</div>
+                <div className="text-[20px] font-bold text-tx mt-0.5">
+                  {(scoreResult.risk_score * 100).toFixed(1)}%
+                </div>
+                <div className="text-mu text-[10.5px]">Cutoff: Review &ge; {(rv*100).toFixed(0)}%</div>
+              </div>
+
+              <div className="rounded-xl bg-card p-3 border border-bd/60">
+                <div className="text-mu text-[11px] font-semibold uppercase">Zero-Day Autoencoder</div>
+                <div className="text-[20px] font-bold text-tx mt-0.5">
+                  {scoreResult.zero_day_ae_score !== undefined
+                    ? `${(scoreResult.zero_day_ae_score * 100).toFixed(1)}%`
+                    : 'N/A'}
+                </div>
+                <div className="text-mu text-[10.5px]">
+                  MSE: {scoreResult.ae_raw_mse ?? '0.00'} (Norm clip P99.9)
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-card p-3 border border-bd/60">
+                <div className="text-mu text-[11px] font-semibold uppercase">Confidence Tier</div>
+                <div className="text-[20px] font-bold text-tx mt-0.5">
+                  {scoreResult.confidence_tier}
+                </div>
+                <div className="text-mu text-[10.5px]">Pre-Auth GBDT Inference</div>
+              </div>
+
+              <div className="rounded-xl bg-card p-3 border border-bd/60">
+                <div className="text-mu text-[11px] font-semibold uppercase">Rules &amp; Heuristics</div>
+                <div className="text-[20px] font-bold text-tx mt-0.5">
+                  {scoreResult.matched_rules.length} Hits
+                </div>
+                <div className="text-mu text-[10.5px] truncate">
+                  {scoreResult.matched_rules.join(', ') || 'Clean profile'}
+                </div>
+              </div>
+            </div>
+
+            {/* TreeSHAP White-Box Insights */}
+            {scoreResult.whitebox_insights && scoreResult.whitebox_insights.length > 0 && (
+              <div className="flex flex-col gap-2 pt-2 border-t border-bd/60">
+                <div className="text-[12px] font-bold text-tx flex items-center gap-1.5">
+                  <Cpu size={14} className="text-ac" />
+                  <span>Explainability Attribution (TreeSHAP Badges &amp; Causal Rationale)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {scoreResult.whitebox_insights.map((insight, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl border border-bd/70 bg-card p-2.5 flex flex-col gap-1 text-[11.5px]"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-tx">{insight.badge}</span>
+                        <span className="font-mono text-ac font-bold">{insight.impact_score}</span>
+                      </div>
+                      <div className="text-mu leading-relaxed">{insight.explanation}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
     </>
   );

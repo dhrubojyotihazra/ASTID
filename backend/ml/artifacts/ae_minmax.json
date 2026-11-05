@@ -1,0 +1,21 @@
+{
+  "ae_min": 0.00033657459425739944,
+  "ae_max": 0.7160372734069824,
+  "tau_ae": 0.017604807391762733,
+  "input_dim": 12,
+  "epochs": 12,
+  "features": [
+    "log_amount",
+    "hour_of_day",
+    "balance_drain_ratio",
+    "amount_zscore",
+    "tx_velocity_1h",
+    "tx_velocity_24h",
+    "is_transfer_to_cashout",
+    "type_TRANSFER",
+    "type_CASH_OUT",
+    "type_PAYMENT",
+    "type_CASH_IN",
+    "type_DEBIT"
+  ]
+}

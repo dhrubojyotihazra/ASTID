@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-11-05T16:17:51Z",
+  "pr_auc": 1.0,
+  "roc_auc": 1.0,
+  "recall": 1.0,
+  "precision": 1.0,
+  "f1": 1.0,
+  "test_tp": 1038,
+  "test_fp": 0,
+  "test_fn": 0,
+  "test_tn": 3774,
+  "autoencoder_min_mse": 0.000337,
+  "autoencoder_max_mse": 0.716037,
+  "autoencoder_tau_95": 0.017605,
+  "duration_seconds": 82.53,
+  "zero_leakage_verified": true
+}

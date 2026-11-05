@@ -1,0 +1,19 @@
+{
+  "tau_review": 0.05,
+  "tau_escalate": 0.6000000000000001,
+  "features": [
+    "log_amount",
+    "hour_of_day",
+    "balance_drain_ratio",
+    "log_oldbalanceOrg",
+    "dest_oldbalance_zero",
+    "is_merchant_dest",
+    "type_TRANSFER",
+    "type_CASH_OUT",
+    "type_PAYMENT",
+    "type_CASH_IN",
+    "type_DEBIT"
+  ],
+  "review_budget_pct": 0.86,
+  "escalate_budget_pct": 0.85
+}

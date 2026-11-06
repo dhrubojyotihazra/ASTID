@@ -53,7 +53,7 @@ def run_dom_audit():
             # STEP 1: DASHBOARD HOME & WEBSOCKET STREAM
             # -------------------------------------------------------------
             print("\n[Step 1] Loading Dashboard Home (http://localhost:3000/dashboard/home)...")
-            page.goto("http://localhost:3000/dashboard/home", wait_until="networkidle", timeout=15000)
+            page.goto("http://localhost:3000/dashboard/home", wait_until="domcontentloaded", timeout=15000)
             page.wait_for_timeout(1500)
             print(f"  Page Title: {page.title()}")
             print(f"  Current URL: {page.url}")
@@ -80,7 +80,7 @@ def run_dom_audit():
             # STEP 2: ATTACK SIMULATOR & PRESET SCENARIO
             # -------------------------------------------------------------
             print("\n[Step 2] Navigating to Attack Simulator (/dashboard/sim)...")
-            page.goto("http://localhost:3000/dashboard/sim", wait_until="networkidle", timeout=15000)
+            page.goto("http://localhost:3000/dashboard/sim", wait_until="domcontentloaded", timeout=15000)
             page.wait_for_timeout(2000)
             print(f"  Simulator URL: {page.url}")
 
@@ -124,8 +124,13 @@ def run_dom_audit():
             # STEP 4: CASES QUEUE & GROQ LPU SAR NARRATIVE
             # -------------------------------------------------------------
             print("\n[Step 4] Navigating to Cases View (/dashboard/cases)...")
-            page.goto("http://localhost:3000/dashboard/cases", wait_until="networkidle", timeout=15000)
-            page.wait_for_timeout(2000)
+            page.goto("http://localhost:3000/dashboard/cases", wait_until="domcontentloaded", timeout=15000)
+            
+            # Wait for dynamic cases to load from DuckDB warehouse
+            try:
+                page.wait_for_selector("article", timeout=6000)
+            except Exception:
+                pass
 
             # Look for Kanban article cards
             cards = page.locator("article")
@@ -178,7 +183,7 @@ def run_dom_audit():
             # STEP 5: ANALYTICS & HEALTH
             # -------------------------------------------------------------
             print("\n[Step 5] Navigating to Analytics & Health (/dashboard/analytics)...")
-            page.goto("http://localhost:3000/dashboard/analytics", wait_until="networkidle", timeout=15000)
+            page.goto("http://localhost:3000/dashboard/analytics", wait_until="domcontentloaded", timeout=15000)
             page.wait_for_timeout(2000)
             page.screenshot(path="screenshots/dom_04_analytics_health.png")
             report["screenshots"].append("screenshots/dom_04_analytics_health.png")

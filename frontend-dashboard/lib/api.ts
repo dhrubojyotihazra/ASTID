@@ -174,6 +174,8 @@ export interface SarNarrativeResponse {
   narrative: string;
   model: string;
   generation_latency_ms: number;
+  tokens_used?: number;
+  cached?: boolean;
 }
 
 export async function generateSarNarrative(caseData: {
@@ -209,6 +211,98 @@ export async function generateSarNarrative(caseData: {
 
   return await res.json();
 }
+
+
+export interface WarehouseStats {
+  total_transactions: number;
+  total_turnover_inr: number;
+  total_fraud_cases: number;
+  fraud_prevented_inr: number;
+  fraud_prevented_cr: number;
+  fraud_rate_pct: number;
+  unique_senders: number;
+  unique_receivers: number;
+  active_model_version: string;
+  stability_status: string;
+  drift_index: number;
+}
+
+export interface ApiBranchMetric {
+  name: string;
+  region: string;
+  totalTxns: number;
+  turnover: number;
+  fraudPrevented: number;
+  fraudCount: number;
+  reviewRate: string;
+}
+
+export interface ModelGovernanceData {
+  active_champion: {
+    version: string;
+    base_model: string;
+    zero_day_model: string;
+    pr_auc: number;
+    roc_auc: number;
+    recall: number;
+    holdout_fn_rate: number;
+    brier_score: number;
+    ae_tau_99_9: number;
+    tau_review: number;
+    tau_escalate: number;
+    p95_latency_ms: number;
+    drift_index_psi: number;
+    zero_leakage_certified: boolean;
+  };
+  challengers: {
+    version: string;
+    pr_auc: number;
+    recall: number;
+    holdout_fn_rate: number;
+    status: string;
+  }[];
+}
+
+export async function fetchWarehouseStats(): Promise<WarehouseStats | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ops/warehouse-stats`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchBranchMetrics(): Promise<ApiBranchMetric[]> {
+  try {
+    const res = await fetch(`${API_BASE}/ops/branches`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchHoldoutCases(limit: number = 24): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE}/ops/cases?limit=${limit}`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchModelGovernance(): Promise<ModelGovernanceData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ops/model-governance`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 
 
 

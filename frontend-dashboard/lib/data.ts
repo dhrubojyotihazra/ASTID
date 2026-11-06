@@ -22,19 +22,19 @@ export type BranchMetric = {
 };
 
 export const BRANCHES: BranchMetric[] = [
-  { name: 'Kolkata-SaltLake', region: 'Eastern Hub', totalTxns: 1272524, fraudPrevented: 36820000, reviewRate: '1.2%' },
-  { name: 'Mumbai-BKC', region: 'Western Financial Centre', totalTxns: 1452110, fraudPrevented: 52140000, reviewRate: '1.4%' },
-  { name: 'Bengaluru-HSR', region: 'Southern Tech Corridor', totalTxns: 1318400, fraudPrevented: 41200000, reviewRate: '1.1%' },
-  { name: 'Delhi-Connaught', region: 'Northern Commercial Hub', totalTxns: 1208680, fraudPrevented: 34500000, reviewRate: '1.3%' },
-  { name: 'Chennai-Guindy', region: 'Southern Industrial Hub', totalTxns: 1110906, fraudPrevented: 29560000, reviewRate: '1.0%' },
+  { name: 'Kolkata-SaltLake', region: 'Eastern Hub', totalTxns: 1273978, fraudPrevented: 2458072000, reviewRate: '0.13%' },
+  { name: 'Mumbai-BKC', region: 'Western Financial Centre', totalTxns: 1273110, fraudPrevented: 2369992000, reviewRate: '0.13%' },
+  { name: 'Delhi-Connaught', region: 'Northern Commercial Hub', totalTxns: 1272836, fraudPrevented: 2285738000, reviewRate: '0.13%' },
+  { name: 'Bengaluru-HSR', region: 'Southern Tech Corridor', totalTxns: 1271580, fraudPrevented: 2448181000, reviewRate: '0.13%' },
+  { name: 'Chennai-Guindy', region: 'Southern Industrial Hub', totalTxns: 1271116, fraudPrevented: 2494433000, reviewRate: '0.13%' },
 ];
 
 // Ground truth metrics across all 6.36M warehouse transactions
 export const SYSTEM_METRICS = {
   totalTransactions: 6362620,
-  fraudPreventedTotal: 194220000,
-  avgReviewRate: '1.2%',
-  activeModelVersion: 'v2.4 (Active)',
+  fraudPreventedTotal: 12056415428,
+  avgReviewRate: '0.13%',
+  activeModelVersion: 'v2.4-champion-calibrated',
   driftIndex: 0.0421,
   stabilityStatus: 'Healthy · Stability 99.8%',
 };

@@ -3,7 +3,19 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { flushSync } from 'react-dom';
 import { BASE_CASES, BaseCase, Role } from './data';
 import { ROLES } from './roles';
-import { fetchHealth, claimBackendEscalation, resolveBackendEscalation, SystemHealth } from './api';
+import {
+  fetchHealth,
+  claimBackendEscalation,
+  resolveBackendEscalation,
+  SystemHealth,
+  WarehouseStats,
+  ApiBranchMetric,
+  ModelGovernanceData,
+  fetchWarehouseStats,
+  fetchBranchMetrics,
+  fetchHoldoutCases,
+  fetchModelGovernance
+} from './api';
 
 export type Case = BaseCase & { rem: number | null; res?: 'fraud' | 'fp'; claimed?: boolean; by?: Role };
 type Over = { kind?: 'escalate'; due?: number; res?: 'fraud' | 'fp'; claimed?: boolean; by?: Role };
@@ -18,6 +30,9 @@ type Ctx = {
   toast: string;
   selected: string | null;
   cases: Case[];
+  warehouseStats: WarehouseStats | null;
+  branchesList: ApiBranchMetric[];
+  modelGovernance: ModelGovernanceData | null;
   notes: Record<string, string[]>;
   log: Log[];
   stats: { reviewed: number; fp: number; escalated: number };
@@ -92,16 +107,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [log, setLog] = useState<Log[]>([]);
   const [stats, setStats] = useState({ reviewed: 0, fp: 0, escalated: 0 });
   const [dynamicCases, setDynamicCases] = useState<BaseCase[]>([]);
+  const [warehouseStats, setWarehouseStats] = useState<WarehouseStats | null>(null);
+  const [branchesList, setBranchesList] = useState<ApiBranchMetric[]>([]);
+  const [modelGovernance, setModelGovernance] = useState<ModelGovernanceData | null>(null);
   const [health, setHealth] = useState<SystemHealth | null>(null);
   const [wsConnected, setWsConnected] = useState(false);
   const [streamActive, setStreamActive] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // Poll backend health status
+    // Poll backend health status and load real DuckDB data warehouse metrics
     fetchHealth().then(h => setHealth(h));
+    fetchWarehouseStats().then(ws => { if (ws) setWarehouseStats(ws); });
+    fetchBranchMetrics().then(bm => { if (bm.length) setBranchesList(bm); });
+    fetchModelGovernance().then(mg => { if (mg) setModelGovernance(mg); });
+    fetchHoldoutCases(24).then(hc => {
+      if (hc.length) {
+        setDynamicCases(hc);
+      }
+    });
+
     const hInterval = setInterval(() => {
       fetchHealth().then(h => setHealth(h));
+      fetchWarehouseStats().then(ws => { if (ws) setWarehouseStats(ws); });
     }, 15000);
     return () => clearInterval(hInterval);
   }, []);
@@ -257,7 +285,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToast(''), 3000);
   }, []);
 
-  const allBaseCases = useMemo(() => [...dynamicCases, ...BASE_CASES], [dynamicCases]);
+  const allBaseCases = useMemo(() => dynamicCases.length > 0 ? dynamicCases : BASE_CASES, [dynamicCases]);
 
   const cases = useMemo<Case[]>(() => allBaseCases.map(c => {
     const o = over[c.id] || {};
@@ -293,6 +321,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast,
     selected,
     cases,
+    warehouseStats,
+    branchesList,
+    modelGovernance,
     notes,
     log,
     stats,

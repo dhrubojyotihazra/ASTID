@@ -9,7 +9,8 @@ from typing import Dict, Any, List
 # Seed blacklisted mule and fraud account identifiers
 DEFAULT_BLACKLIST = {
     "C1234567890", "C9876543210", "M1122334455", "M9988776655",
-    "mule.scam@okaxis", "hacker@ybl", "fraudster@paytm"
+    "mule.scam@okaxis", "hacker@ybl", "fraudster@paytm",
+    "M_OFFSHORE_BET", "M_CRYPTO_EXCH"
 }
 
 @dataclass
@@ -71,5 +72,13 @@ class RulesEngine:
             result.matched_rules.append("HIGH_VALUE_WIRE_TRANSFER")
             if not result.critical_hit and result.primary_reason == "Clean Transaction":
                 result.primary_reason = f"High-Value Outbound Transfer (₹{amount:,.0f})"
+
+        # 6. Soft Flag: Near-Total Account Depletion (> 90% balance drained on significant outbound amounts)
+        old_org = float(tx.get("oldbalanceOrg", 0.0))
+        if tx_type != "CASH_IN" and old_org > 0 and (amount / old_org) >= 0.90 and amount >= 50000.0:
+            result.soft_flag_boost += 0.25
+            result.matched_rules.append("CRITICAL_BALANCE_DRAIN_RATIO")
+            if not result.critical_hit and result.primary_reason == "Clean Transaction":
+                result.primary_reason = f"Near-Total Account Liquidation ({min(100.0, amount / old_org * 100):.1f}% balance drained)"
 
         return result

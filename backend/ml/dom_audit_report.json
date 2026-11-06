@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-11-06T12:57:39Z",
+  "steps": [
+    {
+      "step": "Dashboard Home & WebSocket Stream",
+      "status": "PASS"
+    },
+    {
+      "step": "Empirical Confusion Matrix Stress Bench",
+      "status": "PASS"
+    },
+    {
+      "step": "Groq LPU SAR Narrative Generation",
+      "status": "PASS"
+    },
+    {
+      "step": "Analytics & Health View",
+      "status": "PASS"
+    }
+  ],
+  "console_errors": [],
+  "page_errors": [],
+  "network_failures": [],
+  "screenshots": [
+    "screenshots/dom_01_dashboard_streaming.png",
+    "screenshots/dom_02_confusion_matrix_bench.png",
+    "screenshots/dom_03_case_drawer_sar_groq.png",
+    "screenshots/dom_04_analytics_health.png"
+  ],
+  "metrics_verified": {}
+}

@@ -11,6 +11,7 @@ export const ROLES: Record<Role, { label: string; name: string; branch: string; 
     tabs: [
       { key: 'home', label: 'Dashboard', icon: 'home' },
       { key: 'cases', label: 'Cases', icon: 'cases', badge: 9 },
+      { key: 'sim', label: 'Attack Simulator', icon: 'sliders' },
       { key: 'analytics', label: 'Analytics & Health', icon: 'chart' },
       { key: 'team', label: 'Team', icon: 'users' },
       { key: 'all', label: 'All Transactions', icon: 'search' },
@@ -26,6 +27,7 @@ export const ROLES: Record<Role, { label: string; name: string; branch: string; 
       { key: 'home', label: 'Dashboard', icon: 'home' },
       { key: 'cases', label: 'Cases', icon: 'cases', badge: 9 },
       { key: 'esc', label: 'Escalations', icon: 'clock' },
+      { key: 'sim', label: 'Attack Simulator', icon: 'sliders' },
       { key: 'analytics', label: 'Analytics & Health', icon: 'chart' },
       { key: 'team', label: 'Team', icon: 'users' },
       { key: 'all', label: 'All Transactions', icon: 'search' },
@@ -39,10 +41,10 @@ export const ROLES: Record<Role, { label: string; name: string; branch: string; 
     tabs: [
       { key: 'home', label: 'Dashboard', icon: 'home' },
       { key: 'cases', label: 'Cases', icon: 'cases', badge: 9 },
+      { key: 'sim', label: 'Attack Simulator', icon: 'sliders' },
       { key: 'analytics', label: 'Analytics & Health', icon: 'chart' },
       { key: 'team', label: 'Team', icon: 'users' },
       { key: 'branches', label: 'Branches', icon: 'building' },
-      { key: 'sim', label: 'Threshold Simulator', icon: 'sliders' },
       { key: 'sla', label: 'Escalation SLA', icon: 'clock' },
     ],
   },
@@ -54,6 +56,7 @@ export const ROLES: Record<Role, { label: string; name: string; branch: string; 
     tabs: [
       { key: 'home', label: 'Dashboard', icon: 'home' },
       { key: 'cases', label: 'Cases', icon: 'cases', badge: 9 },
+      { key: 'sim', label: 'Attack Simulator', icon: 'sliders' },
       { key: 'analytics', label: 'Analytics & Health', icon: 'chart' },
       { key: 'team', label: 'Team', icon: 'users' },
       { key: 'users', label: 'Users & Branches', icon: 'users' },

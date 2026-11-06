@@ -42,7 +42,7 @@ export default function Page({ params }: { params: { tab: string } }) {
 
   const allowed =
     ROLES[role].tabs.some(t => t.key === tab) ||
-    ['settings', 'help', 'cases', 'tasks', 'analytics', 'team'].includes(tab) ||
+    ['settings', 'help', 'cases', 'tasks', 'analytics', 'team', 'sim'].includes(tab) ||
     (tab === 'health' && canSeeHealth(role)) ||
     (tab === 'audit' && canSeeHealth(role));
 

@@ -54,7 +54,8 @@ async def score_live_transaction(
         cache_instance.set(f"idemp:{idempotency_key}", result, ttl_seconds=300)
 
     # 3. Asynchronous Non-Blocking Persistence (Off-Path via BackgroundTasks)
-    background_tasks.add_task(storage_instance.persist_transaction, result)
+    full_record = {**tx_dict, **result}
+    background_tasks.add_task(storage_instance.persist_transaction, full_record)
 
     return result
 

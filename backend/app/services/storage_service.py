@@ -72,7 +72,7 @@ class StorageService:
                     "transaction_id": tx_id,
                     "ingestion_hash": str(uuid.uuid4()),
                     "branch_id": branch_id,
-                    "model_id": "m0000000-0000-0000-0000-000000000001",
+                    "model_id": "a0000000-0000-0000-0000-000000000001",
                     "step": int(tx_record.get("step", 744)),
                     "tx_type": tx_record.get("type", "TRANSFER"),
                     "amount": float(tx_record.get("amount", 0.0)),

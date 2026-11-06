@@ -15,7 +15,7 @@ ON CONFLICT (branch_code) DO NOTHING;
 -- 2. Insert Champion Model Version
 INSERT INTO model_versions (model_id, version_tag, model_type, pr_auc, recall, precision_score, f1_score, ae_threshold_tau, is_active)
 VALUES (
-    'm0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000001',
     'v2.4-champion-calibrated',
     'xgboost_autoencoder_hybrid',
     0.9987,

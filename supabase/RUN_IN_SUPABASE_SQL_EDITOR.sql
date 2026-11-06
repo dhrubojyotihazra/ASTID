@@ -156,8 +156,23 @@ CREATE POLICY "Allow service_role full on escalations" ON escalations FOR ALL US
 CREATE POLICY "Allow service_role full on analyst_actions" ON analyst_actions FOR ALL USING (true);
 CREATE POLICY "Allow service_role full on users" ON users FOR ALL USING (true);
 
--- Enable Realtime
-ALTER PUBLICATION supabase_realtime ADD TABLE transactions, escalations;
+-- Enable Realtime (Idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND tablename = 'transactions'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE transactions;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND tablename = 'escalations'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE escalations;
+    END IF;
+END $$;
 
 -- ============================================================================
 -- SEED DATA (Branches & Champion Model)
@@ -173,7 +188,7 @@ ON CONFLICT (branch_code) DO NOTHING;
 
 INSERT INTO model_versions (model_id, version_tag, model_type, pr_auc, recall, precision_score, f1_score, ae_threshold_tau, is_active)
 VALUES (
-    'm0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000001',
     'v2.4-champion-calibrated',
     'xgboost_autoencoder_hybrid',
     0.9999,

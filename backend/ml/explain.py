@@ -1,7 +1,7 @@
 """
-ASTID TreeSHAP Feature Attributions (Lightweight Fast Path)
+ASTID Fast Risk Attribution Badges (Fast-Path Heuristic Feature Weighting)
 Extracts Top-3 risk contributors strictly for REVIEW and ESCALATE transactions,
-ensuring the high-volume APPROVE path executes in sub-10ms without attribution overhead.
+ensuring the high-volume APPROVE path executes in sub-10ms without heavy explainer overhead.
 """
 
 import os

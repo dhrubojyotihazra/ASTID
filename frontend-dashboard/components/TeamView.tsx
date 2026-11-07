@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, MessageSquare, User, Check, Send, ChevronRight, Shield, Award, Users } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ROLES } from '@/lib/roles';
 import AnimatedTabs from './AnimatedTabs';
+import { fetchTeamTelemetry } from '@/lib/api';
 
 export type TeamMember = {
   id: string;
@@ -160,6 +161,7 @@ const MEMBERS: TeamMember[] = [
 
 export default function TeamView() {
   const { say, role } = useApp();
+  const [members, setMembers] = useState<TeamMember[]>(MEMBERS);
   const [viewMode, setViewMode] = useState<'hierarchy' | 'grid'>('hierarchy');
   const [deptFilter, setDeptFilter] = useState<'all' | 'Investigation' | 'Escalation' | 'Compliance' | 'Operations'>('all');
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -168,8 +170,16 @@ export default function TeamView() {
   const [messageText, setMessageText] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<TeamMember | null>(null);
 
-  const filtered = MEMBERS.filter(m => deptFilter === 'all' || m.dept === deptFilter);
-  const onlineCount = MEMBERS.filter(m => m.status === 'online').length;
+  useEffect(() => {
+    fetchTeamTelemetry().then(res => {
+      if (res?.members && res.members.length > 0) {
+        setMembers(res.members as TeamMember[]);
+      }
+    });
+  }, []);
+
+  const filtered = members.filter(m => deptFilter === 'all' || m.dept === deptFilter);
+  const onlineCount = members.filter(m => m.status === 'online').length;
 
   const handleSendInvite = (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,10 +199,10 @@ export default function TeamView() {
   };
 
   // Hierarchy Data Builders
-  const leadMember = MEMBERS.find(m => m.tier === 'lead');
-  const seniorMembers = MEMBERS.filter(m => m.tier === 'senior');
-  const analystMembers = MEMBERS.filter(m => m.tier === 'analyst');
-  const complianceMembers = MEMBERS.filter(m => m.tier === 'compliance');
+  const leadMember = members.find(m => m.tier === 'lead');
+  const seniorMembers = members.filter(m => m.tier === 'senior');
+  const analystMembers = members.filter(m => m.tier === 'analyst');
+  const complianceMembers = members.filter(m => m.tier === 'compliance');
 
   // Role-specific hierarchy contextualization
   const getHierarchyHeader = () => {

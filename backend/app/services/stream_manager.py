@@ -50,6 +50,9 @@ class StreamManager:
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.discard(websocket)
+        # If no clients are connected, auto-pause stream to prevent background CPU drain
+        if len(self.active_connections) == 0:
+            self.stop_background_stream()
 
     async def broadcast(self, message: Dict[str, Any]):
         disconnected = set()
@@ -60,24 +63,27 @@ class StreamManager:
                 disconnected.add(connection)
         for conn in disconnected:
             self.active_connections.discard(conn)
+        if len(self.active_connections) == 0:
+            self.stop_background_stream()
 
     def start_background_stream(self):
-        if not self.is_running:
+        if not self.is_running or self._task is None or self._task.done():
             self.is_running = True
             self._task = asyncio.create_task(self._stream_loop())
 
     def stop_background_stream(self):
         self.is_running = False
-        if self._task:
+        if self._task and not self._task.done():
             self._task.cancel()
-            self._task = None
+        self._task = None
 
     async def _stream_loop(self):
         """Continuously generates realistic transactions and streams scored results."""
         while self.is_running:
             try:
                 tx_event = self._generate_simulated_tx()
-                score_res = scoring_instance.score_transaction(tx_event)
+                # Run CPU-bound ML inference in thread pool to prevent blocking event loop
+                score_res = await asyncio.to_thread(scoring_instance.score_transaction, tx_event)
 
                 # Update stats
                 self.stats["total_streamed"] += 1

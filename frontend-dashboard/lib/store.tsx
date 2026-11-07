@@ -138,7 +138,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.hostname}:8000/api/v1/ws/stream`;
+    
+    // Resolve WebSocket URL dynamically based on environment configuration
+    let wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+    if (!wsUrl && process.env.NEXT_PUBLIC_API_URL) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
+      const wsBase = apiUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
+      wsUrl = `${wsBase}/ws/stream`;
+    }
+    if (!wsUrl) {
+      wsUrl = `${protocol}//${window.location.hostname}:8000/api/v1/ws/stream`;
+    }
+
     let ws: WebSocket;
     let retryTimer: NodeJS.Timeout;
 

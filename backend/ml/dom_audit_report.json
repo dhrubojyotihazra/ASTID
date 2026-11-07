@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-06T12:57:39Z",
+  "timestamp": "2026-11-06T14:04:03Z",
   "steps": [
     {
       "step": "Dashboard Home & WebSocket Stream",
@@ -11,7 +11,8 @@
     },
     {
       "step": "Groq LPU SAR Narrative Generation",
-      "status": "PASS"
+      "status": "WARN",
+      "info": "Locator.wait_for: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('Copy SAR Text')\").first to be visible\n"
     },
     {
       "step": "Analytics & Health View",

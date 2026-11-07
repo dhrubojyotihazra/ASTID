@@ -9,7 +9,7 @@ from typing import Optional
 class Settings(BaseSettings):
     PROJECT_NAME: str = "ASTID RiskOps API"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = "astid-super-secure-jwt-signing-secret-key-2026-production"
+    SECRET_KEY: str = ""  # Must be set via ASTID_SECRET_KEY env var in production
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 

@@ -5,6 +5,7 @@ ASTID Narrative Generation Route (Groq Cloud LPU)
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Optional
+import asyncio
 from backend.app.services.llm_narrative import narrative_service
 
 router = APIRouter(tags=["Compliance Narrative"])
@@ -29,7 +30,7 @@ class NarrativeResponse(BaseModel):
 @router.post("/narratives/generate", response_model=NarrativeResponse)
 async def generate_sar_narrative(req: NarrativeRequest):
     case_dict = req.model_dump()
-    narrative, model_used, latency_ms = narrative_service.generate_narrative(case_dict)
+    narrative, model_used, latency_ms = await asyncio.to_thread(narrative_service.generate_narrative, case_dict)
     return NarrativeResponse(
         case_id=req.id,
         narrative=narrative,

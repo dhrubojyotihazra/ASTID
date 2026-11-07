@@ -8,9 +8,13 @@ import os
 import json
 import time
 import uuid
+import logging
+from collections import deque
 from typing import Dict, Any, List, Optional
 import urllib.request
 import urllib.error
+
+logger = logging.getLogger("astid.storage")
 
 # Ensure environment variables are loaded
 try:
@@ -32,17 +36,17 @@ class StorageService:
         self.supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
         self.supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
         self.is_cloud = bool(self.supabase_url and self.supabase_key)
-        self.local_store: List[Dict[str, Any]] = []
+        self.local_store: deque = deque(maxlen=2000)
         self.escalations_store: Dict[str, Dict[str, Any]] = {}
 
     def persist_transaction(self, tx_record: Dict[str, Any]) -> None:
         """Asynchronously persists scored transaction out-of-band."""
-        # Always maintain in-memory copy for fast workbench retrieval
+        # Always maintain in-memory bounded ring-buffer for fast workbench retrieval (max 2000 items)
         self.local_store.append(tx_record)
 
         # If escalated, store in escalations state machine
         if tx_record.get("final_verdict") in ("ESCALATE", "BLOCK"):
-            esc_id = f"ESC-{int(time.time() * 1000) % 1000000}"
+            esc_id = f"ESC-{uuid.uuid4().hex[:8].upper()}"
             self.escalations_store[esc_id] = {
                 "escalation_id": esc_id,
                 "transaction_id": tx_record.get("transaction_id"),
@@ -105,8 +109,8 @@ class StorageService:
                 with urllib.request.urlopen(req, timeout=5) as response:
                     pass
             except Exception as e:
-                # If Supabase table isn't migrated yet, local fallback takes over seamlessly
-                pass
+                # Log telemetry failure; local ring-buffer fallback preserves workbench state
+                logger.warning("[StorageService] Supabase transaction persist skipped: %s", e)
 
     def claim_escalation(self, escalation_id: str, user_id: str) -> Optional[Dict[str, Any]]:
         if escalation_id in self.escalations_store:

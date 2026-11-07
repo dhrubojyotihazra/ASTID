@@ -10,10 +10,7 @@ import time
 import urllib.request
 from typing import Dict, Any, Tuple
 
-GROQ_API_KEY = os.environ.get(
-    "GROQ_API_KEY",
-    "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"
-)
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_MODEL = "qwen/qwen3.8-27b"
 
 class LLMNarrativeService:

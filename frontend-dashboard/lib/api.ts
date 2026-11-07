@@ -3,7 +3,7 @@
  * Connects frontend dashboard workbench to FastAPI Real-Time ML Engine
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000/api/v1';
 
 export interface ScoreRequest {
   transaction_id?: string;
@@ -116,6 +116,37 @@ export interface BenchmarkMetrics {
   latency_p95_ms: number;
 }
 
+export interface BatchScoreResult {
+  total_scored: number;
+  total_amount: number;
+  approved: number;
+  under_review: number;
+  escalated_or_blocked: number;
+  fraud_count: number;
+  transactions: (ScoreResponse & { branch?: string })[];
+}
+
+export async function scoreBatchTransactions(txs: ScoreRequest[]): Promise<BatchScoreResult> {
+  const res = await fetch(`${API_BASE}/score/batch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(txs.map(tx => ({
+      step: tx.step ?? 744,
+      type: tx.type,
+      amount: tx.amount,
+      nameOrig: tx.nameOrig,
+      nameDest: tx.nameDest,
+      oldbalanceOrg: tx.oldbalanceOrg,
+      oldbalanceDest: tx.oldbalanceDest,
+      branch: tx.branch ?? 'Kolkata-SaltLake',
+    }))),
+  });
+  if (!res.ok) {
+    throw new Error(`Batch scoring failed (${res.status})`);
+  }
+  return await res.json();
+}
+
 export async function runSimulationBenchmark(sampleSize: number = 100): Promise<BenchmarkMetrics> {
   const res = await fetch(`${API_BASE}/score/benchmark?sample_size=${sampleSize}`, {
     method: 'POST',
@@ -158,10 +189,17 @@ export async function resolveBackendEscalation(
   userId: string
 ): Promise<boolean> {
   try {
+    const verdict = action === 'CONFIRM_FRAUD' ? 'confirmed_fraud' : 'false_positive';
     const res = await fetch(`${API_BASE}/escalations/${escId}/resolve`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, reason, user_id: userId }),
+      body: JSON.stringify({
+        action,
+        reason,
+        user_id: userId,
+        verdict,
+        notes: reason,
+      }),
     });
     return res.ok;
   } catch {
@@ -302,6 +340,95 @@ export async function fetchModelGovernance(): Promise<ModelGovernanceData | null
     return null;
   }
 }
+
+export interface WeeklyActivityDay {
+  day: string;
+  name: string;
+  pct: number;
+  height: number;
+  barClass: string;
+  desc: string;
+  totalTxns: number;
+  fraudCount: number;
+  cleanPct: number;
+  delay: number;
+}
+
+export interface ProjectProgressData {
+  totalQueue: number;
+  resolvedCount: number;
+  inProgressCount: number;
+  pendingCount: number;
+  completedPct: number;
+  inProgressPct: number;
+  pendingPct: number;
+  completedDash: number;
+  inProgressDash: number;
+  inProgressOffset: number;
+  circumference: number;
+}
+
+export interface TeamMemberData {
+  id: string;
+  name: string;
+  roleTitle: string;
+  tier: 'lead' | 'senior' | 'analyst' | 'compliance';
+  dept: 'Operations' | 'Escalation' | 'Investigation' | 'Compliance';
+  branch: string;
+  status: 'online' | 'away' | 'offline';
+  activeCases: number;
+  resolvedCases: number;
+  caseload: number;
+  init: string;
+  avatarBg: string;
+  reportsTo?: string;
+}
+
+export interface TeamTelemetryData {
+  heatLevels: number[];
+  highVolumeDays: number;
+  totalDays: number;
+  topReviewers: {
+    name: string;
+    role: string;
+    init: string;
+    score: number;
+    max: number;
+    bg: string;
+  }[];
+  members: TeamMemberData[];
+}
+
+export async function fetchWeeklyActivity(): Promise<WeeklyActivityDay[]> {
+  try {
+    const res = await fetch(`${API_BASE}/ops/weekly-activity`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchProjectProgress(): Promise<ProjectProgressData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ops/project-progress`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchTeamTelemetry(): Promise<TeamTelemetryData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ops/team`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 
 
 

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Upload,
@@ -18,12 +18,13 @@ import {
   Activity,
   Send,
   Cpu,
+  ExternalLink,
 } from 'lucide-react';
 import { Case, useApp } from '@/lib/store';
 import { BRANCHES, SYSTEM_METRICS, BaseCase } from '@/lib/data';
 import { ROLES } from '@/lib/roles';
 import { downloadCsv, inr, inrCr } from '@/lib/export';
-import { scoreLiveTransaction, ScoreResponse, ScoreRequest, runSimulationBenchmark, BenchmarkMetrics } from '@/lib/api';
+import { scoreLiveTransaction, ScoreResponse, ScoreRequest, runSimulationBenchmark, BenchmarkMetrics, scoreBatchTransactions, BatchScoreResult } from '@/lib/api';
 import { Btn, Card, H1, Pill, Stats } from './ui';
 import CaseList from './CaseList';
 import AnimatedTabs from './AnimatedTabs';
@@ -629,7 +630,20 @@ export function Simulator() {
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <H1>Risk Engine &amp; Attack Simulator</H1>
+          <div className="flex items-center gap-2.5">
+            <H1>Risk Engine &amp; Attack Simulator</H1>
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.open('/simulation', 'ASTID_Simulator', 'width=1440,height=900,menubar=no,toolbar=no');
+                }
+              }}
+              className="flex items-center gap-1.5 rounded-full bg-[#0d3a23] dark:bg-[#155a37] text-white px-3 py-1 text-[11.5px] font-bold shadow-xs hover:opacity-90 transition cursor-pointer"
+            >
+              <ExternalLink size={13} />
+              <span>Open in Separate Window</span>
+            </button>
+          </div>
           <div className="text-[12.5px] text-mu mt-0.5">
             Real-time inference pipeline across Calibrated GBDT &amp; Deep Autoencoder (<span className="text-ac font-mono">&lt;15ms SLA</span>)
           </div>
@@ -1196,27 +1210,134 @@ export function Users() {
 }
 
 export function BatchUpload() {
+  const { say, injectCase } = useApp();
   const [p, setP] = useState(-1);
   const [fileName, setFileName] = useState('');
+  const [branch, setBranch] = useState('Kolkata-SaltLake');
+  const [batchResult, setBatchResult] = useState<BatchScoreResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (p < 0 || p >= 100) return;
-    const t = setTimeout(() => setP(x => Math.min(100, x + 10)), 400);
-    return () => clearTimeout(t);
-  }, [p]);
+  const processTransactions = async (txs: ScoreRequest[], label: string) => {
+    setLoading(true);
+    setP(15);
+    setFileName(label);
+    try {
+      setTimeout(() => setP(45), 200);
+      setTimeout(() => setP(75), 500);
+
+      const res = await scoreBatchTransactions(txs);
+      setP(100);
+      setBatchResult(res);
+
+      // Inject any review / escalate cases into active workbench queue
+      let injectedCount = 0;
+      res.transactions.forEach((tx, idx) => {
+        if (tx.final_verdict !== 'APPROVE') {
+          injectedCount++;
+          injectCase({
+            id: `BATCH-${tx.transaction_id.slice(0, 6).toUpperCase()}`,
+            amount: tx.amount,
+            branch: tx.branch || branch,
+            score: tx.risk_score,
+            kind: tx.final_verdict === 'REVIEW' ? 'review' : 'escalate',
+            reasons: [tx.primary_reason || 'Batch Ingestion Threat Flag'],
+            chain: [tx.name_orig, tx.name_dest],
+            originAcc: tx.name_orig,
+            destVpa: tx.name_dest,
+          });
+        }
+      });
+
+      say(`Scored ${res.total_scored} txns: ${res.approved} clean, ${res.under_review} review, ${res.escalated_or_blocked} escalated (${injectedCount} queued).`);
+    } catch (err: any) {
+      say(`Batch scoring error: ${err.message}`);
+      setP(-1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target?.result as string;
+      if (!text) return;
+
+      const lines = text.trim().split('\n');
+      if (lines.length < 2) {
+        say('CSV file is empty or missing data rows');
+        return;
+      }
+
+      // Parse headers
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const txs: ScoreRequest[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split(',').map(c => c.trim());
+        if (row.length < 3) continue;
+
+        // Extract columns by header index or positional default
+        const typeIdx = headers.indexOf('type');
+        const amountIdx = headers.indexOf('amount');
+        const origIdx = headers.indexOf('nameorig') !== -1 ? headers.indexOf('nameorig') : headers.indexOf('sender');
+        const destIdx = headers.indexOf('namedest') !== -1 ? headers.indexOf('namedest') : headers.indexOf('receiver');
+        const oldOrgIdx = headers.indexOf('oldbalanceorg') !== -1 ? headers.indexOf('oldbalanceorg') : headers.indexOf('old_balance_orig');
+        const oldDestIdx = headers.indexOf('oldbalancedest') !== -1 ? headers.indexOf('oldbalancedest') : headers.indexOf('old_balance_dest');
+
+        const type = (typeIdx !== -1 ? row[typeIdx] : row[1] || 'TRANSFER') as any;
+        const amount = parseFloat(amountIdx !== -1 ? row[amountIdx] : row[2]) || 1000;
+        const nameOrig = origIdx !== -1 ? row[origIdx] : row[3] || `C${Math.floor(Math.random() * 1e9)}`;
+        const nameDest = destIdx !== -1 ? row[destIdx] : row[6] || `M${Math.floor(Math.random() * 1e9)}`;
+        const oldbalanceOrg = parseFloat(oldOrgIdx !== -1 ? row[oldOrgIdx] : row[4]) || amount;
+        const oldbalanceDest = parseFloat(oldDestIdx !== -1 ? row[oldDestIdx] : row[7]) || 0;
+
+        txs.push({
+          type,
+          amount,
+          nameOrig,
+          nameDest,
+          oldbalanceOrg,
+          oldbalanceDest,
+          branch,
+        });
+      }
+
+      if (txs.length === 0) {
+        say('Could not parse valid transactions from CSV');
+        return;
+      }
+
+      await processTransactions(txs, `${file.name} (${txs.length} rows)`);
+    };
+    reader.readAsText(file);
+  };
 
   const loadSample = () => {
-    setFileName('warehouse_transactions_may2026.parquet (500,000 rows)');
-    setP(0);
+    // Verified realistic sample dataset with 5 attack patterns and 3 clean transfers
+    const sampleTxs: ScoreRequest[] = [
+      { type: 'TRANSFER', amount: 890000, nameOrig: 'C9912049182', nameDest: 'C1049182049', oldbalanceOrg: 890000, oldbalanceDest: 0, branch },
+      { type: 'CASH_OUT', amount: 1200000, nameOrig: 'C5819201948', nameDest: 'M_CRYPTO_EXCH', oldbalanceOrg: 1200000, oldbalanceDest: 5000, branch },
+      { type: 'DEBIT', amount: 650000, nameOrig: 'C8192049182', nameDest: 'C2049182049', oldbalanceOrg: 700000, oldbalanceDest: 0, branch },
+      { type: 'TRANSFER', amount: 450000, nameOrig: 'C1234567890', nameDest: 'M_OFFSHORE_BET', oldbalanceOrg: 460000, oldbalanceDest: 0, branch },
+      { type: 'TRANSFER', amount: 35000, nameOrig: 'C4512991040', nameDest: 'C9912048123', oldbalanceOrg: 38000, oldbalanceDest: 1200, branch },
+      { type: 'PAYMENT', amount: 450, nameOrig: 'C2049182049', nameDest: 'M_ZOMATO_02', oldbalanceOrg: 18500, oldbalanceDest: 0, branch },
+      { type: 'PAYMENT', amount: 1250, nameOrig: 'C3049182049', nameDest: 'M_FLIPKART_01', oldbalanceOrg: 55000, oldbalanceDest: 0, branch },
+      { type: 'TRANSFER', amount: 8000, nameOrig: 'C4049182049', nameDest: 'C5049182049', oldbalanceOrg: 92000, oldbalanceDest: 24000, branch },
+    ];
+    processTransactions(sampleTxs, 'verified_fraud_sample.csv (8 transactions)');
   };
 
   const getStepText = (pct: number) => {
     if (pct < 0) return 'Ready to receive transaction files';
-    if (pct < 25) return 'Step 1/4: Validating schema and balance integrity...';
-    if (pct < 55) return 'Step 2/4: Computing account velocity features...';
-    if (pct < 85) return 'Step 3/4: Scoring transactions with calibrated risk engines...';
-    if (pct < 100) return 'Step 4/4: Routing alerts to branch queues...';
-    return 'Scoring Complete: 500,000 transactions ingested. 12 cases flagged.';
+    if (pct < 30) return 'Step 1/4: Validating schema and balance integrity...';
+    if (pct < 60) return 'Step 2/4: Computing account velocity features...';
+    if (pct < 90) return 'Step 3/4: Scoring transactions with calibrated risk engines...';
+    return `Scoring Complete: ${batchResult ? batchResult.total_scored : 0} transactions evaluated. ${batchResult ? batchResult.fraud_count : 0} threats flagged.`;
   };
 
   return (
@@ -1225,30 +1346,65 @@ export function BatchUpload() {
         <div>
           <H1>Batch Ingestion &amp; Scoring</H1>
           <div className="text-[12.5px] text-mu mt-0.5">
-            Bulk upload transaction archives for historical or offline batch scoring
+            Bulk upload transaction archives for historical, shadow, or offline batch scoring
           </div>
         </div>
       </div>
 
       <Card className="border-bd/80 flex flex-col gap-4">
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".csv,.txt"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+
         {/* Dropzone */}
         <div
-          onClick={loadSample}
-          className="rounded-2xl border-2 border-dashed border-bd/80 p-10 text-center hover:bg-so/20 hover:border-ac/50 transition cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
+          className="rounded-2xl border-2 border-dashed border-bd/80 p-8 text-center hover:bg-so/20 hover:border-ac/50 transition cursor-pointer"
         >
           <Upload className="mx-auto text-ac" size={36} />
           <div className="mt-2 text-[14px] font-bold text-tx">
-            {fileName ? fileName : 'Drop Parquet or CSV transaction archive here'}
+            {fileName ? fileName : 'Choose CSV file or drag transaction archive here'}
           </div>
           <div className="text-[12px] text-mu mt-0.5">
-            Click to load verified sample dataset or browse computer
+            Supports standard CSV columns: type, amount, nameOrig, oldbalanceOrg, nameDest, oldbalanceDest
+          </div>
+          <div className="mt-3 flex justify-center gap-2">
+            <Btn
+              v="s"
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+              className="text-[12px] !min-h-[34px]"
+            >
+              Browse Computer
+            </Btn>
+            <Btn
+              v="s"
+              onClick={(e) => {
+                e.stopPropagation();
+                loadSample();
+              }}
+              className="text-[12px] !min-h-[34px]"
+            >
+              Load Sample Fraud Archive
+            </Btn>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 items-center">
           <label className="text-[12.5px] text-mu flex-1 w-full">
             Assign target branch hub
-            <select className="mt-1 min-h-[44px] w-full rounded-2xl border border-bd bg-card px-3.5 text-[13.5px] text-tx focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac">
+            <select
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+              className="mt-1 min-h-[44px] w-full rounded-2xl border border-bd bg-card px-3.5 text-[13.5px] text-tx focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ac"
+            >
               {BRANCHES.map(b => (
                 <option key={b.name} value={b.name}>
                   {b.name} ({b.region})
@@ -1256,17 +1412,6 @@ export function BatchUpload() {
               ))}
             </select>
           </label>
-          <div className="w-full sm:w-auto sm:self-end">
-            <Btn
-              onClick={() => {
-                setFileName('custom_batch_upload.csv');
-                setP(0);
-              }}
-              className="w-full sm:w-auto"
-            >
-              Start Ingestion &amp; Scoring
-            </Btn>
-          </div>
         </div>
 
         {p >= 0 && (
@@ -1280,6 +1425,68 @@ export function BatchUpload() {
                 className="h-full bg-ac transition-all duration-300 rounded-full"
                 style={{ width: `${p}%` }}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Real Scored Results Card */}
+        {batchResult && (
+          <div className="mt-2 flex flex-col gap-3 rounded-2xl border border-bd/80 bg-so/10 p-4">
+            <div className="flex items-center justify-between border-b border-bd/50 pb-2">
+              <h3 className="text-[14.5px] font-bold text-tx">Scored Batch Breakdown</h3>
+              <span className="text-[11.5px] text-mu">Total Value: ₹{batchResult.total_amount.toLocaleString('en-IN')}</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+              <div className="rounded-xl bg-card p-3 border border-bd/50">
+                <div className="text-[11px] text-mu">Total Evaluated</div>
+                <div className="num text-[20px] font-extrabold text-tx">{batchResult.total_scored}</div>
+              </div>
+              <div className="rounded-xl bg-card p-3 border border-bd/50">
+                <div className="text-[11px] text-mu">Clean Automated</div>
+                <div className="num text-[20px] font-extrabold text-ac">{batchResult.approved}</div>
+              </div>
+              <div className="rounded-xl bg-card p-3 border border-bd/50">
+                <div className="text-[11px] text-mu">Analyst Review</div>
+                <div className="num text-[20px] font-extrabold text-am">{batchResult.under_review}</div>
+              </div>
+              <div className="rounded-xl bg-card p-3 border border-bd/50">
+                <div className="text-[11px] text-mu">Escalated / Blocked</div>
+                <div className="num text-[20px] font-extrabold text-rd">{batchResult.escalated_or_blocked}</div>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto mt-2">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="border-b border-bd/60 text-left text-mu font-semibold">
+                    <th className="py-2">Type</th>
+                    <th className="py-2 text-right">Amount</th>
+                    <th className="py-2">Origin &rarr; Destination</th>
+                    <th className="py-2 text-center">Risk Score</th>
+                    <th className="py-2 text-right">Verdict</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-bd/40">
+                  {batchResult.transactions.map((tx, idx) => (
+                    <tr key={idx} className="hover:bg-so/20">
+                      <td className="py-2 font-bold text-tx">{tx.transaction_id.slice(0, 8)}...</td>
+                      <td className="num py-2 text-right font-medium text-tx">₹{tx.amount.toLocaleString('en-IN')}</td>
+                      <td className="py-2 text-mu truncate max-w-[200px]">{tx.name_orig} &rarr; {tx.name_dest}</td>
+                      <td className="num py-2 text-center font-bold">{(tx.risk_score * 100).toFixed(0)}%</td>
+                      <td className="py-2 text-right">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10.5px] font-bold ${
+                          tx.final_verdict === 'BLOCK' ? 'bg-rb text-rd' :
+                          tx.final_verdict === 'ESCALATE' ? 'bg-rb text-rd' :
+                          tx.final_verdict === 'REVIEW' ? 'bg-ab text-am' : 'bg-so text-ac'
+                        }`}>
+                          {tx.final_verdict}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

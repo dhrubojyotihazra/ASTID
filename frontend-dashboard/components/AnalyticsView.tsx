@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, TrendingUp, TrendingDown, ShieldCheck, Activity } from 'lucide-react';
 import { downloadCsv, inrCr } from '@/lib/export';
 import { useApp } from '@/lib/store';
 import { SYSTEM_METRICS, BRANCHES } from '@/lib/data';
+import { fetchTeamTelemetry } from '@/lib/api';
 
 const KPIS = [
   {
@@ -137,6 +138,17 @@ export default function AnalyticsView() {
     : BRANCH_DISTRIBUTION;
 
   const [hoveredBranch, setHoveredBranch] = useState<typeof branchDist[0] | null>(null);
+  const [heatLevels, setHeatLevels] = useState<number[]>(HEAT_LEVELS);
+  const [topReviewers, setTopReviewers] = useState<typeof TOP_INVESTIGATORS>(TOP_INVESTIGATORS);
+
+  useEffect(() => {
+    fetchTeamTelemetry().then(res => {
+      if (res) {
+        if (res.heatLevels && res.heatLevels.length > 0) setHeatLevels(res.heatLevels);
+        if (res.topReviewers && res.topReviewers.length > 0) setTopReviewers(res.topReviewers);
+      }
+    });
+  }, []);
 
   const handleExport = () => {
     downloadCsv('astid_fraud_operations_analytics.csv', [
@@ -613,12 +625,12 @@ export default function AnalyticsView() {
 
           {/* 20 Columns x 7 Rows Grid */}
           <div className="grid grid-rows-7 grid-flow-col gap-1.5 my-auto overflow-x-auto py-2">
-            {HEAT_LEVELS.map((lvl, idx) => (
+            {heatLevels.map((lvl, idx) => (
               <div
                 key={idx}
                 data-l={lvl}
-                title={`Week ${Math.floor(idx / 7) + 1}, Day ${(idx % 7) + 1}: ${
-                  lvl === 0 ? 'No activity' : lvl * 5 + ' case reviews'
+                title={`Day ${idx + 1} (Week ${Math.floor(idx / 7) + 1}): ${
+                  lvl === 0 ? 'Normal background activity' : lvl * 15 + ' holdout verifications'
                 }`}
                 className="heat-box h-4 w-4 rounded-[3.5px] transition-transform hover:scale-125 cursor-pointer"
               />
@@ -626,7 +638,7 @@ export default function AnalyticsView() {
           </div>
 
           <div className="text-[11.5px] text-mu mt-3">
-            Showing 41 high-volume operational days out of 140 total trailing tracked days.
+            Showing {heatLevels.filter(l => l >= 2).length} high-volume operational days out of {heatLevels.length} total trailing tracked days (DuckDB warehouse ground truth).
           </div>
         </div>
 
@@ -638,7 +650,7 @@ export default function AnalyticsView() {
           </div>
 
           <div className="flex flex-col gap-3.5 my-auto py-2">
-            {TOP_INVESTIGATORS.map((c, i) => (
+            {topReviewers.map((c, i) => (
               <div key={i} className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between text-[13px]">
                   <div className="flex items-center gap-2">

@@ -23,11 +23,30 @@ import { useApp } from '@/lib/store';
 import { ROLES } from '@/lib/roles';
 import { SYSTEM_METRICS, BRANCHES, BASE_CASES } from '@/lib/data';
 import { inr, inrCr } from '@/lib/export';
+import {
+  fetchWeeklyActivity,
+  fetchProjectProgress,
+  WeeklyActivityDay,
+  ProjectProgressData
+} from '@/lib/api';
 
 export default function PrimaryDashboard() {
   const { say, role, cases, stats, select, log, warehouseStats, branchesList } = useApp();
   const router = useRouter();
   const me = role ? ROLES[role] : { name: 'Noah Castell', label: 'Branch Analyst', branch: 'Kolkata-SaltLake' };
+
+  // Dynamic DuckDB / Supabase Data States
+  const [weeklyActivity, setWeeklyActivity] = useState<WeeklyActivityDay[]>([]);
+  const [projectProgress, setProjectProgress] = useState<ProjectProgressData | null>(null);
+
+  useEffect(() => {
+    fetchWeeklyActivity().then(data => {
+      if (data && data.length > 0) setWeeklyActivity(data);
+    });
+    fetchProjectProgress().then(data => {
+      if (data) setProjectProgress(data);
+    });
+  }, []);
 
   // Alert Action State
   const [alertHandled, setAlertHandled] = useState(false);
@@ -345,15 +364,15 @@ export default function PrimaryDashboard() {
           <div className="relative flex flex-col justify-end mt-4 select-none">
             {/* Bar Track (144px height) - Each column spans 100% height as steady hover hitbox */}
             <div className="relative flex items-end justify-between gap-2.5 h-36">
-              {[
-                { day: 'S', pct: 60, height: 60, barClass: 'bar--plan', desc: 'Sunday · 48 cases · 98% clean', delay: 0 },
-                { day: 'M', pct: 86, height: 86, barClass: 'bar--mid', desc: 'Monday · 124 cases · 14 esc', delay: 60 },
-                { day: 'T', pct: 74, height: 74, barClass: 'bar--light', desc: 'Tuesday · 98 cases · 8 esc', delay: 120 },
-                { day: 'W', pct: 96, height: 96, barClass: 'bar--dark', desc: 'Wednesday · 142 cases · 100% SLA', delay: 180 },
-                { day: 'T', pct: 68, height: 68, barClass: 'bar--plan', desc: 'Thursday · 84 cases · 6 esc', delay: 240 },
-                { day: 'F', pct: 55, height: 55, barClass: 'bar--plan', desc: 'Friday · 76 cases · 12 esc', delay: 300 },
-                { day: 'S', pct: 45, height: 45, barClass: 'bar--plan', desc: 'Saturday · 52 cases · Low vol', delay: 360 },
-              ].map((d, idx) => {
+              {(weeklyActivity.length === 7 ? weeklyActivity : [
+                { day: 'S', pct: 100, height: 100, barClass: 'bar--plan', desc: 'Sunday · 1,533,501 txns · 1,315 flags · 99.91% clean', delay: 0 },
+                { day: 'M', pct: 85, height: 85, barClass: 'bar--mid', desc: 'Monday · 1,311,050 txns · 1,300 flags · 99.90% clean', delay: 60 },
+                { day: 'T', pct: 56, height: 56, barClass: 'bar--light', desc: 'Tuesday · 852,762 txns · 1,464 flags · 99.83% clean', delay: 120 },
+                { day: 'W', pct: 34, height: 34, barClass: 'bar--dark', desc: 'Wednesday · 524,951 txns · 1,032 flags · 99.80% clean', delay: 180 },
+                { day: 'T', pct: 25, height: 25, barClass: 'bar--plan', desc: 'Thursday · 384,750 txns · 1,078 flags · 99.72% clean', delay: 240 },
+                { day: 'F', pct: 59, height: 59, barClass: 'bar--plan', desc: 'Friday · 897,893 txns · 986 flags · 99.89% clean', delay: 300 },
+                { day: 'S', pct: 56, height: 56, barClass: 'bar--plan', desc: 'Saturday · 857,713 txns · 1,038 flags · 99.88% clean', delay: 360 },
+              ]).map((d, idx) => {
                 const isHovered = hoveredDayIdx === idx;
 
                 return (
@@ -610,38 +629,38 @@ export default function PrimaryDashboard() {
                 className="dark:stroke-[#26322C]"
               />
 
-              {/* Completed Segment (68%) */}
+              {/* Completed Segment */}
               <path
                 d="M 38 125 A 82 82 0 0 1 202 125"
                 fill="none"
                 stroke="#1d7347"
                 strokeWidth="32"
-                strokeDasharray="175 257.6"
+                strokeDasharray={`${projectProgress ? projectProgress.completedDash : 171.8} 257.6`}
                 strokeDashoffset="0"
                 strokeLinecap="round"
                 className="anim-gauge-arc"
               />
 
-              {/* In Progress Segment (22%) */}
+              {/* In Progress Segment */}
               <path
                 d="M 38 125 A 82 82 0 0 1 202 125"
                 fill="none"
                 stroke="#0d3a23"
                 strokeWidth="32"
-                strokeDasharray="57 257.6"
-                strokeDashoffset="-175"
+                strokeDasharray={`${projectProgress ? projectProgress.inProgressDash : 53.6} 257.6`}
+                strokeDashoffset={`${projectProgress ? projectProgress.inProgressOffset : -171.8}`}
                 className="anim-gauge-arc"
                 style={{ animationDelay: '150ms' }}
               />
 
-              {/* Pending Segment (Hatched pattern 10%) */}
+              {/* Pending Segment (Hatched pattern) */}
               <path
                 d="M 38 125 A 82 82 0 0 1 202 125"
                 fill="none"
                 stroke="url(#hatch-pattern-gauge)"
                 strokeWidth="32"
-                strokeDasharray="26 257.6"
-                strokeDashoffset="-232"
+                strokeDasharray={`${projectProgress ? Math.max(8, 257.6 - (projectProgress.completedDash + projectProgress.inProgressDash)) : 32.2} 257.6`}
+                strokeDashoffset={`${projectProgress ? -(projectProgress.completedDash + projectProgress.inProgressDash) : -225.4}`}
                 strokeLinecap="round"
                 className="anim-gauge-arc"
                 style={{ animationDelay: '300ms' }}
@@ -651,7 +670,7 @@ export default function PrimaryDashboard() {
             {/* Gauge Number & Label positioned directly inside the arch */}
             <div className="absolute bottom-1 left-0 right-0 flex flex-col items-center justify-center text-center pointer-events-none">
               <div className="num text-[36px] sm:text-[40px] font-extrabold text-tx leading-none tracking-tight">
-                68%
+                {projectProgress ? `${Math.round(projectProgress.completedPct)}%` : '67%'}
               </div>
               <div className="text-[12px] font-medium text-mu mt-1">
                 Queue Cleared

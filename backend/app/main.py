@@ -22,16 +22,23 @@ app = FastAPI(
 )
 
 # CORS configuration for Next.js frontend workbench
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Add production Vercel domain if configured
+import os
+_vercel_url = os.environ.get("FRONTEND_URL", "")
+if _vercel_url:
+    ALLOWED_ORIGINS.append(_vercel_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "*"
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Idempotency-Key"],
 )
 
 # Mount API v1 Routers
@@ -58,4 +65,7 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.app.main:app", host="127.0.0.1", port=8000, reload=True)
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    uvicorn.run("backend.app.main:app", host=host, port=port, reload=False)

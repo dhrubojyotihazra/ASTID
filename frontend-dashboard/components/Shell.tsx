@@ -29,6 +29,8 @@ import {
   X,
   Smartphone,
   Play,
+  ExternalLink,
+  Zap,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ROLES, canSeeHealth } from '@/lib/roles';
@@ -219,6 +221,21 @@ export default function Shell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.open('/simulation', 'ASTID_Simulator', 'width=1440,height=900,menubar=no,toolbar=no');
+                }
+              }}
+              className="mt-1 flex min-h-[42px] w-full items-center gap-3 rounded-2xl px-3.5 text-left text-[13.5px] font-semibold text-tx/90 transition-all duration-200 hover:translate-x-1 hover:bg-so/80 hover:text-ac active:scale-95 cursor-pointer border border-ac/20 bg-so/30"
+            >
+              <Zap size={17} className="text-ac" />
+              <span>Simulation Studio</span>
+              <span className="ml-auto flex items-center gap-1 rounded-full bg-ac/15 px-2 py-0.5 text-[10.5px] font-bold text-ac border border-ac/30">
+                <span>Separate</span>
+                <ExternalLink size={10} />
+              </span>
+            </button>
           </nav>
         </div>
 

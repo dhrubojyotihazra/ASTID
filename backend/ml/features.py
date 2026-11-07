@@ -66,8 +66,14 @@ def extract_live_features(tx: Dict[str, Any]) -> np.ndarray:
     dest_zero = compute_dest_oldbalance_zero(oldbalance_dest)
     is_merch = compute_is_merchant_dest(name_dest)
 
-    # One-hot encoded transaction types
-    type_ohe = [1.0 if tx_type == t else 0.0 for t in TX_TYPES]
+    # One-hot encoded transaction types (maps UPI subtypes to PaySim underlying base semantics)
+    mapped_type = tx_type
+    if tx_type == 'UPI_P2P':
+        mapped_type = 'TRANSFER'
+    elif tx_type == 'UPI_MERCHANT':
+        mapped_type = 'PAYMENT'
+
+    type_ohe = [1.0 if mapped_type == t else 0.0 for t in TX_TYPES]
 
     features = [
         log_amt,

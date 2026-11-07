@@ -4,6 +4,7 @@ Tests 1,000 holdout transactions (500 legitimate + all 416 frauds) through
 the live scoring pipeline to measure True Negatives, False Negatives, False Positives, and Latency.
 """
 
+import os
 import time
 import warnings
 import duckdb
@@ -13,7 +14,9 @@ warnings.filterwarnings('ignore')
 
 from backend.app.services.scoring_service import scoring_instance
 
-PARQUET_PATH = "backend/warehouse/data/paysim_warehouse.parquet"
+PRIMARY_PARQUET = "backend/warehouse/data/paysim_warehouse.parquet"
+FALLBACK_PARQUET = "backend/warehouse/data/scored_test_sample.parquet"
+PARQUET_PATH = PRIMARY_PARQUET if os.path.exists(PRIMARY_PARQUET) else FALLBACK_PARQUET
 
 def run_simulation_benchmark(n_legit: int = 500):
     print("=" * 65)

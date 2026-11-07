@@ -15,8 +15,20 @@ class ClaimPayload(BaseModel):
     user_id: str = "analyst-senior-01"
 
 class ResolvePayload(BaseModel):
-    verdict: Literal["confirmed_fraud", "false_positive"]
-    notes: str
+    verdict: Optional[str] = None
+    action: Optional[str] = None
+    notes: Optional[str] = ""
+    reason: Optional[str] = ""
+    user_id: Optional[str] = None
+
+    def get_normalized_verdict(self) -> str:
+        v = (self.verdict or self.action or "confirmed_fraud").lower()
+        if "fraud" in v or "confirm" in v:
+            return "confirmed_fraud"
+        return "false_positive"
+
+    def get_notes(self) -> str:
+        return self.notes or self.reason or "Resolved by investigator"
 
 @router.get("")
 async def list_escalations():
@@ -34,7 +46,9 @@ async def claim_escalation(escalation_id: str, payload: ClaimPayload):
 @router.post("/{escalation_id}/resolve")
 async def resolve_escalation(escalation_id: str, payload: ResolvePayload):
     """Resolves escalation and commits immutable decision."""
-    esc = storage_instance.resolve_escalation(escalation_id, payload.verdict, payload.notes)
+    final_verdict = payload.get_normalized_verdict()
+    final_notes = payload.get_notes()
+    esc = storage_instance.resolve_escalation(escalation_id, final_verdict, final_notes)
     if not esc:
         raise HTTPException(status_code=404, detail="Escalation ID not found")
     return {"message": "Escalation resolved successfully", "escalation": esc}

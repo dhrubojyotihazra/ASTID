@@ -713,8 +713,7 @@ import urllib.request
 import time
 
 # Groq Cloud API Configuration
-# Replace with your own key if preferred, or use the active ASTID project key
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_MODEL = "qwen/qwen3.8-27b"
 
 def generate_sar_narrative(case_details: dict) -> dict:

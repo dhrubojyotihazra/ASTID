@@ -83,39 +83,39 @@ ASTID decouples the latency-critical pre-authorization transaction inspection pa
 
 ```mermaid
 flowchart TD
-    Client["Client / UPI Gateway / Core Banking Rail"] -->|POST /score/live (<15ms SLA)| FastAPIGateway["FastAPI 2.4 API Gateway"]
+    Client["Client / UPI Gateway / Core Banking Rail"] -->|"POST /score/live (sub-15ms SLA)"| FastAPIGateway["FastAPI 2.4 API Gateway"]
     
-    subgraph PreAuthPath["⚡ Synchronous Pre-Authorization Fast Path (<15ms)"]
+    subgraph PreAuthPath ["Synchronous Pre-Authorization Fast Path (sub-15ms)"]
         FastAPIGateway --> Idemp["Idempotency-Key Lock (StateCache)"]
-        Idemp --> Rules["Rules Engine\n(Blacklist, NPCI ₹1L Limit, Off-Hours)"]
-        Rules --> Geo["Geo-Velocity Engine\n(Haversine >900 km/h Supersonic Anomaly)"]
-        Geo --> Extractor["11-Feature Causal Extractor\n(Zero Data Leakage)"]
+        Idemp --> Rules["Rules Engine<br/>Blacklist, NPCI Limit, Off-Hours"]
+        Rules --> Geo["Geo-Velocity Engine<br/>Haversine 900+ km/h Anomaly"]
+        Geo --> Extractor["11-Feature Causal Extractor<br/>Zero Data Leakage"]
         
-        subgraph DualEngine["Dual-Engine Machine Learning Core"]
-            Extractor --> XGB["Slice 1: Platt-Calibrated XGBoost\n(P(Fraud) Supervised Prob)"]
-            Extractor --> AE["Slice 2: Deep Autoencoder (PyTorch)\n(99.9th %ile Reconstruction Outlier)"]
+        subgraph DualEngine ["Dual-Engine Machine Learning Core"]
+            Extractor --> XGB["Slice 1: Platt-Calibrated XGBoost<br/>P(Fraud) Supervised Prob"]
+            Extractor --> AE["Slice 2: Deep Autoencoder (PyTorch)<br/>99.9th %ile Reconstruction Outlier"]
         end
         
-        XGB --> Arbiter["Disjunctive Decision Arbiter\n(APPROVE / REVIEW / ESCALATE / BLOCK)"]
+        XGB --> Arbiter["Disjunctive Decision Arbiter<br/>APPROVE / REVIEW / ESCALATE / BLOCK"]
         AE --> Arbiter
-        Arbiter --> Explainer["Fast Risk Attribution Badges\n(Sub-ms Causal Explanations)"]
+        Arbiter --> Explainer["Fast Risk Attribution Badges<br/>Sub-ms Causal Explanations"]
     end
     
-    Explainer -->|Pre-Auth Decision Response| Client
+    Explainer -->|"Pre-Auth Decision Response"| Client
     
-    subgraph AsyncPersistence["🔄 Asynchronous Off-Path (BackgroundTasks)"]
-        Arbiter -.->|Persist Transaction Record| Storage["StorageService (Ring Buffer)"]
-        Storage -.->|REST Ingestion| Supabase["Supabase Cloud PostgreSQL (RLS)"]
+    subgraph AsyncPersistence ["Asynchronous Off-Path (BackgroundTasks)"]
+        Arbiter -.->|"Persist Transaction Record"| Storage["StorageService (Ring Buffer)"]
+        Storage -.->|"REST Ingestion"| Supabase["Supabase Cloud PostgreSQL (RLS)"]
     end
     
-    subgraph AnalyticsWorkbench["🖥️ Next.js 14 Operations Workbench"]
+    subgraph AnalyticsWorkbench ["Next.js 14 Operations Workbench"]
         Analyst["Fraud Analyst / Senior Lead"] --> UI["Dark Mode Ops Workbench"]
-        UI -->|GET /ops/warehouse-stats| DuckDB["DuckDB Analytical Warehouse\n(6.36M Records / Parquet)"]
-        UI -->|GET /ops/weekly-activity| DuckDB
-        UI -->|GET /ops/team| DuckDB
-        UI -->|POST /escalations/{id}/resolve| SLAQueue["15-Min SLA State Machine"]
-        UI -->|POST /narratives/generate| GroqLPU["Groq Cloud LPU (SAR Narratives)"]
-        UI <-->|WebSocket /ws/stream| Streamer["Live Transaction Stream Manager"]
+        UI -->|"GET /ops/warehouse-stats"| DuckDB["DuckDB Analytical Warehouse<br/>6.36M Records / Parquet"]
+        UI -->|"GET /ops/weekly-activity"| DuckDB
+        UI -->|"GET /ops/team"| DuckDB
+        UI -->|"POST /escalations/{id}/resolve"| SLAQueue["15-Min SLA State Machine"]
+        UI -->|"POST /narratives/generate"| GroqLPU["Groq Cloud LPU (SAR Narratives)"]
+        UI <-->|"WebSocket /ws/stream"| Streamer["Live Transaction Stream Manager"]
     end
 ```
 
@@ -140,16 +140,16 @@ Every technology in ASTID was selected after deliberate benchmarking against tra
 
 ## 📊 Empirical Machine Learning Benchmarks
 
-Tested on a held-out temporal partition of the 6.36M transaction warehouse (Step $> 650$):
+Tested on a held-out temporal partition of the 6.36M transaction warehouse (Step &gt; 650):
 
 | Metric | Measured Value | Standard Benchmark | Interpretation |
 |---|:---:|:---:|---|
-| **Precision-Recall AUC (PR-AUC)** | **0.9999** | $> 0.9500$ | Near-perfect separation under severe class imbalance (0.13% fraud). |
-| **Holdout Recall (Catch Rate)** | **100.00%** | $> 98.00$ | **Zero False Negatives**: Caught all 1,022 holdout fraud transactions. |
-| **Holdout False Negative Rate** | **0.0000** | $< 0.0100$ | **Zero Escape**: Not a single fraud slipped past the dual engine. |
-| **Brier Calibration Score** | **0.000342** | $< 0.0050$ | Probabilities match observed empirical frequencies with high fidelity. |
-| **Pre-Authorization Latency (P95)** | **10.27 ms** | $< 15.00\text{ ms}$ | Fully compliant with commercial banking pre-auth network SLAs. |
-| **Zero-Day Autoencoder Detection** | **94.8%** | $> 85.0\%$ | Flags anomalous reconstruction errors without supervised labels. |
+| **Precision-Recall AUC (PR-AUC)** | **0.9999** | &gt; 0.9500 | Near-perfect separation under severe class imbalance (0.13% fraud). |
+| **Holdout Recall (Catch Rate)** | **100.00%** | &gt; 98.00% | **Zero False Negatives**: Caught all 1,022 holdout fraud transactions. |
+| **Holdout False Negative Rate** | **0.0000** | &lt; 0.0100 | **Zero Escape**: Not a single fraud slipped past the dual engine. |
+| **Brier Calibration Score** | **0.000342** | &lt; 0.0050 | Probabilities match observed empirical frequencies with high fidelity. |
+| **Pre-Authorization Latency (P95)** | **10.27 ms** | &lt; 15.00 ms | Fully compliant with commercial banking pre-auth network SLAs. |
+| **Zero-Day Autoencoder Detection** | **94.8%** | &gt; 85.0% | Flags anomalous reconstruction errors without supervised labels. |
 
 ---
 

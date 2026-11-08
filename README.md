@@ -290,7 +290,12 @@ Open `http://localhost:3000` to interact with the ASTID Operations Workbench.
 
 ## 👥 College Final Year Project Team & Acknowledgments
 
-- **Lead Developer & System Architect**: [Dhrubojyoti Hazra](https://github.com/dhrubojyotihazra)
+- **Lead Developer & System Architect**: [Dhrubojyoti Hazra](https://github.com/dhrubojyotihazra) — System Architecture, Next.js 14 Dashboard, Fernly Theme, Escalation Governance & Cloud Topology
+- **Lead ML & Deep Learning Engineer**: **Isheeka Mukhopadhyay** — Dual-Engine ML Core (Calibrated XGBoost & PyTorch Autoencoder), Causal Feature Engineering & Zero-Leakage Audit
+- **Backend & Real-Time Scoring Engineer**: **Samprikta Dey** — FastAPI 2.4 Gateway, Sub-15ms Scoring Pipeline, Rules Engine, Haversine Geo-Velocity & Async Persistence
+- **Explainable AI (XAI) & Simulation Engineer**: **Adhiraj Das** — Sub-ms Causal Risk Badges, Groq LPU SAR Narrative Engine, Zero-Token Fallbacks & Simulation Studio
+- **Columnar Data Warehouse & DevOps Engineer**: **Tiyasha Baidya** — 6.36M Row Columnar Parquet Warehouse, DuckDB In-Process Vectorized SQL, 5-Branch Banking Routing & Cloud Infrastructure
+
 - **Project Scope**: Final Year B.Tech / B.E. Capstone Project
 - **Domain**: Financial Fraud Operations, Analytical Data Warehousing, and Real-Time Machine Learning Inference
 

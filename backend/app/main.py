@@ -11,7 +11,12 @@ from backend.app.api.routes_ops import router as ops_router
 from backend.app.api.routes_health import router as health_router
 from backend.app.api.routes_ws import router as ws_router
 from backend.app.api.routes_narrative import router as narrative_router
-from backend.app.api.routes_warehouse import router as warehouse_router
+from backend.app.api.routes_warehouse import (
+    router as warehouse_router,
+    warehouse_spec_router,
+    drift_router,
+    graph_router
+)
 
 app = FastAPI(
     title="ASTID RiskOps Intelligence API",
@@ -46,6 +51,9 @@ app.include_router(health_router, prefix="/api/v1")
 app.include_router(scoring_router, prefix="/api/v1")
 app.include_router(ops_router, prefix="/api/v1")
 app.include_router(warehouse_router, prefix="/api/v1")
+app.include_router(warehouse_spec_router, prefix="/api/v1")
+app.include_router(drift_router, prefix="/api/v1")
+app.include_router(graph_router, prefix="/api/v1")
 app.include_router(ws_router, prefix="/api/v1")
 app.include_router(narrative_router, prefix="/api/v1")
 

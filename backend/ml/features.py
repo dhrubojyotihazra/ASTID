@@ -47,7 +47,7 @@ def compute_is_merchant_dest(name_dest: str) -> float:
     """Merchant destination check (nameDest starting with 'M'). Fraud is strictly 0% on merchants."""
     return 1.0 if str(name_dest).startswith('M') else 0.0
 
-def extract_live_features(tx: Dict[str, Any]) -> np.ndarray:
+def extract_live_features(tx: Dict[str, Any], account_state: Optional[Dict[str, Any]] = None) -> np.ndarray:
     """
     Live real-time feature extraction from single transaction dictionary.
     Returns 1D float32 array of shape (11,). Sub-millisecond execution.

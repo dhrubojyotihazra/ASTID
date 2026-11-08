@@ -18,6 +18,7 @@ from backend.ml.autoencoder import ae_scorer_instance
 from backend.app.services.rules_engine import RulesEngine
 from backend.app.services.cache import cache_instance
 from backend.app.services.geo_velocity import GeoVelocityChecker, BRANCH_COORDINATES
+from backend.app.services.cost_sensitive import CostSensitiveEvaluator
 
 class ScoringService:
     def __init__(self, artifacts_dir: str = "backend/ml/artifacts"):
@@ -26,6 +27,7 @@ class ScoringService:
         self.geo_checker = GeoVelocityChecker()
         self.cache = cache_instance
         self.ae_scorer = ae_scorer_instance
+        self.cost_evaluator = CostSensitiveEvaluator()
 
         # Load Calibrated XGBoost
         xgb_path = os.path.join(self.artifacts_dir, "xgb_calibrated.joblib")
@@ -50,6 +52,7 @@ class ScoringService:
         tx_id = tx.get("transaction_id") or str(uuid.uuid4())
         orig = str(tx.get("nameOrig", ""))
         amount = float(tx.get("amount", 0.0))
+        cost_sensitive_tau = self.cost_evaluator.get_dynamic_threshold(amount)
 
         # 1. Update in-memory sliding velocity window
         velocity_state = self.cache.increment_velocity(orig)
@@ -84,6 +87,7 @@ class ScoringService:
                 "amount": amount,
                 "final_verdict": "BLOCK",
                 "risk_score": 1.0,
+                "cost_sensitive_tau": cost_sensitive_tau,
                 "confidence_tier": "CRITICAL",
                 "primary_reason": rule_res.primary_reason,
                 "whitebox_insights": [{"badge": "Blacklist Match", "explanation": rule_res.primary_reason, "impact_score": "+1.00"}],
@@ -129,8 +133,13 @@ class ScoringService:
             ae_escalated = True
             primary_reason = f"Novel Anomaly Pattern: Reconstruction Outlier (AE Score {ae_score:.2f} >= 0.70)"
         else:
-            verdict = "APPROVE"
-            primary_reason = "Transaction Cleared Within Normal Parameters"
+            # Economic utility check: escalate to REVIEW if risk exceeds Bayes optimal cutoff tau*(x)
+            if combined_score >= cost_sensitive_tau and amount >= 100000.0:
+                verdict = "REVIEW"
+                primary_reason = f"Cost-Sensitive Policy: High-value transfer (₹{amount:,.0f}) risk score ({combined_score:.3f}) >= Bayes cutoff ({cost_sensitive_tau:.3f})"
+            else:
+                verdict = "APPROVE"
+                primary_reason = "Transaction Cleared Within Normal Parameters"
 
         # 8. TreeSHAP Top-3 Badges: Generated ONLY on REVIEW or ESCALATE (Fast Path optimization!)
         if verdict in ("REVIEW", "ESCALATE"):
@@ -153,6 +162,7 @@ class ScoringService:
             "name_dest": str(tx.get("nameDest", "")),
             "final_verdict": verdict,
             "risk_score": combined_score,
+            "cost_sensitive_tau": cost_sensitive_tau,
             "zero_day_ae_score": ae_score,
             "ae_raw_mse": ae_mse,
             "confidence_tier": "HIGH" if verdict == "ESCALATE" else "MODERATE" if verdict == "REVIEW" else "LOW",

@@ -333,8 +333,8 @@ def build_review3():
 
     add_bullet(
         "Dual Deployment Readiness: ",
-        "Production cloud deployments are live on Vercel (frontend) and Render (backend), supplemented by an identical, zero-dependency "
-        "local offline execution runtime that guarantees total reliability for academic evaluations and viva demonstrations."
+        "Production cloud deployments are live at https://astid.vercel.app (frontend) and https://astid-backend.onrender.com (backend), "
+        "supplemented by an identical, zero-dependency local offline execution runtime that guarantees total reliability for academic evaluations."
     )
 
     add_p("3. Team Contributions and Specific Module Responsibilities", bold=True, size_pt=11, space_before=2, space_after=1.5)

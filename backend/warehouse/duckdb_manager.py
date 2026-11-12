@@ -15,6 +15,9 @@ class DuckDBManager:
         self.sample_path = os.path.abspath(
             sample_path or "backend/warehouse/data/scored_test_sample.parquet"
         ).replace(os.sep, "/")
+        # Seamless cloud deployment fallback: if the 252MB full warehouse is omitted from git, query the 2MB scored sample
+        if not os.path.exists(self.parquet_path) and os.path.exists(self.sample_path):
+            self.parquet_path = self.sample_path
         self.con = duckdb.connect()
 
     def get_executive_kpis(self) -> Dict[str, Any]:

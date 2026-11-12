@@ -4,9 +4,9 @@
   "pass_rate_pct": 100.0,
   "latencies": {
     "min_ms": 0.05,
-    "avg_ms": 3.69,
-    "p95_ms": 8.17,
-    "max_ms": 9.19
+    "avg_ms": 11.57,
+    "p95_ms": 52.8,
+    "max_ms": 112.54
   },
   "records": [
     {
@@ -17,7 +17,7 @@
       "ae_score": "0.263 (0.2859)",
       "rules": "None",
       "verdict": "ESCALATE",
-      "latency": "9.19ms",
+      "latency": "112.54ms",
       "status": "[PASS]"
     },
     {
@@ -28,7 +28,7 @@
       "ae_score": "0.007 (0.0071)",
       "rules": "None",
       "verdict": "ESCALATE",
-      "latency": "3.33ms",
+      "latency": "3.11ms",
       "status": "[PASS]"
     },
     {
@@ -39,7 +39,7 @@
       "ae_score": "0.494 (0.5381)",
       "rules": "None",
       "verdict": "REVIEW",
-      "latency": "2.60ms",
+      "latency": "2.29ms",
       "status": "[PASS]"
     },
     {
@@ -61,7 +61,7 @@
       "ae_score": "0.003 (0.0036)",
       "rules": "None",
       "verdict": "REVIEW",
-      "latency": "7.33ms",
+      "latency": "3.91ms",
       "status": "[PASS]"
     },
     {
@@ -72,7 +72,7 @@
       "ae_score": "0.242 (0.2639)",
       "rules": "None",
       "verdict": "APPROVE",
-      "latency": "3.21ms",
+      "latency": "2.73ms",
       "status": "[PASS]"
     },
     {
@@ -83,7 +83,7 @@
       "ae_score": "0.698 (0.7594)",
       "rules": "None",
       "verdict": "REVIEW",
-      "latency": "3.31ms",
+      "latency": "2.32ms",
       "status": "[PASS]"
     },
     {
@@ -94,7 +94,7 @@
       "ae_score": "0.066 (0.0718)",
       "rules": "None",
       "verdict": "APPROVE",
-      "latency": "2.70ms",
+      "latency": "2.19ms",
       "status": "[PASS]"
     },
     {
@@ -105,7 +105,7 @@
       "ae_score": "0.968 (1.0537)",
       "rules": "None",
       "verdict": "ESCALATE",
-      "latency": "4.06ms",
+      "latency": "2.23ms",
       "status": "[PASS]"
     },
     {
@@ -116,7 +116,7 @@
       "ae_score": "0.811 (0.8830)",
       "rules": "None",
       "verdict": "REVIEW",
-      "latency": "3.55ms",
+      "latency": "2.06ms",
       "status": "[PASS]"
     },
     {
@@ -127,7 +127,7 @@
       "ae_score": "0.527 (0.5740)",
       "rules": "None",
       "verdict": "ESCALATE",
-      "latency": "2.62ms",
+      "latency": "2.24ms",
       "status": "[PASS]"
     },
     {
@@ -138,7 +138,7 @@
       "ae_score": "0.090 (0.0984)",
       "rules": "None",
       "verdict": "REVIEW",
-      "latency": "2.37ms",
+      "latency": "3.18ms",
       "status": "[PASS]"
     }
   ]

@@ -3,7 +3,16 @@
  * Connects frontend dashboard workbench to FastAPI Real-Time ML Engine
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000/api/v1';
+function getApiBase(): string {
+  let raw = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000/api/v1';
+  raw = raw.trim().replace(/\/+$/, '');
+  if (!raw.endsWith('/api/v1')) {
+    raw = `${raw}/api/v1`;
+  }
+  return raw;
+}
+
+const API_BASE = getApiBase();
 
 export interface ScoreRequest {
   transaction_id?: string;

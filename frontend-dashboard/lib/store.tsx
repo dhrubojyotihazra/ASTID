@@ -147,7 +147,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       wsUrl = `${wsBase}/ws/stream`;
     }
     if (!wsUrl) {
-      wsUrl = `${protocol}//${window.location.hostname}:8000/api/v1/ws/stream`;
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        wsUrl = 'wss://astid-backend.onrender.com/api/v1/ws/stream';
+      } else {
+        wsUrl = `${protocol}//${window.location.hostname}:8000/api/v1/ws/stream`;
+      }
     }
 
     let ws: WebSocket;

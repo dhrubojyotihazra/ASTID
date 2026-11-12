@@ -949,7 +949,7 @@ export function Simulator() {
               <div className="rounded-xl bg-card p-3 border border-bd/60">
                 <div className="text-mu text-[11px] font-semibold uppercase">Calibrated Risk Score</div>
                 <div className="text-[20px] font-bold text-tx mt-0.5">
-                  {(scoreResult.risk_score * 100).toFixed(1)}%
+                  {((Number(scoreResult?.risk_score ?? 0)) * 100).toFixed(1)}%
                 </div>
                 <div className="text-mu text-[10.5px]">Cutoff: Review &ge; {(rv*100).toFixed(0)}%</div>
               </div>
@@ -957,19 +957,19 @@ export function Simulator() {
               <div className="rounded-xl bg-card p-3 border border-bd/60">
                 <div className="text-mu text-[11px] font-semibold uppercase">Zero-Day Autoencoder</div>
                 <div className="text-[20px] font-bold text-tx mt-0.5">
-                  {scoreResult.zero_day_ae_score !== undefined
-                    ? `${(scoreResult.zero_day_ae_score * 100).toFixed(1)}%`
+                  {scoreResult?.zero_day_ae_score !== undefined
+                    ? `${(Number(scoreResult.zero_day_ae_score) * 100).toFixed(1)}%`
                     : 'N/A'}
                 </div>
                 <div className="text-mu text-[10.5px]">
-                  MSE: {scoreResult.ae_raw_mse ?? '0.00'} (Norm clip P99.9)
+                  MSE: {scoreResult?.ae_raw_mse ?? '0.00'} (Norm clip P99.9)
                 </div>
               </div>
 
               <div className="rounded-xl bg-card p-3 border border-bd/60">
                 <div className="text-mu text-[11px] font-semibold uppercase">Confidence Tier</div>
                 <div className="text-[20px] font-bold text-tx mt-0.5">
-                  {scoreResult.confidence_tier}
+                  {scoreResult?.confidence_tier || 'HIGH'}
                 </div>
                 <div className="text-mu text-[10.5px]">Pre-Auth GBDT Inference</div>
               </div>
@@ -977,10 +977,12 @@ export function Simulator() {
               <div className="rounded-xl bg-card p-3 border border-bd/60">
                 <div className="text-mu text-[11px] font-semibold uppercase">Rules &amp; Heuristics</div>
                 <div className="text-[20px] font-bold text-tx mt-0.5">
-                  {scoreResult.matched_rules.length} Hits
+                  {Array.isArray(scoreResult?.matched_rules) ? scoreResult.matched_rules.length : 0} Hits
                 </div>
                 <div className="text-mu text-[10.5px] truncate">
-                  {scoreResult.matched_rules.join(', ') || 'Clean profile'}
+                  {Array.isArray(scoreResult?.matched_rules) && scoreResult.matched_rules.length > 0
+                    ? scoreResult.matched_rules.join(', ')
+                    : 'Clean profile'}
                 </div>
               </div>
             </div>

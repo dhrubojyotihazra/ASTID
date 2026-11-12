@@ -3,6 +3,7 @@ ASTID FastAPI Main Application Entrypoint
 AI Shield for Transaction Integrity & Defense | Bank Fraud Operations Workbench
 """
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
